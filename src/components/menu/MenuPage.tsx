@@ -4,11 +4,13 @@ import { useMemo, useState } from "react";
 
 import { ProductCardMini } from "@/components/products";
 import { CATEGORIES, PRODUCTS, type Category } from "@/data/products";
+import { useCartStore } from "@/store/cart";
 import type { Product } from "@/types/product";
 
 export function MenuPage() {
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState<Category | "Todos">("Todos");
+  const { addItem, openDrawer } = useCartStore();
 
   const filtered = useMemo(() => {
     return PRODUCTS.filter((p) => {
@@ -23,8 +25,8 @@ export function MenuPage() {
   }, [search, activeCategory]);
 
   function handleAdd(product: Product) {
-    // TODO: conectar con el store de Zustand (feature/cart)
-    console.warn("Agregar al carrito:", product.name);
+    addItem(product);
+    openDrawer();
   }
 
   return (
