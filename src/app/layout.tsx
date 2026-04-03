@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 
 import { BottomNav, Header } from "@/components/layout";
+import { Toaster } from "sonner";
 
 import "./globals.css";
 
@@ -36,6 +37,7 @@ export default function RootLayout({
           {children}
         </main>
         <BottomNav />
+        <Toaster richColors position="top-center" />
       </body>
     </html>
   );
