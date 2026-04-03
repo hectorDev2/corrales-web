@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 
 import { CartDrawer } from "@/components/cart";
 import { BottomNav, Header } from "@/components/layout";
+import { Toaster } from "sonner";
 
 import "./globals.css";
 
@@ -38,6 +39,7 @@ export default function RootLayout({
         </main>
         <BottomNav />
         <CartDrawer />
+        <Toaster richColors position="top-center" />
       </body>
     </html>
   );
