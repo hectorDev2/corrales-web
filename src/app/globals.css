@@ -4,117 +4,105 @@
 
 @custom-variant dark (&:is(.dark *));
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-  --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
-  --color-card: var(--card);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
-}
+/* ============================================================
+   CORRALES — "The Modern Hearth"
+   Design System · Tailwind v4 CSS-first configuration
+   ============================================================ */
 
-:root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-}
+@theme {
+  /* --- shadcn/ui compat tokens ----------------------------- */
+  --color-background:         #fff8f2;
+  --color-foreground:         #1e1b18;
+  --color-card:               #ffffff;
+  --color-card-foreground:    #1e1b18;
+  --color-popover:            #ffffff;
+  --color-popover-foreground: #1e1b18;
+  --color-muted:              #f9f2ec;
+  --color-muted-foreground:   #59413d;
+  --color-accent:             #f3ede7;
+  --color-accent-foreground:  #1e1b18;
+  --color-destructive:        #ba1a1a;
+  --color-border:             #e1bfb9;
+  --color-input:              #eee7e1;
+  --color-ring:               #9e2016;
 
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  /* --- Primary — Brava Red --------------------------------- */
+  --color-primary:                  #9e2016;
+  --color-primary-foreground:       #ffffff;
+  --color-primary-container:        #c0392b;
+  --color-on-primary:               #ffffff;
+  --color-on-primary-container:     #ffe5e1;
+  --color-primary-fixed:            #ffdad5;
+  --color-primary-fixed-dim:        #ffb4a9;
+  --color-on-primary-fixed:         #410000;
+  --color-on-primary-fixed-variant: #8e130c;
+  --color-surface-tint:             #b02d21;
+  --color-inverse-primary:          #ffb4a9;
+
+  /* --- Secondary — Evening Navy ---------------------------- */
+  --color-secondary:                  #4e6073;
+  --color-secondary-foreground:       #ffffff;
+  --color-on-secondary:               #ffffff;
+  --color-secondary-container:        #cfe2f9;
+  --color-on-secondary-container:     #526478;
+  --color-secondary-fixed:            #d1e4fb;
+  --color-secondary-fixed-dim:        #b5c8df;
+  --color-on-secondary-fixed:         #091d2e;
+  --color-on-secondary-fixed-variant: #36485b;
+
+  /* --- Tertiary — Golden Amber ----------------------------- */
+  --color-tertiary:                  #754800;
+  --color-on-tertiary:               #ffffff;
+  --color-tertiary-container:        #965d00;
+  --color-on-tertiary-container:     #ffe7cf;
+  --color-tertiary-fixed:            #ffddb9;
+  --color-tertiary-fixed-dim:        #ffb961;
+  --color-on-tertiary-fixed:         #2b1700;
+  --color-on-tertiary-fixed-variant: #663e00;
+
+  /* --- Error ----------------------------------------------- */
+  --color-error:              #ba1a1a;
+  --color-on-error:           #ffffff;
+  --color-error-container:    #ffdad6;
+  --color-on-error-container: #93000a;
+
+  /* --- Surfaces -------------------------------------------- */
+  --color-surface:                   #fff8f2;
+  --color-on-surface:                #1e1b18;
+  --color-on-background:             #1e1b18;
+  --color-surface-variant:           #e8e1dc;
+  --color-on-surface-variant:        #59413d;
+  --color-surface-dim:               #dfd9d3;
+  --color-surface-bright:            #fff8f2;
+  --color-surface-container-lowest:  #ffffff;
+  --color-surface-container-low:     #f9f2ec;
+  --color-surface-container:         #f3ede7;
+  --color-surface-container-high:    #eee7e1;
+  --color-surface-container-highest: #e8e1dc;
+  --color-inverse-surface:           #33302c;
+  --color-inverse-on-surface:        #f6f0ea;
+
+  /* --- Outline --------------------------------------------- */
+  --color-outline:         #8d706c;
+  --color-outline-variant: #e1bfb9;
+
+  /* --- Typography ------------------------------------------ */
+  --font-sans:     var(--font-inter), "Inter", sans-serif;
+  --font-headline: var(--font-inter), "Inter", sans-serif;
+  --font-body:     var(--font-inter), "Inter", sans-serif;
+  --font-label:    var(--font-inter), "Inter", sans-serif;
+  --font-mono:     ui-monospace, monospace;
+
+  /* --- Border Radius --------------------------------------- */
+  --radius:     0.625rem;
+  --radius-sm:  calc(0.625rem * 0.6);
+  --radius-md:  calc(0.625rem * 0.8);
+  --radius-lg:  0.5rem;
+  --radius-xl:  0.75rem;
+  --radius-2xl: 1rem;
+  --radius-3xl: 1.5rem;
+  --radius-4xl: 2.5rem;
+  --radius-full: 9999px;
 }
 
 @layer base {
@@ -122,9 +110,6 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
-  }
-  html {
-    @apply font-sans;
+    @apply bg-background text-foreground font-sans antialiased;
   }
 }
