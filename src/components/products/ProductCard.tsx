@@ -40,10 +40,10 @@ export function ProductCard({ product, onAdd }: ProductCardProps) {
         </p>
         <div className="flex justify-between items-center">
           <span className="text-primary-container text-xl font-extrabold">
-            S/ {product.price.toFixed(2)}
+            S/ {product.variants[0]?.price.toFixed(2)}
           </span>
           <button
-            onClick={() => onAdd?.(product)}
+            onClick={() => onAdd?.(product, product.variants[0])}
             className="bg-linear-to-br from-primary to-primary-container text-on-primary px-5 py-2 rounded-xl text-sm font-bold flex items-center gap-2 active:scale-95 transition-transform"
           >
             Agregar
