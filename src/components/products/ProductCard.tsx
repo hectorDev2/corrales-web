@@ -2,11 +2,11 @@
 
 import Image from "next/image";
 
-import type { Product } from "@/types/product";
+import type { Product, ProductVariant } from "@/types/product";
 
 interface ProductCardProps {
   product: Product;
-  onAdd?: (product: Product) => void;
+  onAdd?: (product: Product, variant: ProductVariant) => void;
 }
 
 export function ProductCard({ product, onAdd }: ProductCardProps) {

@@ -3,17 +3,21 @@
 import { useMemo, useState } from "react";
 
 import { ProductCardMini } from "@/components/products";
-import { CATEGORIES, PRODUCTS, type Category } from "@/data/products";
 import { useCartStore } from "@/store/cart";
-import type { Product } from "@/types/product";
+import type { Product, ProductVariant } from "@/types/product";
 
-export function MenuPage() {
+interface MenuPageProps {
+  products: Product[];
+  categories: string[];
+}
+
+export function MenuPage({ products, categories }: MenuPageProps) {
   const [search, setSearch] = useState("");
-  const [activeCategory, setActiveCategory] = useState<Category | "Todos">("Todos");
+  const [activeCategory, setActiveCategory] = useState<string>("Todos");
   const { addItem, openDrawer } = useCartStore();
 
   const filtered = useMemo(() => {
-    return PRODUCTS.filter((p) => {
+    return products.filter((p) => {
       const matchesCategory =
         activeCategory === "Todos" || p.category === activeCategory;
       const matchesSearch =
@@ -22,10 +26,10 @@ export function MenuPage() {
         p.description.toLowerCase().includes(search.toLowerCase());
       return matchesCategory && matchesSearch;
     });
-  }, [search, activeCategory]);
+  }, [products, search, activeCategory]);
 
-  function handleAdd(product: Product) {
-    addItem(product);
+  function handleAdd(product: Product, variant: ProductVariant) {
+    addItem(product, variant);
     openDrawer();
   }
 
@@ -56,12 +60,12 @@ export function MenuPage() {
           aria-label="Categorías"
           className="flex gap-6 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
-          {(["Todos", ...CATEGORIES] as const).map((cat) => {
+          {(["Todos", ...categories]).map((cat) => {
             const isActive = activeCategory === cat;
             return (
               <button
                 key={cat}
-                onClick={() => setActiveCategory(cat as Category | "Todos")}
+                onClick={() => setActiveCategory(cat)}
                 className={`whitespace-nowrap pb-1 text-sm tracking-tight transition-colors font-medium ${
                   isActive
                     ? "text-primary font-bold border-b-2 border-primary-container"
