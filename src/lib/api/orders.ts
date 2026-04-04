@@ -13,28 +13,18 @@ interface CreateOrderParams {
   total: number;
 }
 
-export async function createOrder(params: CreateOrderParams): Promise<string> {
-  const { data: order, error: orderError } = await supabase
-    .from("orders")
-    .insert({
-      status: "pendiente",
-      delivery_type: params.deliveryType,
-      customer_name: params.customerName,
-      customer_phone: params.customerPhone,
-      customer_address: params.customerAddress ?? null,
-      customer_notes: params.customerNotes ?? null,
-      customer_location_url: params.customerLocationUrl ?? null,
-      payment_method: params.paymentMethod,
-      total: params.total,
-    })
-    .select("id")
-    .single();
-
-  if (orderError) throw orderError;
-
-  const { error: itemsError } = await supabase.from("order_items").insert(
-    params.items.map((item) => ({
-      order_id: order.id,
+// Retorna el order_number para mostrárselo al cliente
+export async function createOrder(params: CreateOrderParams): Promise<number> {
+  const { data, error } = await supabase.rpc("create_order", {
+    p_delivery_type: params.deliveryType,
+    p_customer_name: params.customerName,
+    p_customer_phone: params.customerPhone,
+    p_customer_address: (params.customerAddress ?? null) as string,
+    p_customer_notes: (params.customerNotes ?? null) as string,
+    p_customer_location_url: (params.customerLocationUrl ?? null) as string,
+    p_payment_method: params.paymentMethod,
+    p_total: params.total,
+    p_items: params.items.map((item) => ({
       product_id: item.product.id,
       product_name: item.product.name,
       variant_id: item.variant.id,
@@ -42,9 +32,8 @@ export async function createOrder(params: CreateOrderParams): Promise<string> {
       unit_price: item.variant.price,
       quantity: item.quantity,
     })),
-  );
+  });
 
-  if (itemsError) throw itemsError;
-
-  return order.id;
+  if (error) throw error;
+  return data;
 }

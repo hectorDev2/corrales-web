@@ -65,7 +65,7 @@ export function CheckoutForm() {
         ? `https://maps.google.com/?q=${location.lat},${location.lng}`
         : undefined;
 
-      await createOrder({
+      const orderNumber = await createOrder({
         customerName: data.name,
         customerPhone: data.phone,
         deliveryType: data.deliveryType,
@@ -77,7 +77,7 @@ export function CheckoutForm() {
         total: total(),
       });
 
-      toast.success("¡Pedido confirmado! Te contactaremos pronto.");
+      toast.success(`¡Pedido #${orderNumber} confirmado! Te contactaremos pronto.`);
       clearCart();
       router.push("/");
     } catch {
