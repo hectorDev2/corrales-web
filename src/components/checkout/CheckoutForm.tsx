@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
+import { createOrder } from "@/lib/api/orders";
 import { useCartStore } from "@/store/cart";
 
 import { OrderSummary } from "./OrderSummary";
@@ -16,7 +17,7 @@ const PAYMENT_OPTIONS = [
 ] as const;
 
 export function CheckoutForm() {
-  const { clearCart } = useCartStore();
+  const { items, total, clearCart } = useCartStore();
   const router = useRouter();
 
   const {
@@ -36,12 +37,24 @@ export function CheckoutForm() {
   const paymentMethod = watch("paymentMethod");
 
   async function onSubmit(data: CheckoutFormData) {
-    // TODO: enviar a la API/WhatsApp
-    await new Promise((r) => setTimeout(r, 800)); // simula latencia
-    console.warn("Pedido confirmado:", data);
-    toast.success("¡Pedido confirmado! Te contactaremos pronto.");
-    clearCart();
-    router.push("/");
+    try {
+      await createOrder({
+        customerName: data.name,
+        customerPhone: data.phone,
+        deliveryType: data.deliveryType,
+        customerAddress: data.address,
+        customerNotes: data.notes,
+        paymentMethod: data.paymentMethod,
+        items,
+        total: total(),
+      });
+
+      toast.success("¡Pedido confirmado! Te contactaremos pronto.");
+      clearCart();
+      router.push("/");
+    } catch {
+      toast.error("No pudimos registrar tu pedido. Intentá de nuevo.");
+    }
   }
 
   return (
