@@ -11,7 +11,7 @@ interface CartItemRowProps {
 
 export function CartItemRow({ item }: CartItemRowProps) {
   const { updateQuantity, removeItem } = useCartStore();
-  const { product, quantity } = item;
+  const { product, variant, quantity } = item;
 
   return (
     <div className="flex gap-4 items-center">
@@ -29,9 +29,16 @@ export function CartItemRow({ item }: CartItemRowProps) {
       {/* Info */}
       <div className="flex-1 min-w-0">
         <div className="flex justify-between items-start">
-          <h3 className="font-bold text-on-surface truncate pr-2">{product.name}</h3>
+          <h3 className="font-bold text-on-surface truncate pr-2">
+            {product.name}
+            {variant.label && (
+              <span className="ml-1 text-xs font-normal text-on-surface-variant">
+                ({variant.label})
+              </span>
+            )}
+          </h3>
           <button
-            onClick={() => removeItem(product.id)}
+            onClick={() => removeItem(variant.id)}
             aria-label={`Eliminar ${product.name}`}
             className="text-on-surface-variant hover:text-primary transition-colors"
           >
@@ -52,7 +59,7 @@ export function CartItemRow({ item }: CartItemRowProps) {
           {/* Stepper */}
           <div className="flex items-center bg-surface-container-low rounded-lg p-1">
             <button
-              onClick={() => updateQuantity(product.id, quantity - 1)}
+              onClick={() => updateQuantity(variant.id, quantity - 1)}
               aria-label="Reducir cantidad"
               className="w-7 h-7 flex items-center justify-center rounded-md bg-surface-container-lowest text-primary shadow-sm active:scale-90 transition-transform"
             >
@@ -67,7 +74,7 @@ export function CartItemRow({ item }: CartItemRowProps) {
               {quantity}
             </span>
             <button
-              onClick={() => updateQuantity(product.id, quantity + 1)}
+              onClick={() => updateQuantity(variant.id, quantity + 1)}
               aria-label="Aumentar cantidad"
               className="w-7 h-7 flex items-center justify-center rounded-md bg-primary-container text-on-primary shadow-sm active:scale-90 transition-transform"
             >
@@ -81,7 +88,7 @@ export function CartItemRow({ item }: CartItemRowProps) {
           </div>
 
           <span className="font-bold text-on-surface">
-            S/ {(product.price * quantity).toFixed(2)}
+            S/ {(variant.price * quantity).toFixed(2)}
           </span>
         </div>
       </div>
