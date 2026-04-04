@@ -92,6 +92,7 @@ export type Database = {
           assigned_to: string | null
           created_at: string
           customer_address: string | null
+          customer_location_url: string | null
           customer_name: string
           customer_notes: string | null
           customer_phone: string
@@ -107,6 +108,7 @@ export type Database = {
           assigned_to?: string | null
           created_at?: string
           customer_address?: string | null
+          customer_location_url?: string | null
           customer_name: string
           customer_notes?: string | null
           customer_phone: string
@@ -122,6 +124,7 @@ export type Database = {
           assigned_to?: string | null
           created_at?: string
           customer_address?: string | null
+          customer_location_url?: string | null
           customer_name?: string
           customer_notes?: string | null
           customer_phone?: string

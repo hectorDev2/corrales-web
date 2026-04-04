@@ -7,6 +7,7 @@ interface CreateOrderParams {
   deliveryType: "delivery" | "pickup";
   customerAddress?: string;
   customerNotes?: string;
+  customerLocationUrl?: string;
   paymentMethod: "yape" | "cash";
   items: CartItem[];
   total: number;
@@ -22,6 +23,7 @@ export async function createOrder(params: CreateOrderParams): Promise<string> {
       customer_phone: params.customerPhone,
       customer_address: params.customerAddress ?? null,
       customer_notes: params.customerNotes ?? null,
+      customer_location_url: params.customerLocationUrl ?? null,
       payment_method: params.paymentMethod,
       total: params.total,
     })

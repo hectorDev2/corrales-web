@@ -2,14 +2,15 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { useState } from "react";
+import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 
 import { createOrder } from "@/lib/api/orders";
 import { useCartStore } from "@/store/cart";
 
-import { OrderSummary } from "./OrderSummary";
 import { type CheckoutFormData, checkoutSchema } from "./checkoutSchema";
+import { OrderSummary } from "./OrderSummary";
 
 const PAYMENT_OPTIONS = [
   { value: "yape", label: "Yape / Plin", icon: "qr_code_2" },
@@ -19,11 +20,33 @@ const PAYMENT_OPTIONS = [
 export function CheckoutForm() {
   const { items, total, clearCart } = useCartStore();
   const router = useRouter();
+  const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [locLoading, setLocLoading] = useState(false);
+
+  function handleLocation() {
+    if (!navigator.geolocation) {
+      toast.error("Tu dispositivo no soporta geolocalización.");
+      return;
+    }
+    setLocLoading(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+        setLocLoading(false);
+        toast.success("Ubicación capturada correctamente.");
+      },
+      () => {
+        setLocLoading(false);
+        toast.error("No se pudo obtener la ubicación. Verificá los permisos.");
+      },
+      { timeout: 8000 },
+    );
+  }
 
   const {
+    control,
     register,
     handleSubmit,
-    watch,
     formState: { errors, isSubmitting },
   } = useForm<CheckoutFormData>({
     resolver: zodResolver(checkoutSchema),
@@ -33,17 +56,22 @@ export function CheckoutForm() {
     },
   });
 
-  const deliveryType = watch("deliveryType");
-  const paymentMethod = watch("paymentMethod");
+  const deliveryType = useWatch({ control, name: "deliveryType" });
+  const paymentMethod = useWatch({ control, name: "paymentMethod" });
 
   async function onSubmit(data: CheckoutFormData) {
     try {
+      const locationUrl = location
+        ? `https://maps.google.com/?q=${location.lat},${location.lng}`
+        : undefined;
+
       await createOrder({
         customerName: data.name,
         customerPhone: data.phone,
         deliveryType: data.deliveryType,
         customerAddress: data.address,
         customerNotes: data.notes,
+        customerLocationUrl: locationUrl,
         paymentMethod: data.paymentMethod,
         items,
         total: total(),
@@ -167,6 +195,59 @@ export function CheckoutForm() {
                 </div>
                 {errors.address && (
                   <p className="text-xs text-error ml-1">{errors.address.message}</p>
+                )}
+              </div>
+            )}
+
+            {/* Location (solo para delivery) */}
+            {deliveryType === "delivery" && (
+              <div className="space-y-3">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-widest text-on-surface-variant ml-1 mb-0.5">
+                    Tu Ubicación{" "}
+                    <span className="font-normal normal-case tracking-normal text-outline">(opcional)</span>
+                  </p>
+                  <p className="text-[11px] text-on-surface-variant ml-1 leading-relaxed">
+                    Compartí tu ubicación para que podamos orientarte o coordinar el acceso.
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleLocation}
+                  disabled={locLoading}
+                  className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl border-2 border-dashed border-outline-variant bg-surface-container transition-all hover:border-primary hover:bg-primary/5 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  <span
+                    className={`material-symbols-outlined text-primary transition-all ${locLoading ? "animate-spin" : ""}`}
+                    style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}
+                  >
+                    {locLoading ? "progress_activity" : location ? "my_location" : "location_on"}
+                  </span>
+                  <span className="font-bold text-sm text-on-surface">
+                    {locLoading
+                      ? "Obteniendo ubicación..."
+                      : location
+                        ? "Ubicación capturada"
+                        : "Usar mi ubicación actual"}
+                  </span>
+                </button>
+
+                {location && (
+                  <a
+                    href={`https://maps.google.com/?q=${location.lat},${location.lng}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 text-[11px] text-primary font-bold hover:underline ml-1"
+                  >
+                    <span
+                      className="material-symbols-outlined text-sm"
+                      style={{ fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}
+                    >
+                      open_in_new
+                    </span>
+                    Ver en Google Maps · {location.lat.toFixed(5)}, {location.lng.toFixed(5)}
+                  </a>
                 )}
               </div>
             )}
