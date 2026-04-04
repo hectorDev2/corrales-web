@@ -18,8 +18,8 @@ export function OrderSummary() {
 
       {/* Item list */}
       <div className="space-y-4 mb-8">
-        {items.map(({ product, quantity }) => (
-          <div key={product.id} className="flex items-center gap-4">
+        {items.map(({ product, variant, quantity }) => (
+          <div key={variant.id} className="flex items-center gap-4">
             <div className="w-16 h-16 rounded-2xl overflow-hidden shrink-0 relative">
               <Image
                 src={product.image.src}
@@ -32,13 +32,16 @@ export function OrderSummary() {
             <div className="flex-1 min-w-0">
               <p className="font-bold text-on-surface truncate">
                 {quantity}x {product.name}
+                {variant.label && (
+                  <span className="font-normal text-on-surface-variant"> ({variant.label})</span>
+                )}
               </p>
               <p className="text-xs text-on-surface-variant truncate">
                 {product.description}
               </p>
             </div>
             <p className="font-bold text-primary shrink-0">
-              S/ {(product.price * quantity).toFixed(2)}
+              S/ {(variant.price * quantity).toFixed(2)}
             </p>
           </div>
         ))}
