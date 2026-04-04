@@ -1,14 +1,12 @@
-import type { Order } from "@/types/order";
+import type { AdminOrder } from "@/types/admin";
 
 interface Props {
-  orders: Order[];
+  orders: AdminOrder[];
 }
 
 export function BentoStats({ orders }: Props) {
   const inOven = orders.filter((o) => o.status === "preparando").length;
-  const onTheWay = orders.filter(
-    (o) => o.status === "listo" && o.deliveryType === "delivery",
-  ).length;
+  const onTheWay = orders.filter((o) => o.status === "en_camino").length;
 
   return (
     <div className="grid grid-cols-2 gap-4">
