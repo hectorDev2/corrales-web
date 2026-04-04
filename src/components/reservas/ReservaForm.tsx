@@ -6,6 +6,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
+import { createReservation } from "@/lib/api/reservations";
+
 import { TIME_SLOTS, type ReservaFormData, reservaSchema } from "./reservaSchema";
 
 const WHATSAPP_NUMBER = "51999999999"; // TODO: reemplazar con el número real
@@ -59,16 +61,27 @@ export function ReservaForm() {
   }
 
   async function onSubmit(data: ReservaFormData) {
-    await new Promise((r) => setTimeout(r, 600));
+    try {
+      await createReservation({
+        customerName: data.name,
+        customerPhone: data.phone,
+        date: data.date,
+        time: data.time,
+        guests: data.guests,
+        notes: data.notes,
+      });
 
-    const mapsUrl = location
-      ? `https://maps.google.com/?q=${location.lat},${location.lng}`
-      : undefined;
+      const mapsUrl = location
+        ? `https://maps.google.com/?q=${location.lat},${location.lng}`
+        : undefined;
 
-    const message = buildWhatsAppMessage(data, mapsUrl);
-    const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
-    window.open(url, "_blank");
-    toast.success("¡Reserva enviada! Te confirmamos por WhatsApp.");
+      const message = buildWhatsAppMessage(data, mapsUrl);
+      const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+      window.open(url, "_blank");
+      toast.success("¡Reserva enviada! Te confirmamos por WhatsApp.");
+    } catch {
+      toast.error("No pudimos registrar tu reserva. Intentá de nuevo.");
+    }
   }
 
   return (
