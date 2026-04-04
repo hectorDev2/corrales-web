@@ -1,27 +1,12 @@
 "use client";
 
-import { useState } from "react";
-
-import { MOCK_ORDERS } from "@/data/orders";
-import type { Order, OrderStatus } from "@/types/order";
+import { useOrdersStore } from "@/store/orders";
 
 import { AdminOrderCard } from "./AdminOrderCard";
 import { BentoStats } from "./BentoStats";
 
 export function AdminPage() {
-  const [orders, setOrders] = useState<Order[]>(MOCK_ORDERS);
-
-  const todayCount = orders.length;
-
-  function handleAdvance(id: string, next: OrderStatus) {
-    setOrders((prev) =>
-      prev.map((o) => (o.id === id ? { ...o, status: next } : o)),
-    );
-  }
-
-  function handleCancel(id: string) {
-    setOrders((prev) => prev.filter((o) => o.id !== id));
-  }
+  const { orders, advanceStatus, removeOrder } = useOrdersStore();
 
   return (
     <div className="w-full max-w-[390px] mx-auto px-4 space-y-6 py-4">
@@ -37,7 +22,7 @@ export function AdminPage() {
         </div>
         <div className="bg-surface-container-high rounded-xl p-2 px-3 text-right">
           <p className="text-[10px] font-bold text-secondary uppercase">Hoy</p>
-          <p className="text-sm font-black text-primary">{todayCount} Pedidos</p>
+          <p className="text-sm font-black text-primary">{orders.length} Pedidos</p>
         </div>
       </div>
 
@@ -58,8 +43,8 @@ export function AdminPage() {
             <AdminOrderCard
               key={order.id}
               order={order}
-              onAdvance={handleAdvance}
-              onCancel={handleCancel}
+              onAdvance={advanceStatus}
+              onCancel={removeOrder}
             />
           ))
         )}
