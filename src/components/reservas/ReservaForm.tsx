@@ -6,6 +6,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
+import { useUserStore } from "@/store/user";
+
 import { TIME_SLOTS, type ReservaFormData, reservaSchema } from "./reservaSchema";
 
 const WHATSAPP_NUMBER = "51999999999"; // TODO: reemplazar con el número real
@@ -26,6 +28,7 @@ function buildWhatsAppMessage(data: ReservaFormData, mapsUrl?: string): string {
 }
 
 export function ReservaForm() {
+  const { user, saveUser } = useUserStore();
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [locLoading, setLocLoading] = useState(false);
 
@@ -35,7 +38,7 @@ export function ReservaForm() {
     formState: { errors, isSubmitting },
   } = useForm<ReservaFormData>({
     resolver: zodResolver(reservaSchema),
-    defaultValues: { guests: 2 },
+    defaultValues: { guests: 2, name: user?.name ?? "", phone: user?.phone ?? "" },
   });
 
   function handleLocation() {
@@ -59,6 +62,7 @@ export function ReservaForm() {
   }
 
   async function onSubmit(data: ReservaFormData) {
+    saveUser({ name: data.name, phone: data.phone });
     await new Promise((r) => setTimeout(r, 600));
 
     const mapsUrl = location

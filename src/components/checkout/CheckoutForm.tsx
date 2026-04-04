@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 import { useCartStore } from "@/store/cart";
+import { useUserStore } from "@/store/user";
 
 import { OrderSummary } from "./OrderSummary";
 import { type CheckoutFormData, checkoutSchema } from "./checkoutSchema";
@@ -17,6 +18,7 @@ const PAYMENT_OPTIONS = [
 
 export function CheckoutForm() {
   const { clearCart } = useCartStore();
+  const { user, saveUser } = useUserStore();
   const router = useRouter();
 
   const {
@@ -29,6 +31,8 @@ export function CheckoutForm() {
     defaultValues: {
       deliveryType: "delivery",
       paymentMethod: "yape",
+      name: user?.name ?? "",
+      phone: user?.phone ?? "",
     },
   });
 
@@ -36,8 +40,8 @@ export function CheckoutForm() {
   const paymentMethod = watch("paymentMethod");
 
   async function onSubmit(data: CheckoutFormData) {
-    // TODO: enviar a la API/WhatsApp
-    await new Promise((r) => setTimeout(r, 800)); // simula latencia
+    saveUser({ name: data.name, phone: data.phone });
+    await new Promise((r) => setTimeout(r, 800));
     console.warn("Pedido confirmado:", data);
     toast.success("¡Pedido confirmado! Te contactaremos pronto.");
     clearCart();
