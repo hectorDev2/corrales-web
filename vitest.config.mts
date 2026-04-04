@@ -1,5 +1,8 @@
+import { config } from "dotenv";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vitest/config";
+
+config({ path: ".env.local" });
 
 export default defineConfig({
   plugins: [react()],
