@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 
-import { BottomNav, Header } from "@/components/layout";
+import { Toaster } from "sonner";
 
 import "./globals.css";
 
@@ -30,12 +30,8 @@ export default function RootLayout({
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
       />
       <body className="min-h-full flex flex-col bg-background">
-        <Header />
-        {/* pt-[67px] = top accent bar (3px) + header (h-16=64px) */}
-        <main className="flex-1 pt-[67px] md:pt-[83px] pb-24 md:pb-0">
-          {children}
-        </main>
-        <BottomNav />
+        {children}
+        <Toaster richColors position="top-center" />
       </body>
     </html>
   );

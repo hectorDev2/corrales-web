@@ -68,7 +68,7 @@ export function Header() {
                 search
               </span>
             </button>
-            <CartButton itemCount={2} />
+            <CartButton />
           </div>
         </div>
       </header>

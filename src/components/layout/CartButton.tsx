@@ -1,13 +1,15 @@
 "use client";
 
-interface CartButtonProps {
-  itemCount?: number;
-}
+import { useCartStore } from "@/store/cart";
 
-export function CartButton({ itemCount = 0 }: CartButtonProps) {
+export function CartButton() {
+  const { openDrawer, totalItems } = useCartStore();
+  const count = totalItems();
+
   return (
     <button
       aria-label="Carrito de compras"
+      onClick={openDrawer}
       className="relative p-2 text-primary transition-transform active:scale-90"
     >
       <span
@@ -16,9 +18,9 @@ export function CartButton({ itemCount = 0 }: CartButtonProps) {
       >
         shopping_cart
       </span>
-      {itemCount > 0 && (
+      {count > 0 && (
         <span className="absolute top-1 right-1 flex h-4 w-4 md:h-5 md:w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-on-primary shadow-md">
-          {itemCount > 99 ? "99+" : itemCount}
+          {count > 99 ? "99+" : count}
         </span>
       )}
     </button>
