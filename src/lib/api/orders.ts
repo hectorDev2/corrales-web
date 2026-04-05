@@ -8,7 +8,7 @@ interface CreateOrderParams {
   customerAddress?: string;
   customerNotes?: string;
   customerLocationUrl?: string;
-  paymentMethod: "yape" | "cash";
+  paymentMethod: "yape" | "cash" | "culqi";
   items: CartItem[];
   total: number;
 }
