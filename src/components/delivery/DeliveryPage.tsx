@@ -3,7 +3,12 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
-import { getMyOrders, markDelivered } from "@/lib/api/delivery";
+import {
+  getAvailableOrders,
+  getMyOrders,
+  markDelivered,
+  takeOrder,
+} from "@/lib/api/delivery";
 import { supabase } from "@/lib/supabase";
 import type { AdminOrder } from "@/types/admin";
 
@@ -13,13 +18,19 @@ interface Props {
 }
 
 export function DeliveryPage({ userId, fullName }: Props) {
-  const [orders, setOrders] = useState<AdminOrder[]>([]);
+  const [available, setAvailable] = useState<AdminOrder[]>([]);
+  const [myOrders, setMyOrders] = useState<AdminOrder[]>([]);
   const [loading, setLoading] = useState(true);
+  const [takingId, setTakingId] = useState<string | null>(null);
 
-  async function fetchOrders() {
+  async function fetchAll() {
     try {
-      const data = await getMyOrders(userId);
-      setOrders(data);
+      const [avail, mine] = await Promise.all([
+        getAvailableOrders(),
+        getMyOrders(userId),
+      ]);
+      setAvailable(avail);
+      setMyOrders(mine);
     } catch {
       toast.error("Error al cargar los pedidos.");
     } finally {
@@ -28,24 +39,31 @@ export function DeliveryPage({ userId, fullName }: Props) {
   }
 
   useEffect(() => {
-    fetchOrders();
+    fetchAll();
 
     const channel = supabase
-      .channel("delivery-orders-realtime")
+      .channel("delivery-realtime")
       .on(
         "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "orders",
-          filter: `assigned_to=eq.${userId}`,
-        },
-        () => fetchOrders(),
+        { event: "*", schema: "public", table: "orders" },
+        () => fetchAll(),
       )
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
   }, [userId]);
+
+  async function handleTake(orderId: string) {
+    setTakingId(orderId);
+    try {
+      await takeOrder(orderId, userId);
+      toast.success("¡Pedido tomado! Ya está en tus entregas.");
+    } catch {
+      toast.error("No se pudo tomar el pedido. Intentá de nuevo.");
+    } finally {
+      setTakingId(null);
+    }
+  }
 
   async function handleDelivered(orderId: string) {
     try {
@@ -57,7 +75,7 @@ export function DeliveryPage({ userId, fullName }: Props) {
   }
 
   return (
-    <div className="w-full max-w-[390px] mx-auto px-4 py-4 space-y-6">
+    <div className="w-full max-w-[390px] mx-auto px-4 py-4 space-y-8">
       {/* Header */}
       <div className="flex justify-between items-end py-2">
         <div>
@@ -70,11 +88,10 @@ export function DeliveryPage({ userId, fullName }: Props) {
         </div>
         <div className="bg-surface-container-high rounded-xl p-2 px-3 text-right">
           <p className="text-[10px] font-bold text-secondary uppercase">En ruta</p>
-          <p className="text-sm font-black text-primary">{orders.length} Pedidos</p>
+          <p className="text-sm font-black text-primary">{myOrders.length} Pedidos</p>
         </div>
       </div>
 
-      {/* Orders */}
       {loading ? (
         <div className="flex justify-center py-16">
           <span
@@ -84,30 +101,156 @@ export function DeliveryPage({ userId, fullName }: Props) {
             progress_activity
           </span>
         </div>
-      ) : orders.length === 0 ? (
-        <div className="flex flex-col items-center py-16 text-on-surface-variant gap-3">
-          <span
-            className="material-symbols-outlined text-5xl text-outline"
-            style={{ fontVariationSettings: "'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 48" }}
-          >
-            delivery_dining
-          </span>
-          <p className="font-bold text-sm">Sin entregas asignadas</p>
-          <p className="text-xs text-on-surface-variant/60">
-            Cuando el admin te asigne un pedido aparecerá aquí
-          </p>
-        </div>
       ) : (
-        <div className="space-y-4">
-          {orders.map((order) => (
-            <DeliveryOrderCard
-              key={order.id}
-              order={order}
-              onDelivered={handleDelivered}
-            />
+        <>
+          {/* Sección: disponibles */}
+          <section className="space-y-3">
+            <div className="flex items-center gap-2">
+              <span
+                className="material-symbols-outlined text-base text-secondary"
+                style={{ fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}
+              >
+                inbox
+              </span>
+              <h3 className="text-xs font-black uppercase tracking-widest text-on-surface-variant">
+                Disponibles ({available.length})
+              </h3>
+            </div>
+
+            {available.length === 0 ? (
+              <div className="flex flex-col items-center py-8 text-on-surface-variant gap-2">
+                <span
+                  className="material-symbols-outlined text-4xl text-outline"
+                  style={{ fontVariationSettings: "'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 48" }}
+                >
+                  check_circle
+                </span>
+                <p className="text-xs font-bold">Sin pedidos disponibles</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {available.map((order) => (
+                  <AvailableOrderCard
+                    key={order.id}
+                    order={order}
+                    taking={takingId === order.id}
+                    onTake={handleTake}
+                  />
+                ))}
+              </div>
+            )}
+          </section>
+
+          {/* Sección: mis entregas */}
+          <section className="space-y-3">
+            <div className="flex items-center gap-2">
+              <span
+                className="material-symbols-outlined text-base text-primary"
+                style={{ fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}
+              >
+                delivery_dining
+              </span>
+              <h3 className="text-xs font-black uppercase tracking-widest text-on-surface-variant">
+                Mis entregas ({myOrders.length})
+              </h3>
+            </div>
+
+            {myOrders.length === 0 ? (
+              <div className="flex flex-col items-center py-8 text-on-surface-variant gap-2">
+                <span
+                  className="material-symbols-outlined text-4xl text-outline"
+                  style={{ fontVariationSettings: "'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 48" }}
+                >
+                  moped
+                </span>
+                <p className="text-xs font-bold">No tenés pedidos en curso</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {myOrders.map((order) => (
+                  <DeliveryOrderCard
+                    key={order.id}
+                    order={order}
+                    onDelivered={handleDelivered}
+                  />
+                ))}
+              </div>
+            )}
+          </section>
+        </>
+      )}
+    </div>
+  );
+}
+
+function AvailableOrderCard({
+  order,
+  taking,
+  onTake,
+}: {
+  order: AdminOrder;
+  taking: boolean;
+  onTake: (id: string) => void;
+}) {
+  return (
+    <div className="bg-surface-container-lowest rounded-3xl shadow-[0_12px_40px_rgba(89,65,61,0.08)] overflow-hidden border border-outline-variant/20">
+      <div className="p-5 flex justify-between items-start">
+        <div>
+          <span className="text-xs font-black tracking-tighter text-on-surface">
+            ORDEN #{order.order_number}
+          </span>
+          <div className="mt-1">
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-100 text-amber-700">
+              Listo para retirar
+            </span>
+          </div>
+          <p className="mt-2 text-sm font-bold text-on-surface">{order.customer_name}</p>
+          {order.customer_address && (
+            <p className="text-[11px] text-on-surface-variant mt-0.5 flex items-center gap-1">
+              <span
+                className="material-symbols-outlined text-sm"
+                style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}
+              >
+                location_on
+              </span>
+              {order.customer_address}
+            </p>
+          )}
+        </div>
+        <p className="text-lg font-black text-primary">
+          S/ {order.total.toFixed(2)}
+        </p>
+      </div>
+
+      <div className="px-5 pb-3">
+        <div className="bg-surface-container-low rounded-xl p-3 space-y-1">
+          {order.items.map((item) => (
+            <div key={item.id} className="text-[12px] text-on-surface">
+              <span className="font-black text-primary">{item.quantity}x</span>{" "}
+              {item.product_name}
+              {item.variant_label && (
+                <span className="text-on-surface-variant font-normal"> ({item.variant_label})</span>
+              )}
+            </div>
           ))}
         </div>
-      )}
+      </div>
+
+      <div className="p-4 bg-surface-container-low/30">
+        <button
+          onClick={() => onTake(order.id)}
+          disabled={taking}
+          className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-secondary text-on-secondary text-[11px] font-bold uppercase tracking-wider shadow-lg shadow-secondary/20 transition-all active:scale-95 disabled:opacity-60"
+        >
+          <span
+            className="material-symbols-outlined text-sm"
+            style={{ fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}
+          >
+            {taking ? "progress_activity" : "add_circle"}
+          </span>
+          {taking ? "Tomando pedido..." : "Tomar pedido"}
+        </button>
+      </div>
     </div>
   );
 }
