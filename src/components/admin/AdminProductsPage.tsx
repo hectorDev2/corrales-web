@@ -11,6 +11,7 @@ import {
   getCategoriesWithId,
   toggleProductActive,
 } from "@/lib/api/products";
+import { supabase } from "@/lib/supabase";
 
 import { ProductForm } from "./ProductForm";
 
@@ -36,6 +37,14 @@ export function AdminProductsPage() {
   useEffect(() => {
     fetchProducts();
     getCategoriesWithId().then(setCategories).catch(() => {});
+
+    const channel = supabase
+      .channel("products-realtime")
+      .on("postgres_changes", { event: "*", schema: "public", table: "products" }, fetchProducts)
+      .on("postgres_changes", { event: "*", schema: "public", table: "product_variants" }, fetchProducts)
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
   }, []);
 
   function openCreate() {
