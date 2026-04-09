@@ -177,6 +177,49 @@ export async function toggleProductActive(id: string, is_active: boolean): Promi
   if (error) throw error;
 }
 
+function slugify(name: string): string {
+  return name
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "") // quita tildes
+    .replace(/[^a-z0-9\s-]/g, "")   // solo alfanumérico
+    .trim()
+    .replace(/\s+/g, "-")            // espacios → guiones
+    .replace(/-+/g, "-");            // guiones múltiples → uno
+}
+
+function extractStorageFileName(url: string): string | null {
+  // URL format: .../storage/v1/object/public/product-images/{filename}
+  const marker = "/product-images/";
+  const idx = url.indexOf(marker);
+  if (idx === -1) return null;
+  return url.slice(idx + marker.length);
+}
+
+export async function deleteProductImage(url: string): Promise<void> {
+  const fileName = extractStorageFileName(url);
+  if (!fileName) return; // no es una imagen de nuestro bucket, ignorar
+  await supabase.storage.from("product-images").remove([fileName]);
+}
+
+export async function uploadProductImage(file: File, productName?: string): Promise<string> {
+  const ext = file.name.split(".").pop() ?? "jpg";
+  const base = productName ? slugify(productName) : crypto.randomUUID();
+  const fileName = `${base}.${ext}`;
+
+  const { error } = await supabase.storage
+    .from("product-images")
+    .upload(fileName, file, { cacheControl: "3600", upsert: false });
+
+  if (error) throw error;
+
+  const { data } = supabase.storage
+    .from("product-images")
+    .getPublicUrl(fileName);
+
+  return data.publicUrl;
+}
+
 // ─── Public queries ───────────────────────────────────────────────────────────
 
 export async function getProducts(): Promise<Product[]> {
