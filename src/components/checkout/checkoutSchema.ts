@@ -12,7 +12,6 @@ export const checkoutSchema = z
     deliveryType: z.enum(["delivery", "pickup"]),
     address: z.string().optional(),
     notes: z.string().max(200, "Máximo 200 caracteres").optional(),
-    paymentMethod: z.enum(["yape", "cash"]),
   })
   .refine(
     (data) => data.deliveryType === "pickup" || (data.address && data.address.length >= 5),

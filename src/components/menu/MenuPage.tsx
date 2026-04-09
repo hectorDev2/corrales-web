@@ -30,7 +30,7 @@ export function MenuPage({ products, categories }: MenuPageProps) {
 
   function handleAdd(product: Product, variant: ProductVariant) {
     addItem(product, variant);
-    openDrawer();
+    if (window.innerWidth >= 768) openDrawer();
   }
 
   return (

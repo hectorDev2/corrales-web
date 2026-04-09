@@ -348,7 +348,7 @@ export type Database = {
         | "en_camino"
         | "entregado"
         | "cancelado"
-      payment_method: "yape" | "cash"
+      payment_method: "yape" | "cash" | "culqi"
       reservation_status: "pendiente" | "confirmada" | "cancelada"
       user_role: "admin" | "delivery"
     }

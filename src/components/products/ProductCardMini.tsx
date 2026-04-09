@@ -21,7 +21,7 @@ export function ProductCardMini({ product, onAdd }: ProductCardMiniProps) {
       {/* Image */}
       <div className="relative h-32 w-full overflow-hidden">
         <Image
-          src={product.image.src || "/placeholder.jpg"}
+          src={product.image.src || "/images/404-image.png"}
           alt={product.image.alt}
           fill
           className="object-cover group-hover:scale-110 transition-transform duration-500"
