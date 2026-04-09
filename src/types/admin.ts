@@ -24,7 +24,7 @@ export interface AdminOrder {
   customer_address: string | null;
   customer_notes: string | null;
   customer_location_url: string | null;
-  payment_method: "yape" | "cash";
+  payment_method: "yape" | "cash" | "culqi";
   total: number;
   assigned_to: string | null;
   assigned_profile: { full_name: string } | null;

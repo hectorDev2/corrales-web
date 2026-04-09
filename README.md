@@ -201,4 +201,4 @@ Bucket: `product-images`
 
 ### Infraestructura
 - [ ] **CI/CD** — pipeline de deploy automático
-- [ ] **Regenerar `database.types.ts`** — mantener los tipos sincronizados con el schema actual
+- [x] **Sincronizar tipos con el schema** — `payment_method` actualizado con `culqi` en `AdminOrder`
