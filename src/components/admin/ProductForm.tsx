@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useRef, useState } from "react";
-import { useFieldArray, useForm } from "react-hook-form";
+import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
 
 import {
@@ -12,6 +12,8 @@ import {
   createProduct,
   updateProduct,
 } from "@/lib/api/products";
+
+import { ImageUploadField } from "./ImageUploadField";
 
 // ─── Schema ───────────────────────────────────────────────────────────────────
 
@@ -55,6 +57,7 @@ export function ProductForm({ product, categories, onSuccess, onClose }: Props) 
     control,
     handleSubmit,
     reset,
+    watch,
     formState: { errors },
   } = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema),
@@ -207,22 +210,34 @@ export function ProductForm({ product, categories, onSuccess, onClose }: Props) 
         </Field>
 
         {/* Imagen */}
-        <div className="grid grid-cols-2 gap-3">
-          <Field label="URL Imagen" error={errors.image_src?.message}>
-            <input
-              {...register("image_src")}
-              placeholder="/pollo.png"
-              className={inputClass(!!errors.image_src)}
-            />
-          </Field>
-          <Field label="Alt text" error={errors.image_alt?.message}>
-            <input
-              {...register("image_alt")}
-              placeholder="Descripción imagen"
-              className={inputClass(!!errors.image_alt)}
-            />
-          </Field>
+        <div className="space-y-2">
+          <label className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
+            Imagen
+          </label>
+          <Controller
+            control={control}
+            name="image_src"
+            render={({ field }) => (
+              <ImageUploadField
+                value={field.value}
+                onChange={field.onChange}
+                productName={watch("name")}
+              />
+            )}
+          />
+          {errors.image_src && (
+            <p className="text-[10px] text-error">{errors.image_src.message}</p>
+          )}
         </div>
+
+        {/* Alt text */}
+        <Field label="Alt text (descripción de imagen)" error={errors.image_alt?.message}>
+          <input
+            {...register("image_alt")}
+            placeholder="Ej: Pollo a la brasa entero con papas"
+            className={inputClass(!!errors.image_alt)}
+          />
+        </Field>
 
         {/* Activo */}
         <div className="flex items-center justify-between bg-surface-container-low rounded-2xl p-4">

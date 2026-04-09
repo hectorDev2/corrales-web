@@ -169,6 +169,7 @@ interface CardProps {
 }
 
 function ProductCard({ product, toggling, onEdit, onToggle }: CardProps) {
+  const [imgError, setImgError] = useState(false);
   const activeVariants = product.variants.filter((v) => v.is_active);
   const minPrice = activeVariants.length > 0 ? Math.min(...activeVariants.map((v) => v.price)) : 0;
   const maxPrice = activeVariants.length > 0 ? Math.max(...activeVariants.map((v) => v.price)) : 0;
@@ -193,14 +194,12 @@ function ProductCard({ product, toggling, onEdit, onToggle }: CardProps) {
         {/* Image */}
         <div className="w-14 h-14 rounded-2xl bg-surface-container-high overflow-hidden shrink-0 relative">
           <Image
-            src={product.image_src}
+            src={imgError ? "/images/404-image.png" : product.image_src}
             alt={product.image_alt}
             fill
             className="object-cover"
             sizes="56px"
-            onError={(e) => {
-              (e.currentTarget as HTMLImageElement).src = "/404-image.png";
-            }}
+            onError={() => setImgError(true)}
           />
         </div>
 
