@@ -7,6 +7,7 @@ import { useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 
+import { type StoredLocation, useGeolocation } from "@/hooks/useGeolocation";
 import { createOrder } from "@/lib/api/orders";
 import { useCartStore } from "@/store/cart";
 
@@ -48,28 +49,25 @@ function openCulqiModal(
 export function CheckoutForm() {
   const { items, total, clearCart } = useCartStore();
   const router = useRouter();
-  const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const { getStored, requestLocation, toMapsUrl } = useGeolocation();
+  const [location, setLocation] = useState<StoredLocation | null>(() => getStored());
   const [locLoading, setLocLoading] = useState(false);
   const [isPaying, setIsPaying] = useState(false);
 
-  function handleLocation() {
+  async function handleLocation() {
     if (!navigator.geolocation) {
       toast.error("Tu dispositivo no soporta geolocalización.");
       return;
     }
     setLocLoading(true);
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude });
-        setLocLoading(false);
-        toast.success("Ubicación capturada correctamente.");
-      },
-      () => {
-        setLocLoading(false);
-        toast.error("No se pudo obtener la ubicación. Verificá los permisos.");
-      },
-      { timeout: 8000 },
-    );
+    const loc = await requestLocation();
+    setLocLoading(false);
+    if (loc) {
+      setLocation(loc);
+      toast.success("Ubicación capturada correctamente.");
+    } else {
+      toast.error("No se pudo obtener la ubicación. Verificá los permisos.");
+    }
   }
 
   const {
@@ -87,9 +85,7 @@ export function CheckoutForm() {
   async function onSubmit(data: CheckoutFormData) {
     const amountInCents = Math.round(total() * 100);
 
-    const locationUrl = location
-      ? `https://maps.google.com/?q=${location.lat},${location.lng}`
-      : undefined;
+    const locationUrl = location ? toMapsUrl(location) : undefined;
 
     openCulqiModal(
       amountInCents,
