@@ -1,5 +1,5 @@
 import { CartDrawer } from "@/components/cart";
-import { BottomNav, Header } from "@/components/layout";
+import { BottomNav, Header, LocationBanner } from "@/components/layout";
 
 export default function PublicLayout({
   children,
@@ -14,6 +14,7 @@ export default function PublicLayout({
         {children}
       </main>
       <BottomNav />
+      <LocationBanner />
     </>
   );
 }
