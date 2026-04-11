@@ -32,7 +32,7 @@ export function Header() {
               </span>
             </div>
             <div className="flex flex-col leading-none">
-              <span className="text-xl font-black text-red-800 uppercase tracking-tight">
+              <span className="text-xl font-black text-primary uppercase tracking-tight">
                 Corrales
               </span>
               <span className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant/70">

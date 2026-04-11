@@ -39,7 +39,8 @@ export function LocationBanner() {
   }
 
   return (
-    <div className="fixed bottom-[88px] left-3 right-3 z-[45] md:left-auto md:right-4 md:bottom-4 md:w-80">
+    <div className="fixed inset-0 z-[45] flex items-center justify-center px-4 pointer-events-none">
+      <div className="pointer-events-auto w-full max-w-sm">
       <div className="bg-surface-container-lowest rounded-3xl shadow-[0_8px_40px_rgba(89,65,61,0.18)] border border-outline-variant/20 overflow-hidden">
         <div className="p-4 flex gap-3">
           <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
@@ -86,6 +87,7 @@ export function LocationBanner() {
             {loading ? "Obteniendo..." : "Sí, compartir"}
           </button>
         </div>
+      </div>
       </div>
     </div>
   );

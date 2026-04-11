@@ -11,7 +11,7 @@
 
 @theme {
   /* --- shadcn/ui compat tokens ----------------------------- */
-  --color-background:         #fff8f2;
+  --color-background:         #ffffff;
   --color-foreground:         #1e1b18;
   --color-card:               #ffffff;
   --color-card-foreground:    #1e1b18;
@@ -29,7 +29,7 @@
   /* --- Primary — Corrales Orange --------------------------- */
   --color-primary:                  #f25600;
   --color-primary-foreground:       #ffffff;
-  --color-primary-container:        #c94800;
+  --color-primary-container:        #f25600;
   --color-on-primary:               #ffffff;
   --color-on-primary-container:     #ffe8d9;
   --color-primary-fixed:            #ffd8b8;
@@ -39,26 +39,26 @@
   --color-surface-tint:             #f25600;
   --color-inverse-primary:          #ffb07a;
 
-  /* --- Secondary — Evening Navy ---------------------------- */
-  --color-secondary:                  #4e6073;
+  /* --- Secondary — Neutral Grey ---------------------------- */
+  --color-secondary:                  #6b7280;
   --color-secondary-foreground:       #ffffff;
   --color-on-secondary:               #ffffff;
-  --color-secondary-container:        #cfe2f9;
-  --color-on-secondary-container:     #526478;
-  --color-secondary-fixed:            #d1e4fb;
-  --color-secondary-fixed-dim:        #b5c8df;
-  --color-on-secondary-fixed:         #091d2e;
-  --color-on-secondary-fixed-variant: #36485b;
+  --color-secondary-container:        #f3f4f6;
+  --color-on-secondary-container:     #374151;
+  --color-secondary-fixed:            #e5e7eb;
+  --color-secondary-fixed-dim:        #d1d5db;
+  --color-on-secondary-fixed:         #111827;
+  --color-on-secondary-fixed-variant: #4b5563;
 
-  /* --- Tertiary — Golden Amber ----------------------------- */
-  --color-tertiary:                  #754800;
+  /* --- Tertiary — Neutral Grey ----------------------------- */
+  --color-tertiary:                  #9ca3af;
   --color-on-tertiary:               #ffffff;
-  --color-tertiary-container:        #965d00;
-  --color-on-tertiary-container:     #ffe7cf;
-  --color-tertiary-fixed:            #ffddb9;
-  --color-tertiary-fixed-dim:        #ffb961;
-  --color-on-tertiary-fixed:         #2b1700;
-  --color-on-tertiary-fixed-variant: #663e00;
+  --color-tertiary-container:        #6b7280;
+  --color-on-tertiary-container:     #f9fafb;
+  --color-tertiary-fixed:            #e5e7eb;
+  --color-tertiary-fixed-dim:        #d1d5db;
+  --color-on-tertiary-fixed:         #111827;
+  --color-on-tertiary-fixed-variant: #4b5563;
 
   /* --- Error ----------------------------------------------- */
   --color-error:              #ba1a1a;
@@ -67,13 +67,13 @@
   --color-on-error-container: #93000a;
 
   /* --- Surfaces -------------------------------------------- */
-  --color-surface:                   #fff8f2;
+  --color-surface:                   #ffffff;
   --color-on-surface:                #1e1b18;
   --color-on-background:             #1e1b18;
   --color-surface-variant:           #e8e1dc;
   --color-on-surface-variant:        #59413d;
   --color-surface-dim:               #dfd9d3;
-  --color-surface-bright:            #fff8f2;
+  --color-surface-bright:            #ffffff;
   --color-surface-container-lowest:  #ffffff;
   --color-surface-container-low:     #f9f2ec;
   --color-surface-container:         #f3ede7;

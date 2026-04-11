@@ -258,6 +258,8 @@ export async function getProducts(): Promise<Product[]> {
   }));
 }
 
+const PRIORITY_CATEGORIES = ["Pollo a la Brasa", "Parrillas"];
+
 export async function getCategories(): Promise<string[]> {
   const { data, error } = await supabase
     .from("categories")
@@ -265,5 +267,9 @@ export async function getCategories(): Promise<string[]> {
     .order("name");
 
   if (error) throw error;
-  return data.map((c) => c.name);
+
+  const names = data.map((c) => c.name);
+  const priority = PRIORITY_CATEGORIES.filter((p) => names.includes(p));
+  const rest = names.filter((n) => !PRIORITY_CATEGORIES.includes(n));
+  return [...priority, ...rest];
 }
