@@ -37,12 +37,12 @@ export function HomeSlider({ slides }: HomeSliderProps) {
 
   return (
     <section className="w-full overflow-hidden" aria-label="Promociones">
-      <div ref={emblaRef} className="overflow-hidden">
-        <div className="flex touch-pan-y">
+      <div ref={emblaRef} className="w-full overflow-hidden">
+        <div className="flex w-full touch-pan-y">
           {slides.map((slide) => (
             <div
               key={slide.id}
-              className="relative min-w-0 flex-[0_0_100%] h-[58vh] max-h-[480px] min-h-[320px] bg-black overflow-hidden"
+              className="relative min-w-0 flex-[0_0_100%] h-[56vw] min-h-[220px] max-h-[480px] md:h-[38vw] md:max-h-[520px] bg-black overflow-hidden"
             >
               {slide.type === "image" && slide.image_url ? (
                 /* ── Modo imagen — desktop / mobile ──────────────── */
