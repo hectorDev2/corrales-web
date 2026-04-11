@@ -315,6 +315,60 @@ export type Database = {
         }
         Relationships: []
       }
+      slider_slides: {
+        Row: {
+          id: string
+          type: string
+          sort_order: number
+          is_active: boolean
+          image_url: string | null
+          image_url_mobile: string | null
+          eyebrow: string | null
+          title: string | null
+          subtitle: string | null
+          cta_label: string | null
+          cta_href: string | null
+          bg_gradient: string | null
+          accent_color: string | null
+          icon: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          type?: string
+          sort_order?: number
+          is_active?: boolean
+          image_url?: string | null
+          image_url_mobile?: string | null
+          eyebrow?: string | null
+          title?: string | null
+          subtitle?: string | null
+          cta_label?: string | null
+          cta_href?: string | null
+          bg_gradient?: string | null
+          accent_color?: string | null
+          icon?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          type?: string
+          sort_order?: number
+          is_active?: boolean
+          image_url?: string | null
+          image_url_mobile?: string | null
+          eyebrow?: string | null
+          title?: string | null
+          subtitle?: string | null
+          cta_label?: string | null
+          cta_href?: string | null
+          bg_gradient?: string | null
+          accent_color?: string | null
+          icon?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
