@@ -24,20 +24,20 @@
   --color-destructive:        #ba1a1a;
   --color-border:             #e1bfb9;
   --color-input:              #eee7e1;
-  --color-ring:               #9e2016;
+  --color-ring:               #f25600;
 
-  /* --- Primary — Brava Red --------------------------------- */
-  --color-primary:                  #9e2016;
+  /* --- Primary — Corrales Orange --------------------------- */
+  --color-primary:                  #f25600;
   --color-primary-foreground:       #ffffff;
-  --color-primary-container:        #c0392b;
+  --color-primary-container:        #c94800;
   --color-on-primary:               #ffffff;
-  --color-on-primary-container:     #ffe5e1;
-  --color-primary-fixed:            #ffdad5;
-  --color-primary-fixed-dim:        #ffb4a9;
-  --color-on-primary-fixed:         #410000;
-  --color-on-primary-fixed-variant: #8e130c;
-  --color-surface-tint:             #b02d21;
-  --color-inverse-primary:          #ffb4a9;
+  --color-on-primary-container:     #ffe8d9;
+  --color-primary-fixed:            #ffd8b8;
+  --color-primary-fixed-dim:        #ffb07a;
+  --color-on-primary-fixed:         #341200;
+  --color-on-primary-fixed-variant: #c94800;
+  --color-surface-tint:             #f25600;
+  --color-inverse-primary:          #ffb07a;
 
   /* --- Secondary — Evening Navy ---------------------------- */
   --color-secondary:                  #4e6073;
@@ -103,6 +103,16 @@
   --radius-3xl: 1.5rem;
   --radius-4xl: 2.5rem;
   --radius-full: 9999px;
+
+}
+
+@keyframes cart-pop {
+  0%   { transform: scale(1);    box-shadow: 0 0 0 0   rgba(242,86,0,0.7); }
+  25%  { transform: scale(1.45); box-shadow: 0 0 0 14px rgba(242,86,0,0.25); }
+  50%  { transform: scale(0.88); box-shadow: 0 0 0 8px  rgba(242,86,0,0.1); }
+  70%  { transform: scale(1.18); box-shadow: 0 0 0 0   rgba(242,86,0,0); }
+  85%  { transform: scale(0.96); }
+  100% { transform: scale(1);    box-shadow: 0 0 0 0   rgba(242,86,0,0); }
 }
 
 @layer base {

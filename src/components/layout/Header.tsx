@@ -1,6 +1,5 @@
 import Link from "next/link";
 
-import { CartButton } from "./CartButton";
 import { MobileMenuButton } from "./MobileMenuButton";
 
 const NAV_LINKS = [
@@ -68,7 +67,6 @@ export function Header() {
                 search
               </span>
             </button>
-            <CartButton />
           </div>
         </div>
       </header>

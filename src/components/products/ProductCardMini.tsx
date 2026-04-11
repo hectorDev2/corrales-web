@@ -16,8 +16,20 @@ export function ProductCardMini({ product, onAdd }: ProductCardMiniProps) {
     product.variants[0],
   );
 
+  function handleAdd(e: React.MouseEvent) {
+    e.stopPropagation();
+    onAdd?.(product, selectedVariant);
+  }
+
   return (
-    <article className="group bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_4px_20px_rgba(89,65,61,0.05)] flex flex-col active:scale-95 transition-transform duration-200">
+    <article
+      role="button"
+      tabIndex={0}
+      aria-label={`Agregar ${product.name} al carrito`}
+      onClick={() => onAdd?.(product, selectedVariant)}
+      onKeyDown={(e) => e.key === "Enter" && onAdd?.(product, selectedVariant)}
+      className="group cursor-pointer bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_4px_20px_rgba(89,65,61,0.05)] flex flex-col active:scale-95 transition-transform duration-200"
+    >
       {/* Image */}
       <div className="relative h-32 w-full overflow-hidden">
         <Image
@@ -51,7 +63,7 @@ export function ProductCardMini({ product, onAdd }: ProductCardMiniProps) {
             {product.variants.map((v) => (
               <button
                 key={v.id}
-                onClick={() => setSelectedVariant(v)}
+                onClick={(e) => { e.stopPropagation(); setSelectedVariant(v); }}
                 className={`text-[10px] font-bold px-2 py-0.5 rounded-full border transition-colors ${
                   selectedVariant.id === v.id
                     ? "bg-primary text-on-primary border-primary"
@@ -69,7 +81,7 @@ export function ProductCardMini({ product, onAdd }: ProductCardMiniProps) {
             S/ {selectedVariant.price.toFixed(2)}
           </span>
           <button
-            onClick={() => onAdd?.(product, selectedVariant)}
+            onClick={handleAdd}
             aria-label={`Agregar ${product.name} al carrito`}
             className="bg-primary-container text-on-primary p-1.5 rounded-lg shadow-lg shadow-primary/20 active:scale-90 transition-transform"
           >
