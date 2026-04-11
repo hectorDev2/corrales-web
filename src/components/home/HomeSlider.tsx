@@ -38,15 +38,15 @@ export function HomeSlider({ slides }: HomeSliderProps) {
   return (
     <section className="w-full overflow-hidden" aria-label="Promociones">
       <div ref={emblaRef} className="w-full overflow-hidden">
-        <div className="flex w-full touch-pan-y">
+        <div className="flex w-full touch-pan-y items-start">
           {slides.map((slide) => (
             <div
               key={slide.id}
-              className="relative min-w-0 flex-[0_0_100%] h-[56vw] min-h-[220px] max-h-[480px] md:h-[38vw] md:max-h-[520px] bg-black overflow-hidden"
+              className={`relative min-w-0 flex-[0_0_100%] overflow-hidden bg-black aspect-square md:aspect-[25/6]`}
             >
               {slide.type === "image" && slide.image_url ? (
                 /* ── Modo imagen — desktop / mobile ──────────────── */
-                <picture className="absolute inset-0 w-full h-full">
+                <picture className="absolute inset-0">
                   {slide.image_url_mobile && (
                     <source media="(max-width: 767px)" srcSet={slide.image_url_mobile} />
                   )}
@@ -70,7 +70,7 @@ export function HomeSlider({ slides }: HomeSliderProps) {
                   <div className="absolute -right-8 bottom-0 h-48 w-48 rounded-full opacity-[0.07]" style={{ background: slide.accent_color ?? "#f25600" }} />
 
                   {/* Content */}
-                  <div className="relative flex h-full flex-col justify-end px-6 pb-10 md:px-12 md:pb-12">
+                  <div className="relative flex h-full flex-col justify-end px-6 pb-8 md:px-12 md:pb-12">
                     {slide.eyebrow && (
                       <div className="mb-3 flex items-center gap-2">
                         {slide.icon && (
