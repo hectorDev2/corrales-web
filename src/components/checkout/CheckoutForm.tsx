@@ -26,20 +26,47 @@ function openCulqiModal(
     return;
   }
 
-  const instance = new CulqiCheckout(
-    process.env.NEXT_PUBLIC_CULQI_PUBLIC_KEY!,
-    {
+  const publicKey = process.env.NEXT_PUBLIC_CULQI_PUBLIC_KEY;
+  if (!publicKey) {
+    toast.error(
+      "⚠️ La llave pública de Culqi no está configurada. Agregá NEXT_PUBLIC_CULQI_PUBLIC_KEY en las variables de entorno.",
+      { duration: 8000 },
+    );
+    return;
+  }
+
+  let instance: ReturnType<typeof CulqiCheckout>;
+  try {
+    instance = new CulqiCheckout(publicKey, {
       title: "Pollería Corrales",
       currency: "PEN",
       amount: amountInCents,
-    },
-  );
+    });
+  } catch {
+    toast.error(
+      "⚠️ La llave pública de Culqi no es válida. Verificá el valor de NEXT_PUBLIC_CULQI_PUBLIC_KEY.",
+      { duration: 8000 },
+    );
+    return;
+  }
 
   instance.culqi = function () {
     if (instance.token) {
       onToken(instance.token.id, instance.token.email);
     } else if (instance.error) {
-      onError(instance.error.user_message ?? "Error en el pago.");
+      const msg: string = instance.error.user_message ?? "";
+      if (
+        msg.toLowerCase().includes("llave") ||
+        msg.toLowerCase().includes("pública") ||
+        msg.toLowerCase().includes("válida")
+      ) {
+        toast.error(
+          `⚠️ Culqi: ${msg} — Verificá la llave pública en las variables de entorno.`,
+          { duration: 8000 },
+        );
+      } else {
+        onError(msg || "Error en el pago.");
+      }
     }
   };
 
@@ -126,6 +153,31 @@ export function CheckoutForm() {
       },
       (errMsg) => toast.error(errMsg),
     );
+  }
+
+  async function onDemoSubmit(data: CheckoutFormData) {
+    const locationUrl = location ? toMapsUrl(location) : undefined;
+    setIsPaying(true);
+    try {
+      const orderNumber = await createOrder({
+        customerName: data.name,
+        customerPhone: data.phone,
+        deliveryType: data.deliveryType,
+        customerAddress: data.address,
+        customerNotes: data.notes,
+        customerLocationUrl: locationUrl,
+        paymentMethod: "cash",
+        items,
+        total: total(),
+      });
+      toast.success(`¡Pedido #${orderNumber} confirmado! Te contactaremos pronto.`);
+      clearCart();
+      router.push("/");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "No pudimos crear el pedido.");
+    } finally {
+      setIsPaying(false);
+    }
   }
 
   const isLoading = isSubmitting || isPaying;
@@ -282,20 +334,30 @@ export function CheckoutForm() {
                   </button>
 
                   {location && (
-                    <a
-                      href={`https://maps.google.com/?q=${location.lat},${location.lng}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 text-[11px] text-primary font-bold hover:underline ml-1"
-                    >
-                      <span
-                        className="material-symbols-outlined text-sm"
-                        style={{ fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}
+                    <div className="rounded-2xl overflow-hidden border border-outline-variant/30 shadow-sm">
+                      <iframe
+                        title="Tu ubicación"
+                        src={`https://maps.google.com/maps?q=${location.lat},${location.lng}&z=16&output=embed`}
+                        width="100%"
+                        height="220"
+                        loading="lazy"
+                        className="block"
+                      />
+                      <a
+                        href={`https://maps.google.com/?q=${location.lat},${location.lng}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-center gap-1.5 py-2.5 text-[11px] text-primary font-bold hover:bg-primary/5 transition-colors"
                       >
-                        open_in_new
-                      </span>
-                      Ver en Google Maps · {location.lat.toFixed(5)}, {location.lng.toFixed(5)}
-                    </a>
+                        <span
+                          className="material-symbols-outlined text-sm"
+                          style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}
+                        >
+                          open_in_new
+                        </span>
+                        Abrir en Google Maps
+                      </a>
+                    </div>
                   )}
                 </div>
               )}
@@ -347,6 +409,22 @@ export function CheckoutForm() {
                     Pagar con Culqi
                   </>
                 )}
+              </button>
+
+              {/* Demo button */}
+              <button
+                type="button"
+                disabled={isLoading}
+                onClick={handleSubmit(onDemoSubmit)}
+                className="w-full border-2 border-dashed border-outline-variant text-on-surface-variant font-bold py-4 rounded-2xl hover:border-outline hover:text-on-surface active:scale-95 transition-all text-sm tracking-tight disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                <span
+                  className="material-symbols-outlined text-base"
+                  style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}
+                >
+                  play_circle
+                </span>
+                Simular compra (demo)
               </button>
 
               <p className="text-center text-[10px] text-outline flex items-center justify-center gap-1 uppercase font-bold tracking-widest">
