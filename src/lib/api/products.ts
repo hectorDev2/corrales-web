@@ -8,6 +8,14 @@ export interface CategoryOption {
   name: string;
 }
 
+export interface AdminCategory {
+  id: string;
+  name: string;
+  is_active: boolean;
+  created_at: string;
+  product_count: number;
+}
+
 export interface AdminVariant {
   id: string;
   label: string | null;
@@ -220,6 +228,59 @@ export async function uploadProductImage(file: File, productName?: string): Prom
   return data.publicUrl;
 }
 
+// ─── Category admin ───────────────────────────────────────────────────────────
+
+export async function getAdminCategories(): Promise<AdminCategory[]> {
+  const { data, error } = await supabase
+    .from("categories")
+    .select("id, name, is_active, created_at, products(count)")
+    .order("name");
+
+  if (error) throw error;
+
+  return data.map((row) => ({
+    id: row.id,
+    name: row.name,
+    is_active: row.is_active,
+    created_at: row.created_at,
+    product_count:
+      (row.products as unknown as [{ count: number }])?.[0]?.count ?? 0,
+  }));
+}
+
+export async function toggleCategory(id: string, is_active: boolean): Promise<void> {
+  const { error } = await supabase
+    .from("categories")
+    .update({ is_active })
+    .eq("id", id);
+  if (error) throw error;
+}
+
+export async function createCategory(name: string): Promise<void> {
+  const { error } = await supabase.from("categories").insert({ name });
+  if (error) throw error;
+}
+
+export async function updateCategory(id: string, name: string): Promise<void> {
+  const { error } = await supabase
+    .from("categories")
+    .update({ name })
+    .eq("id", id);
+  if (error) throw error;
+}
+
+export async function deleteCategory(id: string): Promise<void> {
+  const { error } = await supabase.from("categories").delete().eq("id", id);
+  if (error) {
+    if (error.code === "23503") {
+      throw new Error(
+        "No podés eliminar esta categoría porque tiene productos asociados.",
+      );
+    }
+    throw error;
+  }
+}
+
 // ─── Public queries ───────────────────────────────────────────────────────────
 
 export async function getProducts(): Promise<Product[]> {
@@ -232,10 +293,11 @@ export async function getProducts(): Promise<Product[]> {
       image_src,
       image_alt,
       tag,
-      categories!inner ( name ),
+      categories!inner ( name, is_active ),
       product_variants ( id, label, price, sort_order )
     `)
     .eq("is_active", true)
+    .eq("categories.is_active", true)
     .order("name");
 
   if (error) throw error;
@@ -264,6 +326,7 @@ export async function getCategories(): Promise<string[]> {
   const { data, error } = await supabase
     .from("categories")
     .select("name")
+    .eq("is_active", true)
     .order("name");
 
   if (error) throw error;
