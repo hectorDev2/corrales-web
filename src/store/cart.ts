@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 import type { CartItem } from "@/types/cart";
 import type { Product, ProductVariant } from "@/types/product";
@@ -24,7 +25,9 @@ interface CartStore {
   clearCart: () => void;
 }
 
-export const useCartStore = create<CartStore>((set, get) => ({
+export const useCartStore = create<CartStore>()(
+  persist(
+    (set, get) => ({
   items: [],
   isOpen: false,
   deliveryCost: DELIVERY_COST,
@@ -73,4 +76,10 @@ export const useCartStore = create<CartStore>((set, get) => ({
     }),
 
   clearCart: () => set({ items: [] }),
-}));
+    }),
+    {
+      name: "corrales-cart",
+      partialize: (state) => ({ items: state.items }),
+    },
+  ),
+);
