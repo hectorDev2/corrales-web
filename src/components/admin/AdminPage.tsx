@@ -14,6 +14,7 @@ import type { AdminOrder, AdminOrderStatus, DeliveryProfile } from "@/types/admi
 
 import { AdminOrderCard } from "./AdminOrderCard";
 import { BentoStats } from "./BentoStats";
+import { PushNotificationBanner } from "./PushNotificationBanner";
 
 export function AdminPage() {
   const [orders, setOrders] = useState<AdminOrder[]>([]);
@@ -96,6 +97,9 @@ export function AdminPage() {
           </p>
         </div>
       </div>
+
+      {/* Push notifications */}
+      <PushNotificationBanner />
 
       {/* Orders */}
       <section className="space-y-4">
