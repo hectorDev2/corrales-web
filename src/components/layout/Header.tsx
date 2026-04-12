@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { createSupabaseServerClient } from "@/lib/supabase-server";
+
 import { MobileMenuButton } from "./MobileMenuButton";
 
 const NAV_LINKS = [
@@ -9,7 +11,19 @@ const NAV_LINKS = [
   { href: "/nosotros", label: "Nosotros" },
 ] as const;
 
-export function Header() {
+export async function Header() {
+  const supabase = await createSupabaseServerClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  let isAdmin = false;
+  if (user) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+    isAdmin = profile?.role === "admin";
+  }
   return (
     <>
       {/* Top accent bar */}
@@ -67,6 +81,21 @@ export function Header() {
                 search
               </span>
             </button>
+
+            {isAdmin && (
+              <Link
+                href="/admin"
+                className="flex items-center gap-1.5 bg-primary text-on-primary text-xs font-black uppercase tracking-widest px-3 py-2 rounded-xl shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all"
+              >
+                <span
+                  className="material-symbols-outlined text-base"
+                  style={{ fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}
+                >
+                  admin_panel_settings
+                </span>
+                Panel
+              </Link>
+            )}
           </div>
         </div>
       </header>

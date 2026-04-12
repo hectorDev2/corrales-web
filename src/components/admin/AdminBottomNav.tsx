@@ -15,7 +15,8 @@ export function AdminBottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-2 bg-surface/90 backdrop-blur-xl shadow-[0_-8px_30px_rgba(89,65,61,0.12)] rounded-t-3xl">
+    <nav className="fixed bottom-0 left-0 w-full z-50 bg-surface/90 backdrop-blur-xl shadow-[0_-8px_30px_rgba(89,65,61,0.12)] rounded-t-3xl">
+      <div className="flex items-center gap-1 overflow-x-auto scrollbar-none px-3 pb-6 pt-2 snap-x snap-mandatory">
       {NAV_ITEMS.map(({ href, icon, label }, i) => {
         const isActive =
           href === "/" || href === "/admin"
@@ -25,7 +26,7 @@ export function AdminBottomNav() {
           <Link
             key={`${href}-${icon}`}
             href={href}
-            className={`flex flex-col items-center justify-center p-2 transition-all ${
+            className={`snap-center shrink-0 flex flex-col items-center justify-center p-2 min-w-[64px] transition-all ${
               isActive ? "bg-primary text-on-primary rounded-2xl shadow-lg shadow-primary/30 scale-110" : "text-outline hover:text-primary"
             }`}
           >
@@ -41,6 +42,7 @@ export function AdminBottomNav() {
           </Link>
         );
       })}
+      </div>
     </nav>
   );
 }
