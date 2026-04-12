@@ -170,27 +170,53 @@ export function AdminOrderCard({ order, deliveryProfiles, onAdvance, onAssign, o
         )}
 
         {order.status === "preparando" && (
-          <div className="grid grid-cols-2 gap-3">
-            <a
-              href={whatsappHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 py-3 rounded-xl bg-surface-container-highest text-on-surface-variant text-[11px] font-bold uppercase tracking-wider transition-all active:scale-95"
-            >
-              <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>
-                chat
-              </span>
-              Contactar
-            </a>
-            <button
-              onClick={() => onAdvance(order.id, "listo")}
-              className="flex items-center justify-center gap-2 py-3 rounded-xl bg-primary text-on-primary text-[11px] font-bold uppercase tracking-wider shadow-lg shadow-primary/20 transition-all active:scale-95"
-            >
-              Listo
-              <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>
-                arrow_forward
-              </span>
-            </button>
+          <div className="space-y-3">
+            {order.delivery_type === "delivery" && (
+              <select
+                value={selectedDelivery}
+                onChange={(e) => setSelectedDelivery(e.target.value)}
+                className="w-full bg-surface-container-high border-none rounded-xl py-3 px-4 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/20"
+              >
+                <option value="">Asignar repartidor...</option>
+                {deliveryProfiles.map((p) => (
+                  <option key={p.id} value={p.id}>{p.full_name}</option>
+                ))}
+              </select>
+            )}
+            <div className="grid grid-cols-2 gap-3">
+              <a
+                href={whatsappHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 py-3 rounded-xl bg-surface-container-highest text-on-surface-variant text-[11px] font-bold uppercase tracking-wider transition-all active:scale-95"
+              >
+                <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>
+                  chat
+                </span>
+                Contactar
+              </a>
+              {order.delivery_type === "delivery" && selectedDelivery ? (
+                <button
+                  onClick={() => onAssign(order.id, selectedDelivery)}
+                  className="flex items-center justify-center gap-2 py-3 rounded-xl bg-primary text-on-primary text-[11px] font-bold uppercase tracking-wider shadow-lg shadow-primary/20 transition-all active:scale-95"
+                >
+                  <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>
+                    delivery_dining
+                  </span>
+                  Enviar
+                </button>
+              ) : (
+                <button
+                  onClick={() => onAdvance(order.id, "listo")}
+                  className="flex items-center justify-center gap-2 py-3 rounded-xl bg-primary text-on-primary text-[11px] font-bold uppercase tracking-wider shadow-lg shadow-primary/20 transition-all active:scale-95"
+                >
+                  Listo
+                  <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>
+                    arrow_forward
+                  </span>
+                </button>
+              )}
+            </div>
           </div>
         )}
 

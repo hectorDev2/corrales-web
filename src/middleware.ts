@@ -28,25 +28,41 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const { pathname } = request.nextUrl;
-  const isProtected =
-    pathname.startsWith("/admin") || pathname.startsWith("/delivery");
-  const isLogin = pathname === "/login";
+  const isAdminRoute    = pathname.startsWith("/admin");
+  const isDeliveryRoute = pathname.startsWith("/delivery");
+  const isProtected     = isAdminRoute || isDeliveryRoute;
+  const isLogin         = pathname === "/login";
 
   // Sin sesión → redirigir a login
   if (!user && isProtected) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  // Con sesión en login → redirigir según rol
-  if (user && isLogin) {
+  // Con sesión → obtener rol una sola vez para verificar acceso
+  if (user && (isProtected || isLogin)) {
     const { data: profile } = await supabase
       .from("profiles")
       .select("role")
       .eq("id", user.id)
       .single();
 
-    const dest = profile?.role === "delivery" ? "/delivery" : "/admin";
-    return NextResponse.redirect(new URL(dest, request.url));
+    const role = profile?.role ?? "delivery";
+
+    // En login → redirigir a su panel
+    if (isLogin) {
+      const dest = role === "admin" ? "/admin" : "/delivery";
+      return NextResponse.redirect(new URL(dest, request.url));
+    }
+
+    // Delivery intentando entrar a /admin → redirigir a /delivery
+    if (isAdminRoute && role !== "admin") {
+      return NextResponse.redirect(new URL("/delivery", request.url));
+    }
+
+    // Admin intentando entrar a /delivery → redirigir a /admin
+    if (isDeliveryRoute && role !== "delivery") {
+      return NextResponse.redirect(new URL("/admin", request.url));
+    }
   }
 
   return supabaseResponse;
