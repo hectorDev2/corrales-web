@@ -30,11 +30,12 @@ export function usePushNotifications() {
       return;
     }
 
-    navigator.serviceWorker.ready.then((reg) => {
-      reg.pushManager.getSubscription().then((sub) => {
-        setState(sub ? "subscribed" : "default");
-      });
-    });
+    // Registrar el SW manualmente (no usamos next-pwa)
+    navigator.serviceWorker
+      .register("/sw.js")
+      .then((reg) => reg.pushManager.getSubscription())
+      .then((sub) => setState(sub ? "subscribed" : "default"))
+      .catch(() => setState("unsupported"));
   }, []);
 
   const subscribe = useCallback(async () => {
@@ -47,6 +48,7 @@ export function usePushNotifications() {
         return;
       }
 
+      await navigator.serviceWorker.register("/sw.js");
       const reg = await navigator.serviceWorker.ready;
       const sub = await reg.pushManager.subscribe({
         userVisibleOnly: true,

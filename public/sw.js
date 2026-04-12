@@ -1,5 +1,5 @@
-// Custom Service Worker — Push Notifications
-// Este archivo se fusiona con el SW generado por next-pwa
+// Service Worker — Web Push Notifications
+// Corrales Admin
 
 self.addEventListener("push", function (event) {
   if (!event.data) return;
