@@ -1,3 +1,4 @@
+Initialising login role...
 export type Json =
   | string
   | number
@@ -12,22 +13,50 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.5"
   }
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
       categories: {
         Row: {
           created_at: string
           id: string
+          is_active: boolean
           name: string
         }
         Insert: {
           created_at?: string
           id?: string
+          is_active?: boolean
           name: string
         }
         Update: {
           created_at?: string
           id?: string
+          is_active?: boolean
           name?: string
         }
         Relationships: []
@@ -252,6 +281,33 @@ export type Database = {
         }
         Relationships: []
       }
+      push_subscriptions: {
+        Row: {
+          auth_key: string
+          created_at: string | null
+          endpoint: string
+          id: string
+          p256dh: string
+          user_id: string
+        }
+        Insert: {
+          auth_key: string
+          created_at?: string | null
+          endpoint: string
+          id?: string
+          p256dh: string
+          user_id: string
+        }
+        Update: {
+          auth_key?: string
+          created_at?: string | null
+          endpoint?: string
+          id?: string
+          p256dh?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       reservations: {
         Row: {
           created_at: string
@@ -317,55 +373,55 @@ export type Database = {
       }
       slider_slides: {
         Row: {
+          accent_color: string | null
+          bg_gradient: string | null
+          created_at: string | null
+          cta_href: string | null
+          cta_label: string | null
+          eyebrow: string | null
+          icon: string | null
           id: string
-          type: string
-          sort_order: number
-          is_active: boolean
           image_url: string | null
           image_url_mobile: string | null
-          eyebrow: string | null
-          title: string | null
+          is_active: boolean
+          sort_order: number
           subtitle: string | null
-          cta_label: string | null
-          cta_href: string | null
-          bg_gradient: string | null
-          accent_color: string | null
-          icon: string | null
-          created_at: string
+          title: string | null
+          type: string
         }
         Insert: {
+          accent_color?: string | null
+          bg_gradient?: string | null
+          created_at?: string | null
+          cta_href?: string | null
+          cta_label?: string | null
+          eyebrow?: string | null
+          icon?: string | null
           id?: string
-          type?: string
-          sort_order?: number
-          is_active?: boolean
           image_url?: string | null
           image_url_mobile?: string | null
-          eyebrow?: string | null
-          title?: string | null
+          is_active?: boolean
+          sort_order?: number
           subtitle?: string | null
-          cta_label?: string | null
-          cta_href?: string | null
-          bg_gradient?: string | null
-          accent_color?: string | null
-          icon?: string | null
-          created_at?: string
+          title?: string | null
+          type?: string
         }
         Update: {
+          accent_color?: string | null
+          bg_gradient?: string | null
+          created_at?: string | null
+          cta_href?: string | null
+          cta_label?: string | null
+          eyebrow?: string | null
+          icon?: string | null
           id?: string
-          type?: string
-          sort_order?: number
-          is_active?: boolean
           image_url?: string | null
           image_url_mobile?: string | null
-          eyebrow?: string | null
-          title?: string | null
+          is_active?: boolean
+          sort_order?: number
           subtitle?: string | null
-          cta_label?: string | null
-          cta_href?: string | null
-          bg_gradient?: string | null
-          accent_color?: string | null
-          icon?: string | null
-          created_at?: string
+          title?: string | null
+          type?: string
         }
         Relationships: []
       }
@@ -530,6 +586,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {
       delivery_type: ["delivery", "pickup"],
@@ -541,7 +600,7 @@ export const Constants = {
         "entregado",
         "cancelado",
       ],
-      payment_method: ["yape", "cash"],
+      payment_method: ["yape", "cash", "culqi"],
       reservation_status: ["pendiente", "confirmada", "cancelada"],
       user_role: ["admin", "delivery"],
     },
