@@ -6,16 +6,35 @@ import { toast } from "sonner";
 import { getOrderHistory } from "@/lib/api/admin";
 import type { AdminOrder, AdminOrderStatus } from "@/types/admin";
 
-type StatusFilter = "all" | "entregado" | "cancelado";
+type StatusFilter = "all" | AdminOrderStatus;
+
+const ALL_STATUSES: AdminOrderStatus[] = [
+  "pendiente",
+  "preparando",
+  "listo",
+  "en_camino",
+  "entregado",
+  "cancelado",
+];
 
 const STATUS_CONFIG: Record<AdminOrderStatus, { label: string; bg: string; text: string }> = {
-  pendiente:  { label: "Pendiente",  bg: "bg-yellow-100", text: "text-yellow-800" },
-  preparando: { label: "Preparando", bg: "bg-blue-100",   text: "text-blue-700"   },
-  listo:      { label: "Listo",      bg: "bg-green-100",  text: "text-green-700"  },
-  en_camino:  { label: "En Camino",  bg: "bg-purple-100", text: "text-purple-700" },
-  entregado:  { label: "Entregado",  bg: "bg-gray-100",   text: "text-gray-600"   },
-  cancelado:  { label: "Cancelado",  bg: "bg-red-100",    text: "text-red-600"    },
+  pendiente:  { label: "Por aceptar", bg: "bg-yellow-100", text: "text-yellow-800" },
+  preparando: { label: "Preparando",  bg: "bg-blue-100",   text: "text-blue-700"   },
+  listo:      { label: "Listo",       bg: "bg-green-100",  text: "text-green-700"  },
+  en_camino:  { label: "En Camino",   bg: "bg-purple-100", text: "text-purple-700" },
+  entregado:  { label: "Entregado",   bg: "bg-gray-100",   text: "text-gray-600"   },
+  cancelado:  { label: "Cancelado",   bg: "bg-red-100",    text: "text-red-600"    },
 };
+
+const FILTER_TABS: { value: StatusFilter; label: string }[] = [
+  { value: "all",        label: "Todos"       },
+  { value: "pendiente",  label: "Por aceptar" },
+  { value: "preparando", label: "Preparando"  },
+  { value: "listo",      label: "Listos"      },
+  { value: "en_camino",  label: "En Camino"   },
+  { value: "entregado",  label: "Entregados"  },
+  { value: "cancelado",  label: "Cancelados"  },
+];
 
 const PAYMENT_LABEL: Record<string, string> = {
   yape: "Yape",
@@ -44,9 +63,7 @@ export function AdminOrderHistoryPage() {
     setLoading(true);
     try {
       const statuses: AdminOrderStatus[] =
-        statusFilter === "all"
-          ? ["entregado", "cancelado"]
-          : [statusFilter];
+        statusFilter === "all" ? ALL_STATUSES : [statusFilter];
       const data = await getOrderHistory(from, to, statuses);
       setOrders(data);
     } catch {
@@ -64,20 +81,13 @@ export function AdminOrderHistoryPage() {
     .filter((o) => o.status === "entregado")
     .reduce((sum, o) => sum + o.total, 0);
 
-  const delivered = orders.filter((o) => o.status === "entregado").length;
-  const cancelled = orders.filter((o) => o.status === "cancelado").length;
-
   return (
-    <div className="w-full max-w-[390px] mx-auto px-4 space-y-5 py-4">
+    <div className="w-full max-w-2xl md:max-w-5xl lg:max-w-7xl mx-auto px-4 md:px-8 space-y-5 py-4 md:py-8">
       {/* Header */}
       <div className="flex justify-between items-end py-2">
         <div>
-          <p className="text-xs font-bold uppercase tracking-widest text-secondary">
-            Admin
-          </p>
-          <h2 className="text-2xl font-black tracking-tighter text-on-surface">
-            Historial
-          </h2>
+          <p className="text-xs font-bold uppercase tracking-widest text-secondary">Admin</p>
+          <h2 className="text-2xl md:text-3xl font-black tracking-tighter text-on-surface">Historial</h2>
         </div>
         <button
           onClick={fetchHistory}
@@ -93,29 +103,19 @@ export function AdminOrderHistoryPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-3 gap-2 md:gap-4">
         <div className="bg-surface-container-lowest rounded-2xl p-3 shadow-sm">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-secondary mb-1">
-            Ingresos
-          </p>
-          <p className="text-base font-black text-primary leading-none">
-            S/ {totalRevenue.toFixed(2)}
-          </p>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-secondary mb-1">Ingresos</p>
+          <p className="text-base font-black text-primary leading-none">S/ {totalRevenue.toFixed(2)}</p>
         </div>
         <div className="bg-surface-container-lowest rounded-2xl p-3 shadow-sm">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-secondary mb-1">
-            Entregados
-          </p>
-          <p className="text-base font-black text-on-surface leading-none">
-            {delivered}
-          </p>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-secondary mb-1">Total</p>
+          <p className="text-base font-black text-on-surface leading-none">{orders.length}</p>
         </div>
         <div className="bg-surface-container-lowest rounded-2xl p-3 shadow-sm">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-secondary mb-1">
-            Cancelados
-          </p>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-secondary mb-1">Cancelados</p>
           <p className="text-base font-black text-error leading-none">
-            {cancelled}
+            {orders.filter((o) => o.status === "cancelado").length}
           </p>
         </div>
       </div>
@@ -150,26 +150,26 @@ export function AdminOrderHistoryPage() {
           </div>
         </div>
 
-        {/* Status tabs */}
-        <div className="grid grid-cols-3 gap-1.5 bg-surface-container-high rounded-2xl p-1">
-          {(["all", "entregado", "cancelado"] as StatusFilter[]).map((s) => (
+        {/* Status tabs — scrollable */}
+        <div className="flex gap-1.5 overflow-x-auto scrollbar-none pb-0.5">
+          {FILTER_TABS.map((tab) => (
             <button
-              key={s}
-              onClick={() => setStatusFilter(s)}
-              className={`py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all ${
-                statusFilter === s
-                  ? "bg-surface shadow-sm text-primary"
-                  : "text-on-surface-variant"
+              key={tab.value}
+              onClick={() => setStatusFilter(tab.value)}
+              className={`shrink-0 px-3 py-1.5 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all ${
+                statusFilter === tab.value
+                  ? "bg-primary text-on-primary shadow-sm"
+                  : "bg-surface-container-high text-on-surface-variant"
               }`}
             >
-              {s === "all" ? "Todos" : s === "entregado" ? "Entregados" : "Cancelados"}
+              {tab.label}
             </button>
           ))}
         </div>
       </div>
 
       {/* Order list */}
-      <section className="space-y-3 pb-32">
+      <section className="pb-32">
         {loading ? (
           <div className="flex justify-center py-16">
             <span
@@ -190,9 +190,11 @@ export function AdminOrderHistoryPage() {
             <p className="font-bold text-sm">Sin resultados para este período</p>
           </div>
         ) : (
-          orders.map((order) => (
-            <HistoryOrderCard key={order.id} order={order} />
-          ))
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            {orders.map((order) => (
+              <HistoryOrderCard key={order.id} order={order} />
+            ))}
+          </div>
         )}
       </section>
     </div>

@@ -60,6 +60,7 @@ export function AdminReservationsPage() {
     setUpdatingId(id);
     try {
       await updateReservationStatus(id, status);
+      await fetchReservations();
       toast.success(`Reserva ${STATUS_CONFIG[status].label.toLowerCase()}.`);
     } catch {
       toast.error("No se pudo actualizar la reserva.");
@@ -73,14 +74,14 @@ export function AdminReservationsPage() {
   const cancelled = reservations.filter((r) => r.status === "cancelada");
 
   return (
-    <div className="w-full max-w-[390px] mx-auto px-4 space-y-6 py-4 pb-24">
+    <div className="w-full max-w-2xl md:max-w-5xl lg:max-w-7xl mx-auto px-4 md:px-8 space-y-6 py-4 md:py-8 pb-24">
       {/* Header */}
       <div className="flex justify-between items-end py-2">
         <div>
           <p className="text-xs font-bold uppercase tracking-widest text-secondary">
             Administración
           </p>
-          <h2 className="text-2xl font-black tracking-tighter text-on-surface">Reservas</h2>
+          <h2 className="text-2xl md:text-3xl font-black tracking-tighter text-on-surface">Reservas</h2>
         </div>
         <div className="bg-surface-container-high rounded-xl p-2 px-3 text-right">
           <p className="text-[10px] font-bold text-secondary uppercase">Pendientes</p>
@@ -108,7 +109,7 @@ export function AdminReservationsPage() {
           <p className="font-bold text-sm">Sin reservas</p>
         </div>
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-6 md:space-y-0 md:grid md:grid-cols-3 md:gap-6 md:items-start">
           <ReservationSection
             title="Pendientes"
             items={pending}
