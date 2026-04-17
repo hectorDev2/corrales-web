@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 
-import { MobileMenuButton } from "./MobileMenuButton";
+import { MobileNav } from "./MobileNav";
 
 const NAV_LINKS = [
   { href: "/", label: "Inicio" },
@@ -32,8 +32,8 @@ export async function Header() {
       <header className="fixed top-[3px] w-full z-50 bg-[#fff8f2]/80 backdrop-blur-md shadow-[0_12px_40px_rgba(89,65,61,0.08)]">
         <div className="max-w-7xl mx-auto flex justify-between items-center px-4 h-16 md:h-20">
 
-          {/* Mobile: hamburger */}
-          <MobileMenuButton />
+          {/* Mobile: hamburger + drawer */}
+          <MobileNav isAdmin={isAdmin} />
 
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3">
