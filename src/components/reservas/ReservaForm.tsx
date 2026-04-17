@@ -85,9 +85,9 @@ export function ReservaForm() {
   }
 
   return (
-    <div className="max-w-xl mx-auto px-4 py-8">
+    <div className="mx-auto max-w-xl px-4 py-8">
       <header className="mb-8">
-        <h1 className="text-3xl font-black tracking-tighter text-on-surface mb-2">
+        <h1 className="text-on-surface mb-2 text-3xl font-black tracking-tighter">
           Hacer una Reserva
         </h1>
         <p className="text-on-surface-variant leading-relaxed">
@@ -96,64 +96,57 @@ export function ReservaForm() {
       </header>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        <div className="bg-surface-container-low p-6 rounded-3xl space-y-6">
-
+        <div className="bg-surface-container-low space-y-6 rounded-3xl p-6">
           {/* Name */}
           <div className="space-y-1.5">
-            <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant ml-1">
+            <label className="text-on-surface-variant ml-1 text-xs font-bold tracking-widest uppercase">
               Nombre Completo
             </label>
             <input
               {...register("name")}
               type="text"
               placeholder="Ej. Juan Pérez"
-              className="w-full bg-surface-container-high border-none rounded-xl py-4 px-4 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-outline text-on-surface"
+              className="bg-surface-container-high focus:ring-primary/20 placeholder:text-outline text-on-surface w-full rounded-xl border-none px-4 py-4 transition-all focus:ring-2 focus:outline-none"
             />
-            {errors.name && (
-              <p className="text-xs text-error ml-1">{errors.name.message}</p>
-            )}
+            {errors.name && <p className="text-error ml-1 text-xs">{errors.name.message}</p>}
           </div>
 
           {/* Phone */}
           <div className="space-y-1.5">
-            <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant ml-1">
+            <label className="text-on-surface-variant ml-1 text-xs font-bold tracking-widest uppercase">
               Teléfono / WhatsApp
             </label>
             <input
               {...register("phone")}
               type="tel"
               placeholder="999 999 999"
-              className="w-full bg-surface-container-high border-none rounded-xl py-4 px-4 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-outline text-on-surface"
+              className="bg-surface-container-high focus:ring-primary/20 placeholder:text-outline text-on-surface w-full rounded-xl border-none px-4 py-4 transition-all focus:ring-2 focus:outline-none"
             />
-            {errors.phone && (
-              <p className="text-xs text-error ml-1">{errors.phone.message}</p>
-            )}
+            {errors.phone && <p className="text-error ml-1 text-xs">{errors.phone.message}</p>}
           </div>
 
           {/* Date + Time */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant ml-1">
+              <label className="text-on-surface-variant ml-1 text-xs font-bold tracking-widest uppercase">
                 Fecha
               </label>
               <input
                 {...register("date")}
                 type="date"
                 min={new Date().toISOString().split("T")[0]}
-                className="w-full bg-surface-container-high border-none rounded-xl py-4 px-4 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all text-on-surface"
+                className="bg-surface-container-high focus:ring-primary/20 text-on-surface w-full rounded-xl border-none px-4 py-4 transition-all focus:ring-2 focus:outline-none"
               />
-              {errors.date && (
-                <p className="text-xs text-error ml-1">{errors.date.message}</p>
-              )}
+              {errors.date && <p className="text-error ml-1 text-xs">{errors.date.message}</p>}
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant ml-1">
+              <label className="text-on-surface-variant ml-1 text-xs font-bold tracking-widest uppercase">
                 Hora
               </label>
               <select
                 {...register("time")}
-                className="w-full bg-surface-container-high border-none rounded-xl py-4 px-4 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all text-on-surface"
+                className="bg-surface-container-high focus:ring-primary/20 text-on-surface w-full rounded-xl border-none px-4 py-4 transition-all focus:ring-2 focus:outline-none"
               >
                 <option value="">Elegí</option>
                 {TIME_SLOTS.map((slot) => (
@@ -162,15 +155,13 @@ export function ReservaForm() {
                   </option>
                 ))}
               </select>
-              {errors.time && (
-                <p className="text-xs text-error ml-1">{errors.time.message}</p>
-              )}
+              {errors.time && <p className="text-error ml-1 text-xs">{errors.time.message}</p>}
             </div>
           </div>
 
           {/* Guests */}
           <div className="space-y-1.5">
-            <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant ml-1">
+            <label className="text-on-surface-variant ml-1 text-xs font-bold tracking-widest uppercase">
               N° de Personas
             </label>
             <input
@@ -178,37 +169,36 @@ export function ReservaForm() {
               type="number"
               min={1}
               max={20}
-              className="w-full bg-surface-container-high border-none rounded-xl py-4 px-4 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all text-on-surface"
+              className="bg-surface-container-high focus:ring-primary/20 text-on-surface w-full rounded-xl border-none px-4 py-4 transition-all focus:ring-2 focus:outline-none"
             />
-            {errors.guests && (
-              <p className="text-xs text-error ml-1">{errors.guests.message}</p>
-            )}
+            {errors.guests && <p className="text-error ml-1 text-xs">{errors.guests.message}</p>}
           </div>
 
           {/* Notes */}
           <div className="space-y-1.5">
-            <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant ml-1">
+            <label className="text-on-surface-variant ml-1 text-xs font-bold tracking-widest uppercase">
               Notas adicionales
             </label>
             <textarea
               {...register("notes")}
               rows={3}
               placeholder="Ej. Cumpleaños, silla para bebé, alergias..."
-              className="w-full bg-surface-container-high border-none rounded-xl py-4 px-4 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-outline resize-none text-on-surface"
+              className="bg-surface-container-high focus:ring-primary/20 placeholder:text-outline text-on-surface w-full resize-none rounded-xl border-none px-4 py-4 transition-all focus:ring-2 focus:outline-none"
             />
-            {errors.notes && (
-              <p className="text-xs text-error ml-1">{errors.notes.message}</p>
-            )}
+            {errors.notes && <p className="text-error ml-1 text-xs">{errors.notes.message}</p>}
           </div>
         </div>
 
         {/* Location */}
-        <div className="bg-surface-container-low p-6 rounded-3xl space-y-4">
+        <div className="bg-surface-container-low space-y-4 rounded-3xl p-6">
           <div>
-            <p className="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-1">
-              Tu Ubicación <span className="text-outline font-normal normal-case tracking-normal">(opcional)</span>
+            <p className="text-on-surface-variant mb-1 text-xs font-bold tracking-widest uppercase">
+              Tu Ubicación{" "}
+              <span className="text-outline font-normal tracking-normal normal-case">
+                (opcional)
+              </span>
             </p>
-            <p className="text-[11px] text-on-surface-variant leading-relaxed">
+            <p className="text-on-surface-variant text-[11px] leading-relaxed">
               Compartí tu ubicación para que podamos orientarte o coordinar el acceso.
             </p>
           </div>
@@ -217,7 +207,7 @@ export function ReservaForm() {
             type="button"
             onClick={handleLocation}
             disabled={locLoading}
-            className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl border-2 border-dashed border-outline-variant bg-surface-container transition-all hover:border-primary hover:bg-primary/5 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
+            className="border-outline-variant bg-surface-container hover:border-primary hover:bg-primary/5 flex w-full items-center justify-center gap-3 rounded-2xl border-2 border-dashed py-4 transition-all active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
           >
             <span
               className={`material-symbols-outlined text-primary transition-all ${locLoading ? "animate-spin" : ""}`}
@@ -225,11 +215,11 @@ export function ReservaForm() {
             >
               {locLoading ? "progress_activity" : location ? "my_location" : "location_on"}
             </span>
-            <span className="font-bold text-sm text-on-surface">
+            <span className="text-on-surface text-sm font-bold">
               {locLoading
                 ? "Obteniendo ubicación..."
                 : location
-                  ? "Ubicación capturada"
+                  ? "Ubicación guardada."
                   : "Usar mi ubicación actual"}
             </span>
           </button>
@@ -239,7 +229,7 @@ export function ReservaForm() {
               href={`https://maps.google.com/?q=${location.lat},${location.lng}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 text-[11px] text-primary font-bold hover:underline"
+              className="text-primary flex items-center gap-2 text-[11px] font-bold hover:underline"
             >
               <span
                 className="material-symbols-outlined text-sm"
@@ -256,12 +246,12 @@ export function ReservaForm() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full bg-linear-to-br from-primary to-primary-container text-on-primary font-black py-5 rounded-2xl shadow-[0_8px_30px_rgba(158,32,22,0.3)] hover:scale-[1.02] active:scale-95 transition-all text-lg tracking-tight disabled:opacity-60 disabled:cursor-not-allowed disabled:scale-100"
+          className="from-primary to-primary-container text-on-primary w-full rounded-2xl bg-linear-to-br py-5 text-lg font-black tracking-tight shadow-[0_8px_30px_rgba(158,32,22,0.3)] transition-all hover:scale-[1.02] active:scale-95 disabled:scale-100 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isSubmitting ? "Enviando..." : "Confirmar Reserva por WhatsApp"}
         </button>
 
-        <p className="text-center text-[10px] text-outline flex items-center justify-center gap-1 uppercase font-bold tracking-widest">
+        <p className="text-outline flex items-center justify-center gap-1 text-center text-[10px] font-bold tracking-widest uppercase">
           <span
             className="material-symbols-outlined text-xs"
             style={{ fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}
