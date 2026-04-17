@@ -14,7 +14,7 @@ interface MenuPageProps {
 export function MenuPage({ products, categories }: MenuPageProps) {
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState<string>("Todos");
-  const { addItem, openDrawer } = useCartStore();
+  const { addItem } = useCartStore();
 
   const filtered = useMemo(() => {
     return products.filter((p) => {
@@ -30,7 +30,6 @@ export function MenuPage({ products, categories }: MenuPageProps) {
 
   function handleAdd(product: Product, variant: ProductVariant) {
     addItem(product, variant);
-    if (window.innerWidth >= 768) openDrawer();
   }
 
   return (
