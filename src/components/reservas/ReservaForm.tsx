@@ -1,7 +1,5 @@
 "use client";
 
-import { useState } from "react";
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -12,7 +10,7 @@ import { TIME_SLOTS, type ReservaFormData, reservaSchema } from "./reservaSchema
 
 const WHATSAPP_NUMBER = "51999999999"; // TODO: reemplazar con el número real
 
-function buildWhatsAppMessage(data: ReservaFormData, mapsUrl?: string): string {
+function buildWhatsAppMessage(data: ReservaFormData): string {
   const lines = [
     "🍗 *Nueva Reserva — Pollería Corrales*",
     "",
@@ -23,14 +21,10 @@ function buildWhatsAppMessage(data: ReservaFormData, mapsUrl?: string): string {
     `👥 *Personas:* ${data.guests}`,
   ];
   if (data.notes) lines.push(`📝 *Notas:* ${data.notes}`);
-  if (mapsUrl) lines.push(`📍 *Ubicación del cliente:* ${mapsUrl}`);
   return lines.join("\n");
 }
 
 export function ReservaForm() {
-  const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
-  const [locLoading, setLocLoading] = useState(false);
-
   const {
     register,
     handleSubmit,
@@ -39,26 +33,6 @@ export function ReservaForm() {
     resolver: zodResolver(reservaSchema),
     defaultValues: { guests: 2 },
   });
-
-  function handleLocation() {
-    if (!navigator.geolocation) {
-      toast.error("Tu dispositivo no soporta geolocalización.");
-      return;
-    }
-    setLocLoading(true);
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude });
-        setLocLoading(false);
-        toast.success("Ubicación capturada correctamente.");
-      },
-      () => {
-        setLocLoading(false);
-        toast.error("No se pudo obtener la ubicación. Verificá los permisos.");
-      },
-      { timeout: 8000 },
-    );
-  }
 
   async function onSubmit(data: ReservaFormData) {
     try {
@@ -71,11 +45,7 @@ export function ReservaForm() {
         notes: data.notes,
       });
 
-      const mapsUrl = location
-        ? `https://maps.google.com/?q=${location.lat},${location.lng}`
-        : undefined;
-
-      const message = buildWhatsAppMessage(data, mapsUrl);
+      const message = buildWhatsAppMessage(data);
       const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
       window.open(url, "_blank");
       toast.success("¡Reserva enviada! Te confirmamos por WhatsApp.");
@@ -187,59 +157,6 @@ export function ReservaForm() {
             />
             {errors.notes && <p className="text-error ml-1 text-xs">{errors.notes.message}</p>}
           </div>
-        </div>
-
-        {/* Location */}
-        <div className="bg-surface-container-low space-y-4 rounded-3xl p-6">
-          <div>
-            <p className="text-on-surface-variant mb-1 text-xs font-bold tracking-widest uppercase">
-              Tu Ubicación{" "}
-              <span className="text-outline font-normal tracking-normal normal-case">
-                (opcional)
-              </span>
-            </p>
-            <p className="text-on-surface-variant text-[11px] leading-relaxed">
-              Compartí tu ubicación para que podamos orientarte o coordinar el acceso.
-            </p>
-          </div>
-
-          <button
-            type="button"
-            onClick={handleLocation}
-            disabled={locLoading}
-            className="border-outline-variant bg-surface-container hover:border-primary hover:bg-primary/5 flex w-full items-center justify-center gap-3 rounded-2xl border-2 border-dashed py-4 transition-all active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            <span
-              className={`material-symbols-outlined text-primary transition-all ${locLoading ? "animate-spin" : ""}`}
-              style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}
-            >
-              {locLoading ? "progress_activity" : location ? "my_location" : "location_on"}
-            </span>
-            <span className="text-on-surface text-sm font-bold">
-              {locLoading
-                ? "Obteniendo ubicación..."
-                : location
-                  ? "Ubicación guardada."
-                  : "Usar mi ubicación actual"}
-            </span>
-          </button>
-
-          {location && (
-            <a
-              href={`https://maps.google.com/?q=${location.lat},${location.lng}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-primary flex items-center gap-2 text-[11px] font-bold hover:underline"
-            >
-              <span
-                className="material-symbols-outlined text-sm"
-                style={{ fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}
-              >
-                open_in_new
-              </span>
-              Ver en Google Maps · {location.lat.toFixed(5)}, {location.lng.toFixed(5)}
-            </a>
-          )}
         </div>
 
         {/* Submit */}
