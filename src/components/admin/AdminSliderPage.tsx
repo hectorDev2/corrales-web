@@ -43,11 +43,16 @@ const GRADIENT_PRESETS = [
 ] as const;
 
 const CTA_LINKS = [
-  { label: "Carta / Menú", value: "/menu" },
-  { label: "Reservas",     value: "/reservas" },
-  { label: "Inicio",       value: "/" },
-  { label: "Nosotros",     value: "/nosotros" },
-] as const;
+  { label: "Todo el menú",       value: "/#menu" },
+  { label: "Pollo a la Brasa",   value: "/?cat=Pollo+a+la+Brasa#menu" },
+  { label: "Parrillas",          value: "/?cat=Parrillas#menu" },
+  { label: "Broaster",           value: "/?cat=Broaster#menu" },
+  { label: "Burger",             value: "/?cat=Burger#menu" },
+  { label: "Bebidas",            value: "/?cat=Bebidas#menu" },
+  { label: "Salchipapas",        value: "/?cat=Salchipapas#menu" },
+  { label: "Postres",            value: "/?cat=Postres#menu" },
+  { label: "Reservas",           value: "/reservas" },
+];
 
 // ─── Defaults ─────────────────────────────────────────────────────────────────
 
@@ -82,6 +87,327 @@ const BLANK_IMAGE: SlideInput = {
   accent_color: null,
   icon: null,
 };
+
+// ─── SlideForm (fuera del componente padre para evitar re-mount en cada render) ─
+
+interface SlideFormProps {
+  data: SliderSlide | SlideInput;
+  onChange: (d: SliderSlide | SlideInput) => void;
+  uploading: boolean;
+  fileRef: React.RefObject<HTMLInputElement | null>;
+  createFileRef: React.RefObject<HTMLInputElement | null>;
+  mobileFileRef: React.RefObject<HTMLInputElement | null>;
+  createMobileFileRef: React.RefObject<HTMLInputElement | null>;
+  onImageUpload: (
+    e: React.ChangeEvent<HTMLInputElement>,
+    mode: "edit" | "create",
+    field?: "image_url" | "image_url_mobile",
+  ) => void;
+}
+
+function SlideForm({
+  data,
+  onChange,
+  uploading,
+  fileRef,
+  createFileRef,
+  mobileFileRef,
+  createMobileFileRef,
+  onImageUpload,
+}: SlideFormProps) {
+  const isImage = data.type === "image";
+  const isEdit = "id" in data;
+
+  return (
+    <div className="space-y-5">
+
+      {/* ── Tipo ── */}
+      <div>
+        <Label>Tipo de slide</Label>
+        <div className="flex gap-2 mt-1">
+          {(["custom", "image"] as const).map((t) => (
+            <button
+              key={t}
+              type="button"
+              onClick={() => onChange({ ...data, type: t })}
+              className={`flex-1 flex flex-col items-center gap-1.5 py-3 rounded-xl text-xs font-bold transition border-2 ${
+                data.type === t
+                  ? "bg-primary/10 border-primary text-primary"
+                  : "border-transparent bg-surface-container-high text-on-surface-variant"
+              }`}
+            >
+              <span
+                className="material-symbols-outlined text-2xl"
+                style={{ fontVariationSettings: `'FILL' ${data.type === t ? 1 : 0}, 'wght' 400, 'GRAD' 0, 'opsz' 24` }}
+              >
+                {t === "custom" ? "text_fields" : "image"}
+              </span>
+              {t === "custom" ? "Texto y color" : "Imagen / Flyer"}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {isImage ? (
+        /* ── Imagen (flyer de Canva) ── */
+        <div className="space-y-4">
+          {/* Desktop */}
+          <div>
+            <Label>
+              Imagen escritorio{" "}
+              <Hint>banner horizontal, ej: 1200×400</Hint>
+            </Label>
+            <div className="mt-1">
+              {data.image_url ? (
+                <div className="relative rounded-xl overflow-hidden aspect-[16/7]">
+                  <Image src={data.image_url} alt="Desktop" fill className="object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => onChange({ ...data, image_url: null })}
+                    className="absolute top-2 right-2 w-8 h-8 bg-black/60 text-white rounded-full flex items-center justify-center"
+                  >
+                    <span className="material-symbols-outlined text-sm">close</span>
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => (isEdit ? fileRef : createFileRef).current?.click()}
+                  disabled={uploading}
+                  className="w-full py-8 rounded-xl border-2 border-dashed border-outline-variant text-on-surface-variant flex flex-col items-center gap-2 hover:border-primary hover:text-primary transition"
+                >
+                  <span className="material-symbols-outlined text-4xl">upload_file</span>
+                  <span className="text-sm font-bold">{uploading ? "Subiendo..." : "Subir imagen escritorio"}</span>
+                  <span className="text-xs opacity-60">PNG, JPG, WEBP</span>
+                </button>
+              )}
+              <input
+                ref={isEdit ? fileRef : createFileRef}
+                type="file" accept="image/*" className="hidden"
+                onChange={(e) => onImageUpload(e, isEdit ? "edit" : "create", "image_url")}
+              />
+            </div>
+          </div>
+
+          {/* Mobile */}
+          <div>
+            <Label>
+              Imagen móvil{" "}
+              <Hint>cuadrada o vertical, ej: 720×720</Hint>
+            </Label>
+            <div className="mt-1">
+              {data.image_url_mobile ? (
+                <div className="relative rounded-xl overflow-hidden aspect-square max-w-[200px]">
+                  <Image src={data.image_url_mobile} alt="Mobile" fill className="object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => onChange({ ...data, image_url_mobile: null })}
+                    className="absolute top-2 right-2 w-8 h-8 bg-black/60 text-white rounded-full flex items-center justify-center"
+                  >
+                    <span className="material-symbols-outlined text-sm">close</span>
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => (isEdit ? mobileFileRef : createMobileFileRef).current?.click()}
+                  disabled={uploading}
+                  className="w-full py-8 rounded-xl border-2 border-dashed border-outline-variant text-on-surface-variant flex flex-col items-center gap-2 hover:border-primary hover:text-primary transition"
+                >
+                  <span className="material-symbols-outlined text-4xl">smartphone</span>
+                  <span className="text-sm font-bold">{uploading ? "Subiendo..." : "Subir imagen móvil"}</span>
+                  <span className="text-xs opacity-60">Opcional — si no subís, usa la de escritorio</span>
+                </button>
+              )}
+              <input
+                ref={isEdit ? mobileFileRef : createMobileFileRef}
+                type="file" accept="image/*" className="hidden"
+                onChange={(e) => onImageUpload(e, isEdit ? "edit" : "create", "image_url_mobile")}
+              />
+            </div>
+          </div>
+
+          {/* Botón CTA sobre la imagen */}
+          <div>
+            <Label>Texto del botón <Hint>opcional — aparece sobre la imagen</Hint></Label>
+            <input
+              type="text"
+              value={data.cta_label ?? ""}
+              onChange={(e) => onChange({ ...data, cta_label: e.target.value || null })}
+              placeholder="Ver Pollo a la Brasa"
+              className="mt-1 w-full rounded-xl bg-surface-container-high px-3 py-2.5 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+          </div>
+          <div>
+            <Label>El botón lleva a…</Label>
+            <div className="mt-1 flex flex-wrap gap-2">
+              {CTA_LINKS.map((opt) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => onChange({ ...data, cta_href: opt.value })}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition border ${
+                    data.cta_href === opt.value
+                      ? "bg-primary text-on-primary border-primary"
+                      : "border-outline-variant text-on-surface-variant hover:border-primary"
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      ) : (
+        /* ── Custom: texto y color ── */
+        <>
+          {/* Etiqueta pequeña */}
+          <div>
+            <Label>Etiqueta pequeña arriba del título <Hint>ej: "Clásico de siempre"</Hint></Label>
+            <input
+              type="text"
+              value={data.eyebrow ?? ""}
+              onChange={(e) => onChange({ ...data, eyebrow: e.target.value })}
+              placeholder="Clásico de siempre"
+              className="mt-1 w-full rounded-xl bg-surface-container-high px-3 py-2.5 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+          </div>
+
+          {/* Título */}
+          <div>
+            <Label>Título principal <Hint>podés usar dos líneas</Hint></Label>
+            <textarea
+              value={data.title ?? ""}
+              onChange={(e) => onChange({ ...data, title: e.target.value })}
+              placeholder={"Pollo a la\nBrasa"}
+              rows={2}
+              className="mt-1 w-full rounded-xl bg-surface-container-high px-3 py-2.5 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+            />
+          </div>
+
+          {/* Descripción */}
+          <div>
+            <Label>Descripción <Hint>texto debajo del título</Hint></Label>
+            <textarea
+              value={data.subtitle ?? ""}
+              onChange={(e) => onChange({ ...data, subtitle: e.target.value })}
+              placeholder="Texto descriptivo del slide"
+              rows={2}
+              className="mt-1 w-full rounded-xl bg-surface-container-high px-3 py-2.5 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+            />
+          </div>
+
+          {/* Botón CTA */}
+          <div>
+            <Label>Texto del botón</Label>
+            <input
+              type="text"
+              value={data.cta_label ?? ""}
+              onChange={(e) => onChange({ ...data, cta_label: e.target.value })}
+              placeholder="Ver Carta"
+              className="mt-1 w-full rounded-xl bg-surface-container-high px-3 py-2.5 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+          </div>
+
+          {/* Destino del botón */}
+          <div>
+            <Label>El botón lleva a…</Label>
+            <div className="mt-1 flex flex-wrap gap-2">
+              {CTA_LINKS.map((opt) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => onChange({ ...data, cta_href: opt.value })}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition border ${
+                    data.cta_href === opt.value
+                      ? "bg-primary text-on-primary border-primary"
+                      : "border-outline-variant text-on-surface-variant hover:border-primary"
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Ícono */}
+          <div>
+            <Label>Ícono de la etiqueta</Label>
+            <div className="mt-1 grid grid-cols-6 gap-2">
+              {ICON_OPTIONS.map((opt) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => onChange({ ...data, icon: opt.value })}
+                  className={`flex flex-col items-center gap-1 py-2 rounded-xl text-[10px] font-bold transition border-2 ${
+                    data.icon === opt.value
+                      ? "bg-primary/10 border-primary text-primary"
+                      : "border-transparent bg-surface-container-high text-on-surface-variant hover:border-outline-variant"
+                  }`}
+                >
+                  <span
+                    className="material-symbols-outlined text-xl"
+                    style={{ fontVariationSettings: `'FILL' ${data.icon === opt.value ? 1 : 0}, 'wght' 400, 'GRAD' 0, 'opsz' 24` }}
+                  >
+                    {opt.value}
+                  </span>
+                  <span className="leading-tight text-center">{opt.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Color de fondo */}
+          <div>
+            <Label>Color de fondo</Label>
+            <div className="mt-1 grid grid-cols-3 gap-2">
+              {GRADIENT_PRESETS.map((preset) => (
+                <button
+                  key={preset.value}
+                  type="button"
+                  onClick={() => onChange({ ...data, bg_gradient: preset.value })}
+                  className={`relative h-14 rounded-xl overflow-hidden border-2 transition ${
+                    data.bg_gradient === preset.value
+                      ? "border-primary ring-2 ring-primary/40"
+                      : "border-transparent"
+                  }`}
+                  style={{ background: preset.preview }}
+                >
+                  <span className="absolute bottom-1 left-0 right-0 text-center text-[10px] font-bold text-white/90 drop-shadow">
+                    {preset.label}
+                  </span>
+                  {data.bg_gradient === preset.value && (
+                    <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-white rounded-full flex items-center justify-center">
+                      <span className="material-symbols-outlined text-primary text-xs" style={{ fontVariationSettings: "'FILL' 1, 'wght' 700, 'GRAD' 0, 'opsz' 24" }}>check</span>
+                    </span>
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Color del acento */}
+          <div>
+            <Label>Color del acento <Hint>botón, etiqueta e ícono</Hint></Label>
+            <div className="mt-1 flex items-center gap-3 bg-surface-container-high rounded-xl px-4 py-3">
+              <input
+                type="color"
+                value={data.accent_color ?? "#f25600"}
+                onChange={(e) => onChange({ ...data, accent_color: e.target.value })}
+                className="w-10 h-10 rounded-lg cursor-pointer border-0 bg-transparent"
+              />
+              <div>
+                <p className="text-sm font-bold text-on-surface">{data.accent_color}</p>
+                <p className="text-xs text-on-surface-variant">Tocá para elegir el color</p>
+              </div>
+              <div className="ml-auto w-10 h-10 rounded-lg shadow-inner" style={{ background: data.accent_color ?? "#f25600" }} />
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
@@ -182,278 +508,6 @@ export function AdminSliderPage({ initialSlides }: AdminSliderPageProps) {
     }
   }
 
-  // ── Slide form ─────────────────────────────────────────────────────────────
-
-  function SlideForm({
-    data,
-    onChange,
-  }: {
-    data: SliderSlide | SlideInput;
-    onChange: (d: SliderSlide | SlideInput) => void;
-  }) {
-    const isImage = data.type === "image";
-    const isEdit = "id" in data;
-
-    return (
-      <div className="space-y-5">
-
-        {/* ── Tipo ── */}
-        <div>
-          <Label>Tipo de slide</Label>
-          <div className="flex gap-2 mt-1">
-            {(["custom", "image"] as const).map((t) => (
-              <button
-                key={t}
-                type="button"
-                onClick={() => onChange({ ...data, type: t })}
-                className={`flex-1 flex flex-col items-center gap-1.5 py-3 rounded-xl text-xs font-bold transition border-2 ${
-                  data.type === t
-                    ? "bg-primary/10 border-primary text-primary"
-                    : "border-transparent bg-surface-container-high text-on-surface-variant"
-                }`}
-              >
-                <span
-                  className="material-symbols-outlined text-2xl"
-                  style={{ fontVariationSettings: `'FILL' ${data.type === t ? 1 : 0}, 'wght' 400, 'GRAD' 0, 'opsz' 24` }}
-                >
-                  {t === "custom" ? "text_fields" : "image"}
-                </span>
-                {t === "custom" ? "Texto y color" : "Imagen / Flyer"}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {isImage ? (
-          /* ── Imagen (flyer de Canva) ── */
-          <div className="space-y-4">
-            {/* Desktop */}
-            <div>
-              <Label>
-                Imagen escritorio{" "}
-                <Hint>banner horizontal, ej: 1200×400</Hint>
-              </Label>
-              <div className="mt-1">
-                {data.image_url ? (
-                  <div className="relative rounded-xl overflow-hidden aspect-[16/7]">
-                    <Image src={data.image_url} alt="Desktop" fill className="object-cover" />
-                    <button
-                      type="button"
-                      onClick={() => onChange({ ...data, image_url: null })}
-                      className="absolute top-2 right-2 w-8 h-8 bg-black/60 text-white rounded-full flex items-center justify-center"
-                    >
-                      <span className="material-symbols-outlined text-sm">close</span>
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => (isEdit ? fileRef : createFileRef).current?.click()}
-                    disabled={uploading}
-                    className="w-full py-8 rounded-xl border-2 border-dashed border-outline-variant text-on-surface-variant flex flex-col items-center gap-2 hover:border-primary hover:text-primary transition"
-                  >
-                    <span className="material-symbols-outlined text-4xl">upload_file</span>
-                    <span className="text-sm font-bold">{uploading ? "Subiendo..." : "Subir imagen escritorio"}</span>
-                    <span className="text-xs opacity-60">PNG, JPG, WEBP</span>
-                  </button>
-                )}
-                <input
-                  ref={isEdit ? fileRef : createFileRef}
-                  type="file" accept="image/*" className="hidden"
-                  onChange={(e) => handleImageUpload(e, isEdit ? "edit" : "create", "image_url")}
-                />
-              </div>
-            </div>
-
-            {/* Mobile */}
-            <div>
-              <Label>
-                Imagen móvil{" "}
-                <Hint>cuadrada o vertical, ej: 720×720</Hint>
-              </Label>
-              <div className="mt-1">
-                {data.image_url_mobile ? (
-                  <div className="relative rounded-xl overflow-hidden aspect-square max-w-[200px]">
-                    <Image src={data.image_url_mobile} alt="Mobile" fill className="object-cover" />
-                    <button
-                      type="button"
-                      onClick={() => onChange({ ...data, image_url_mobile: null })}
-                      className="absolute top-2 right-2 w-8 h-8 bg-black/60 text-white rounded-full flex items-center justify-center"
-                    >
-                      <span className="material-symbols-outlined text-sm">close</span>
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => (isEdit ? mobileFileRef : createMobileFileRef).current?.click()}
-                    disabled={uploading}
-                    className="w-full py-8 rounded-xl border-2 border-dashed border-outline-variant text-on-surface-variant flex flex-col items-center gap-2 hover:border-primary hover:text-primary transition"
-                  >
-                    <span className="material-symbols-outlined text-4xl">smartphone</span>
-                    <span className="text-sm font-bold">{uploading ? "Subiendo..." : "Subir imagen móvil"}</span>
-                    <span className="text-xs opacity-60">Opcional — si no subís, usa la de escritorio</span>
-                  </button>
-                )}
-                <input
-                  ref={isEdit ? mobileFileRef : createMobileFileRef}
-                  type="file" accept="image/*" className="hidden"
-                  onChange={(e) => handleImageUpload(e, isEdit ? "edit" : "create", "image_url_mobile")}
-                />
-              </div>
-            </div>
-          </div>
-        ) : (
-          /* ── Custom: texto y color ── */
-          <>
-            {/* Etiqueta pequeña */}
-            <div>
-              <Label>Etiqueta pequeña arriba del título <Hint>ej: "Clásico de siempre"</Hint></Label>
-              <input
-                type="text"
-                value={data.eyebrow ?? ""}
-                onChange={(e) => onChange({ ...data, eyebrow: e.target.value })}
-                placeholder="Clásico de siempre"
-                className="mt-1 w-full rounded-xl bg-surface-container-high px-3 py-2.5 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary"
-              />
-            </div>
-
-            {/* Título */}
-            <div>
-              <Label>Título principal <Hint>podés usar dos líneas</Hint></Label>
-              <textarea
-                value={data.title ?? ""}
-                onChange={(e) => onChange({ ...data, title: e.target.value })}
-                placeholder={"Pollo a la\nBrasa"}
-                rows={2}
-                className="mt-1 w-full rounded-xl bg-surface-container-high px-3 py-2.5 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary resize-none"
-              />
-            </div>
-
-            {/* Descripción */}
-            <div>
-              <Label>Descripción <Hint>texto debajo del título</Hint></Label>
-              <textarea
-                value={data.subtitle ?? ""}
-                onChange={(e) => onChange({ ...data, subtitle: e.target.value })}
-                placeholder="Texto descriptivo del slide"
-                rows={2}
-                className="mt-1 w-full rounded-xl bg-surface-container-high px-3 py-2.5 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary resize-none"
-              />
-            </div>
-
-            {/* Botón CTA */}
-            <div>
-              <Label>Texto del botón</Label>
-              <input
-                type="text"
-                value={data.cta_label ?? ""}
-                onChange={(e) => onChange({ ...data, cta_label: e.target.value })}
-                placeholder="Ver Carta"
-                className="mt-1 w-full rounded-xl bg-surface-container-high px-3 py-2.5 text-sm text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary"
-              />
-            </div>
-
-            {/* Destino del botón */}
-            <div>
-              <Label>El botón lleva a…</Label>
-              <div className="mt-1 flex flex-wrap gap-2">
-                {CTA_LINKS.map((opt) => (
-                  <button
-                    key={opt.value}
-                    type="button"
-                    onClick={() => onChange({ ...data, cta_href: opt.value })}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition border ${
-                      data.cta_href === opt.value
-                        ? "bg-primary text-on-primary border-primary"
-                        : "border-outline-variant text-on-surface-variant hover:border-primary"
-                    }`}
-                  >
-                    {opt.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Ícono */}
-            <div>
-              <Label>Ícono de la etiqueta</Label>
-              <div className="mt-1 grid grid-cols-6 gap-2">
-                {ICON_OPTIONS.map((opt) => (
-                  <button
-                    key={opt.value}
-                    type="button"
-                    onClick={() => onChange({ ...data, icon: opt.value })}
-                    className={`flex flex-col items-center gap-1 py-2 rounded-xl text-[10px] font-bold transition border-2 ${
-                      data.icon === opt.value
-                        ? "bg-primary/10 border-primary text-primary"
-                        : "border-transparent bg-surface-container-high text-on-surface-variant hover:border-outline-variant"
-                    }`}
-                  >
-                    <span
-                      className="material-symbols-outlined text-xl"
-                      style={{ fontVariationSettings: `'FILL' ${data.icon === opt.value ? 1 : 0}, 'wght' 400, 'GRAD' 0, 'opsz' 24` }}
-                    >
-                      {opt.value}
-                    </span>
-                    <span className="leading-tight text-center">{opt.label}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Color de fondo */}
-            <div>
-              <Label>Color de fondo</Label>
-              <div className="mt-1 grid grid-cols-3 gap-2">
-                {GRADIENT_PRESETS.map((preset) => (
-                  <button
-                    key={preset.value}
-                    type="button"
-                    onClick={() => onChange({ ...data, bg_gradient: preset.value })}
-                    className={`relative h-14 rounded-xl overflow-hidden border-2 transition ${
-                      data.bg_gradient === preset.value
-                        ? "border-primary ring-2 ring-primary/40"
-                        : "border-transparent"
-                    }`}
-                    style={{ background: preset.preview }}
-                  >
-                    <span className="absolute bottom-1 left-0 right-0 text-center text-[10px] font-bold text-white/90 drop-shadow">
-                      {preset.label}
-                    </span>
-                    {data.bg_gradient === preset.value && (
-                      <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-white rounded-full flex items-center justify-center">
-                        <span className="material-symbols-outlined text-primary text-xs" style={{ fontVariationSettings: "'FILL' 1, 'wght' 700, 'GRAD' 0, 'opsz' 24" }}>check</span>
-                      </span>
-                    )}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Color del acento */}
-            <div>
-              <Label>Color del acento <Hint>botón, etiqueta e ícono</Hint></Label>
-              <div className="mt-1 flex items-center gap-3 bg-surface-container-high rounded-xl px-4 py-3">
-                <input
-                  type="color"
-                  value={data.accent_color ?? "#f25600"}
-                  onChange={(e) => onChange({ ...data, accent_color: e.target.value })}
-                  className="w-10 h-10 rounded-lg cursor-pointer border-0 bg-transparent"
-                />
-                <div>
-                  <p className="text-sm font-bold text-on-surface">{data.accent_color}</p>
-                  <p className="text-xs text-on-surface-variant">Tocá para elegir el color</p>
-                </div>
-                <div className="ml-auto w-10 h-10 rounded-lg shadow-inner" style={{ background: data.accent_color ?? "#f25600" }} />
-              </div>
-            </div>
-          </>
-        )}
-      </div>
-    );
-  }
-
   // ── Render ─────────────────────────────────────────────────────────────────
 
   return (
@@ -475,7 +529,16 @@ export function AdminSliderPage({ initialSlides }: AdminSliderPageProps) {
       {creating && (
         <div className="mb-6 bg-surface-container-lowest rounded-2xl p-4 border border-outline-variant/30 shadow-sm">
           <p className="text-sm font-bold text-primary mb-4">Nuevo slide</p>
-          <SlideForm data={creating} onChange={(d) => setCreating(d as SlideInput)} />
+          <SlideForm
+            data={creating}
+            onChange={(d) => setCreating(d as SlideInput)}
+            uploading={uploading}
+            fileRef={fileRef}
+            createFileRef={createFileRef}
+            mobileFileRef={mobileFileRef}
+            createMobileFileRef={createMobileFileRef}
+            onImageUpload={handleImageUpload}
+          />
           <div className="flex gap-2 mt-5">
             <button
               onClick={() => setCreating(null)}
@@ -574,7 +637,16 @@ export function AdminSliderPage({ initialSlides }: AdminSliderPageProps) {
             {/* Inline edit form */}
             {editing?.id === slide.id && (
               <div className="border-t border-outline-variant/20 p-4">
-                <SlideForm data={editing} onChange={(d) => setEditing(d as SliderSlide)} />
+                <SlideForm
+                  data={editing}
+                  onChange={(d) => setEditing(d as SliderSlide)}
+                  uploading={uploading}
+                  fileRef={fileRef}
+                  createFileRef={createFileRef}
+                  mobileFileRef={mobileFileRef}
+                  createMobileFileRef={createMobileFileRef}
+                  onImageUpload={handleImageUpload}
+                />
                 <div className="flex gap-2 mt-5">
                   <button
                     onClick={() => setEditing(null)}

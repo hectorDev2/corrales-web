@@ -46,17 +46,35 @@ export function HomeSlider({ slides }: HomeSliderProps) {
             >
               {slide.type === "image" && slide.image_url ? (
                 /* ── Modo imagen — desktop / mobile ──────────────── */
-                <picture className="absolute inset-0">
-                  {slide.image_url_mobile && (
-                    <source media="(max-width: 767px)" srcSet={slide.image_url_mobile} />
+                <>
+                  <picture className="absolute inset-0">
+                    {slide.image_url_mobile && (
+                      <source media="(max-width: 767px)" srcSet={slide.image_url_mobile} />
+                    )}
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={slide.image_url}
+                      alt="Promoción"
+                      className="w-full h-full object-cover"
+                    />
+                  </picture>
+
+                  {slide.cta_label && slide.cta_href && (
+                    <Link
+                      href={slide.cta_href}
+                      className="absolute bottom-4 left-4 flex items-center gap-2 rounded-full bg-white/90 px-4 py-2.5 text-sm font-black text-primary shadow-lg backdrop-blur-sm transition-transform hover:scale-105 active:scale-95"
+                    >
+                      <span
+                        className="material-symbols-outlined text-base"
+                        style={{ fontVariationSettings: "'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24" }}
+                        aria-hidden="true"
+                      >
+                        arrow_circle_right
+                      </span>
+                      {slide.cta_label}
+                    </Link>
                   )}
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={slide.image_url}
-                    alt="Promoción"
-                    className="w-full h-full object-cover"
-                  />
-                </picture>
+                </>
               ) : (
                 /* ── Modo custom (gradiente + texto) ─────────────── */
                 <>
