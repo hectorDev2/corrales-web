@@ -37,7 +37,7 @@ export function HeroSection() {
             href="#menu"
             className="from-primary to-primary-container text-on-primary shadow-primary/20 flex w-full items-center justify-center gap-2 rounded-xl bg-linear-to-br px-10 py-5 text-lg font-bold shadow-xl transition-all hover:scale-[1.02] active:scale-95 sm:w-auto"
           >
-            Ver la Carta
+            Pedir delivery
             <span
               className="material-symbols-outlined"
               style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}

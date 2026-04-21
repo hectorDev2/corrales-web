@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useRef } from "react";
 
 import { useCartStore } from "@/store/cart";
@@ -24,14 +25,14 @@ export function FloatingActions() {
   }, [count]);
 
   return (
-    <div className="fixed bottom-6 right-4 z-50 flex flex-col items-end gap-3">
+    <div className="fixed right-4 bottom-6 z-50 flex flex-col items-end gap-3">
       {/* WhatsApp */}
       <a
         href={`https://wa.me/${WHATSAPP_NUMBER}`}
         target="_blank"
         rel="noopener noreferrer"
         aria-label="Contactar por WhatsApp"
-        className="flex h-16 w-16 items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg shadow-[#25D366]/40 transition-transform active:scale-90 hover:scale-105"
+        className="flex h-16 w-16 items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg shadow-[#25D366]/40 transition-transform hover:scale-105 active:scale-90"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -49,7 +50,7 @@ export function FloatingActions() {
         ref={btnRef}
         aria-label="Carrito de compras"
         onClick={openDrawer}
-        className="relative flex h-16 w-16 items-center justify-center rounded-full bg-primary text-on-primary shadow-lg shadow-primary/40 transition-transform active:scale-90 hover:scale-105"
+        className="bg-primary text-on-primary shadow-primary/40 relative flex h-16 w-16 items-center justify-center rounded-full shadow-lg transition-transform hover:scale-105 active:scale-90"
       >
         <span
           className="material-symbols-outlined text-[30px]"
@@ -59,11 +60,27 @@ export function FloatingActions() {
           shopping_cart
         </span>
         {count > 0 && (
-          <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-white text-[10px] font-bold text-primary shadow-md ring-2 ring-primary/20">
+          <span className="text-primary ring-primary/20 absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-white text-[10px] font-bold shadow-md ring-2">
             {count > 99 ? "99+" : count}
           </span>
         )}
       </button>
+      {/* Proceder con la compra */}
+      {count > 0 && (
+        <Link
+          href="/checkout"
+          className="bg-primary text-on-primary shadow-primary/40 flex items-center gap-2 rounded-full px-5 py-3 text-sm font-black shadow-lg transition-transform hover:scale-105 active:scale-95"
+        >
+          Proceder con la compra
+          <span
+            className="material-symbols-outlined text-base"
+            style={{ fontVariationSettings: "'FILL' 0, 'wght' 600, 'GRAD' 0, 'opsz' 24" }}
+            aria-hidden="true"
+          >
+            arrow_forward
+          </span>
+        </Link>
+      )}
     </div>
   );
 }
