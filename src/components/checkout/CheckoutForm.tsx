@@ -13,6 +13,7 @@ import { useCartStore } from "@/store/cart";
 
 import { type CheckoutFormData, checkoutSchema } from "./checkoutSchema";
 import { OrderSummary } from "./OrderSummary";
+import { UpsellSection } from "./UpsellSection";
 
 function openCulqiModal(
   amountInCents: number,
@@ -380,6 +381,7 @@ export function CheckoutForm() {
           {/* ── Right: Order summary + payment ───────────── */}
           <aside className="space-y-6 md:sticky md:top-24">
             <OrderSummary />
+            <UpsellSection />
 
             <div className="bg-surface-container-lowest p-6 rounded-3xl shadow-[0_12px_40px_rgba(89,65,61,0.08)] space-y-4">
               {/* Submit */}
