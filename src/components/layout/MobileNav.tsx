@@ -8,6 +8,7 @@ const NAV_LINKS = [
   { href: "/menu", label: "Menú", icon: "restaurant_menu" },
   { href: "/reservas", label: "Reservas", icon: "event_seat" },
   { href: "/nosotros", label: "Nosotros", icon: "groups" },
+  { href: "/trabaja-con-nosotros", label: "Únete", icon: "work" },
 ] as const;
 
 interface MobileNavProps {

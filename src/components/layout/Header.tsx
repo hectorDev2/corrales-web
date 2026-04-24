@@ -9,6 +9,7 @@ const NAV_LINKS = [
   { href: "/menu", label: "Menú" },
   { href: "/reservas", label: "Reservas" },
   { href: "/nosotros", label: "Nosotros" },
+  { href: "/trabaja-con-nosotros", label: "Únete" },
 ] as const;
 
 export async function Header() {
