@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 
+import { CookieBanner } from "@/components/layout";
 import { Toaster } from "sonner";
 
 import "./globals.css";
@@ -32,6 +33,7 @@ export default function RootLayout({
       />
       <body className="min-h-full flex flex-col bg-background">
         {children}
+        <CookieBanner />
         <Toaster richColors position="top-center" />
       </body>
     </html>
