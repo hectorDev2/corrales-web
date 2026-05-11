@@ -7,7 +7,7 @@ interface InvoiceModalProps {
   orderId: string;
   orderNumber: number;
   total: number;
-  invoice: { id: string; series: string; number: number; sunat_status: string } | null;
+  invoice: { id: string; series: string; number: number; sunat_status: string; pdf_url: string | null } | null;
   onClose: () => void;
 }
 
@@ -21,12 +21,9 @@ export function InvoiceModal({ orderId, orderNumber, total, invoice, onClose }: 
   const [error, setError] = useState("");
   const [retrying, setRetrying] = useState(false);
 
-  const existingResult = !retrying && invoice
-    ? { numero_completo: `${invoice.series}-${String(invoice.number).padStart(8, "0")}`, pdf_url: null as string | null }
-    : null;
-
-  const isRejected = invoice?.sunat_status === "rejected";
+  const showInvoiceInfo = !retrying && invoice && result === null;
   const isAccepted = invoice?.sunat_status === "accepted";
+  const isRejected = invoice?.sunat_status === "rejected";
 
   const isRuc = invoiceType === "factura";
   const docValid = isRuc ? docNumber.length === 11 : docNumber.length === 8;
@@ -86,28 +83,45 @@ export function InvoiceModal({ orderId, orderNumber, total, invoice, onClose }: 
             </button>
           </div>
 
-          {result ? (
-            /* ── Success ─────────────────────── */
+          {result || showInvoiceInfo ? (
+            /* ── Invoice result ─────────────────── */
             <div className="space-y-4 text-center">
-              <div className="w-16 h-16 rounded-full bg-success/10 flex items-center justify-center mx-auto">
-                <span className="material-symbols-outlined text-3xl text-success" style={{ fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>
-                  check_circle
+              <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto ${
+                result ? "bg-success/10" : isAccepted ? "bg-success/10" : "bg-red-50"
+              }`}>
+                <span className={`material-symbols-outlined text-3xl ${
+                  result ? "text-success" : isAccepted ? "text-success" : "text-red-500"
+                }`} style={{ fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>
+                  {result ? "check_circle" : isAccepted ? "check_circle" : "error"}
                 </span>
               </div>
               <div>
-                <p className="font-bold text-[#111111]">Comprobante Emitido</p>
-                <p className="text-2xl font-black text-primary mt-1">{result.numero_completo}</p>
+                <p className="font-bold text-[#111111]">
+                  {result ? "Comprobante Emitido" : isAccepted ? "Comprobante Aceptado" : "Comprobante Rechazado"}
+                </p>
+                <p className="text-2xl font-black text-primary mt-1">
+                  {result?.numero_completo ?? `${invoice?.series}-${String(invoice?.number).padStart(8, "0")}`}
+                </p>
               </div>
-              {result.pdf_url && (
+              {(result?.pdf_url ?? invoice?.pdf_url) && (
                 <a
-                  href={result.pdf_url}
+                  href={result?.pdf_url ?? invoice?.pdf_url!}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-xl text-sm font-bold hover:bg-primary/90 transition-all active:scale-95"
                 >
                   <span className="material-symbols-outlined text-base">picture_as_pdf</span>
-                  Descargar PDF
+                  Ver PDF
                 </a>
+              )}
+              {!result && isRejected && (
+                <button
+                  onClick={() => setRetrying(true)}
+                  className="w-full py-3 rounded-xl bg-primary text-white text-sm font-bold uppercase tracking-wider shadow-lg shadow-primary/30 hover:bg-primary/90 active:scale-95 transition-all flex items-center justify-center gap-2"
+                >
+                  <span className="material-symbols-outlined text-base">refresh</span>
+                  Reintentar con nuevo número
+                </button>
               )}
               <button onClick={onClose} className="block w-full py-3 rounded-xl bg-[#f5f5f5] text-[#666666] text-sm font-bold active:scale-95 transition-all">
                 Cerrar

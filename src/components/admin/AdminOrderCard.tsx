@@ -104,7 +104,7 @@ export function AdminOrderCard({ order, deliveryProfiles, onAdvance, onAssign, o
                 >
                   open_in_new
                 </span>
-                Ver en Google Maps
+                Ver ubicación
               </a>
             )}
 

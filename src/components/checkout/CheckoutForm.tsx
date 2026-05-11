@@ -12,6 +12,7 @@ import { createOrder } from "@/lib/api/orders";
 import { useCartStore } from "@/store/cart";
 
 import { type CheckoutFormData, checkoutSchema } from "./checkoutSchema";
+import { MapboxAutocomplete, reverseGeocode } from "./MapboxAutocomplete";
 import { OrderSummary } from "./OrderSummary";
 import { UpsellSection } from "./UpsellSection";
 
@@ -77,8 +78,9 @@ function openCulqiModal(
 export function CheckoutForm() {
   const { items, total, clearCart } = useCartStore();
   const router = useRouter();
-  const { getStored, requestLocation, toMapsUrl } = useGeolocation();
+  const { getStored, requestLocation } = useGeolocation();
   const [location, setLocation] = useState<StoredLocation | null>(() => getStored());
+  const [mapboxCoords, setMapboxCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [locLoading, setLocLoading] = useState(false);
   const [isPaying, setIsPaying] = useState(false);
 
@@ -92,7 +94,14 @@ export function CheckoutForm() {
     setLocLoading(false);
     if (loc) {
       setLocation(loc);
-      toast.success("Ubicación capturada correctamente.");
+      setMapboxCoords({ lat: loc.lat, lng: loc.lng });
+      const address = await reverseGeocode(loc.lat, loc.lng);
+      if (address) {
+        setValue("address", address, { shouldValidate: true });
+        toast.success("Dirección obtenida desde tu ubicación.");
+      } else {
+        toast.success("Ubicación capturada correctamente.");
+      }
     } else {
       toast.error("No se pudo obtener la ubicación. Verificá los permisos.");
     }
@@ -102,6 +111,7 @@ export function CheckoutForm() {
     control,
     register,
     handleSubmit,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<CheckoutFormData>({
     resolver: zodResolver(checkoutSchema),
@@ -109,11 +119,15 @@ export function CheckoutForm() {
   });
 
   const deliveryType = useWatch({ control, name: "deliveryType" });
+  const addressValue = useWatch({ control, name: "address" });
 
   async function onSubmit(data: CheckoutFormData) {
     const amountInCents = Math.round(total() * 100);
 
-    const locationUrl = location ? toMapsUrl(location) : undefined;
+    const coords = mapboxCoords ?? location;
+    const locationUrl = coords
+      ? `https://www.openstreetmap.org/?mlat=${coords.lat}&mlon=${coords.lng}`
+      : undefined;
 
     openCulqiModal(
       amountInCents,
@@ -157,7 +171,10 @@ export function CheckoutForm() {
   }
 
   async function onDemoSubmit(data: CheckoutFormData) {
-    const locationUrl = location ? toMapsUrl(location) : undefined;
+    const coords = mapboxCoords ?? location;
+    const locationUrl = coords
+      ? `https://www.openstreetmap.org/?mlat=${coords.lat}&mlon=${coords.lng}`
+      : undefined;
     setIsPaying(true);
     try {
       const orderNumber = await createOrder({
@@ -280,27 +297,18 @@ export function CheckoutForm() {
                   <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant ml-1">
                     Dirección de entrega
                   </label>
-                  <div className="relative">
-                    <span
-                      className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline"
-                      style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}
-                    >
-                      location_on
-                    </span>
-                    <input
-                      {...register("address")}
-                      type="text"
-                      placeholder="Calle, número y urbanización"
-                      className="w-full bg-surface-container-high border-none rounded-xl py-4 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-outline text-on-surface"
-                    />
-                  </div>
+                  <MapboxAutocomplete
+                    value={addressValue}
+                    onChange={(val) => setValue("address", val, { shouldValidate: true })}
+                    onCoordinates={(lat, lng) => setMapboxCoords({ lat, lng })}
+                  />
                   {errors.address && (
                     <p className="text-xs text-error ml-1">{errors.address.message}</p>
                   )}
                 </div>
               )}
 
-              {/* Location (solo para delivery) */}
+              {/* Ubicación (solo para delivery) */}
               {deliveryType === "delivery" && (
                 <div className="space-y-3">
                   <div>
@@ -335,30 +343,15 @@ export function CheckoutForm() {
                   </button>
 
                   {location && (
-                    <div className="rounded-2xl overflow-hidden border border-outline-variant/30 shadow-sm">
-                      <iframe
-                        title="Tu ubicación"
-                        src={`https://maps.google.com/maps?q=${location.lat},${location.lng}&z=16&output=embed`}
-                        width="100%"
-                        height="220"
-                        loading="lazy"
-                        className="block"
-                      />
-                      <a
-                        href={`https://maps.google.com/?q=${location.lat},${location.lng}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center justify-center gap-1.5 py-2.5 text-[11px] text-primary font-bold hover:bg-primary/5 transition-colors"
+                    <p className="text-xs text-on-surface-variant ml-1 flex items-center gap-1">
+                      <span
+                        className="material-symbols-outlined text-sm"
+                        style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}
                       >
-                        <span
-                          className="material-symbols-outlined text-sm"
-                          style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}
-                        >
-                          open_in_new
-                        </span>
-                        Abrir en Google Maps
-                      </a>
-                    </div>
+                        pin_drop
+                      </span>
+                      Coordenadas: {location.lat.toFixed(6)}, {location.lng.toFixed(6)}
+                    </p>
                   )}
                 </div>
               )}

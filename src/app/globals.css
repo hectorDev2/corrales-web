@@ -1,6 +1,9 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@import "swiper/css";
+@import "swiper/css/navigation";
+@import "swiper/css/pagination";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -126,5 +129,122 @@
   .scrollbar-none {
     scrollbar-width: none;
     &::-webkit-scrollbar { display: none; }
+  }
+}
+
+/* ── Mapbox Geocoder overrides ─────────────────── */
+.mapbox-autocomplete {
+  .mapboxgl-ctrl-geocoder {
+    box-shadow: none;
+    border-radius: var(--radius-xl);
+    background-color: var(--color-surface-container-high);
+    font-family: inherit;
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .mapboxgl-ctrl-geocoder--input {
+    height: 3.5rem;
+    padding: 1rem 1rem 1rem 3rem;
+    font-size: inherit;
+    color: var(--color-on-surface);
+    background: transparent;
+    &::placeholder {
+      color: var(--color-outline);
+    }
+  }
+
+  .mapboxgl-ctrl-geocoder--icon {
+    display: none;
+  }
+
+  .mapboxgl-ctrl-geocoder--suggestions {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-outline-variant);
+    overflow: hidden;
+    margin-top: 4px;
+  }
+
+  .mapboxgl-ctrl-geocoder--suggestion {
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-surface-container-high);
+    transition: background 0.15s;
+    &:hover,
+    &.mapboxgl-ctrl-geocoder--suggestion-active {
+      background: var(--color-surface-container-high);
+    }
+  }
+}
+
+/* ── Swiper overrides ──────────────────────────── */
+.swiper {
+  overflow: visible;
+}
+
+.swiper-wrapper {
+  align-items: stretch;
+}
+
+.swiper-slide {
+  height: auto;
+  border-radius: var(--radius-2xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+}
+
+.swiper-pagination-bullet {
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+  background: var(--color-outline-variant);
+  opacity: 1;
+  transition: all 0.3s;
+}
+
+.swiper-pagination-bullet-active {
+  width: 24px;
+  background: var(--color-primary);
+  border-radius: 9999px;
+}
+
+.swiper-button-prev::after,
+.swiper-button-next::after {
+  display: none;
+}
+
+.swiper-button-prev,
+.swiper-button-next {
+  position: absolute;
+  top: 50%;
+  z-index: 10;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.8);
+  color: var(--color-on-surface);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  backdrop-filter: blur(4px);
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 0;
+  transform: translateY(-50%);
+}
+
+.swiper-button-prev:hover,
+.swiper-button-next:hover {
+  background: rgba(255, 255, 255, 1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.16);
+}
+
+@media (min-width: 768px) {
+  .swiper-button-prev,
+  .swiper-button-next {
+    display: flex;
   }
 }
