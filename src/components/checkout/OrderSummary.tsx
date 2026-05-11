@@ -8,10 +8,10 @@ export function OrderSummary() {
   const { items, subtotal, total, deliveryCost } = useCartStore();
 
   return (
-    <div className="bg-surface-container-lowest p-8 rounded-[2rem] shadow-[0_12px_40px_rgba(89,65,61,0.08)]">
+    <div className="bg-white p-8 rounded-[2rem] shadow-card">
       <h2 className="text-2xl font-black tracking-tighter mb-6 flex items-center justify-between">
         Tu Pedido
-        <span className="text-sm font-bold bg-tertiary-fixed text-on-tertiary-fixed px-3 py-1 rounded-full">
+        <span className="text-sm font-bold bg-[#e5e7eb] text-[#111827] px-3 py-1 rounded-full">
           {items.reduce((sum, i) => sum + i.quantity, 0)} items
         </span>
       </h2>

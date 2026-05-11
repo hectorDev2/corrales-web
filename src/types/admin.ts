@@ -30,6 +30,7 @@ export interface AdminOrder {
   assigned_profile: { full_name: string } | null;
   created_at: string;
   items: AdminOrderItem[];
+  invoice: { id: string; series: string; number: number; sunat_status: string; pdf_url: string | null } | null;
 }
 
 export interface DeliveryProfile {

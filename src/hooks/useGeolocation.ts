@@ -60,9 +60,5 @@ export function useGeolocation() {
     localStorage.setItem(DISMISSED_KEY, "1");
   }, []);
 
-  const toMapsUrl = useCallback((loc: StoredLocation): string => {
-    return `https://maps.google.com/?q=${loc.lat},${loc.lng}`;
-  }, []);
-
-  return { getStored, requestLocation, isDismissed, dismiss, toMapsUrl };
+  return { getStored, requestLocation, isDismissed, dismiss };
 }

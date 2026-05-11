@@ -2,7 +2,7 @@ import { LogoutButton } from "@/components/auth/LogoutButton";
 
 export function AdminHeader() {
   return (
-    <header className="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-md shadow-[0_12px_40px_rgba(89,65,61,0.08)]">
+    <header className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md shadow-sm">
       <div className="flex justify-between items-center px-4 h-16 w-full max-w-screen-sm mx-auto">
         <div className="flex items-center gap-3">
           <span

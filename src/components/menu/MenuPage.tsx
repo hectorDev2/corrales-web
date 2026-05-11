@@ -25,10 +25,11 @@ interface MenuPageProps {
   products: Product[];
   categories: string[];
   initialCategory?: string;
+  initialQuery?: string;
 }
 
-export function MenuPage({ products, categories, initialCategory }: MenuPageProps) {
-  const [search, setSearch] = useState("");
+export function MenuPage({ products, categories, initialCategory, initialQuery }: MenuPageProps) {
+  const [search, setSearch] = useState(initialQuery ?? "");
   const [activeCategory, setActiveCategory] = useState<string>(() => {
     if (initialCategory && categories.includes(initialCategory)) return initialCategory;
     return "Todos";
@@ -53,7 +54,7 @@ export function MenuPage({ products, categories, initialCategory }: MenuPageProp
   return (
     <div className="mx-auto max-w-2xl px-4">
       {/* Sticky search bar */}
-      <div className="bg-surface sticky top-[67px] z-40 py-4 md:top-[83px]">
+      <div className="bg-background sticky top-[72px] z-40 py-3">
         <div className="relative">
           <span
             className="material-symbols-outlined text-on-surface-variant absolute top-1/2 left-4 -translate-y-1/2"
@@ -66,16 +67,16 @@ export function MenuPage({ products, categories, initialCategory }: MenuPageProp
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Busca tu antojo..."
-            className="bg-surface-container-high focus:ring-primary text-on-surface placeholder:text-on-surface-variant/60 h-14 w-full rounded-xl border-none pr-4 pl-12 transition-all focus:ring-2 focus:outline-none"
+            className="h-10 w-full rounded-full bg-white border border-[#dddddd] pr-4 pl-10 text-sm text-on-surface placeholder:text-on-surface-variant/60 transition-all focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none"
           />
         </div>
       </div>
 
       {/* Sticky category tabs */}
-      <div className="bg-surface/95 sticky top-[135px] z-40 -mx-4 mb-6 px-4 py-2 backdrop-blur-sm md:top-[151px]">
+      <div className="bg-background sticky top-[124px] z-40 -mx-4 mb-6 px-4 py-2">
         <nav
           aria-label="Categorías"
-          className="flex gap-6 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="flex gap-2 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           {["Todos", ...categories].map((cat) => {
             const isActive = activeCategory === cat;
@@ -83,10 +84,10 @@ export function MenuPage({ products, categories, initialCategory }: MenuPageProp
               <button
                 key={cat}
                 onClick={() => setActiveCategory(cat)}
-                className={`flex items-center gap-1.5 pb-1 text-sm font-medium tracking-tight whitespace-nowrap transition-colors ${
+                className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium whitespace-nowrap rounded-full transition-colors ${
                   isActive
-                    ? "text-primary border-primary-container border-b-2 font-bold"
-                    : "text-on-surface-variant hover:text-primary"
+                    ? "bg-primary text-white shadow-sm"
+                    : "bg-[#f5f5f5] text-on-surface-variant hover:bg-[#ebebeb]"
                 }`}
               >
                 <span
@@ -113,7 +114,7 @@ export function MenuPage({ products, categories, initialCategory }: MenuPageProp
       ) : (
         <div className="col-span-2 flex flex-col items-center justify-center py-16 text-center">
           <span
-            className="material-symbols-outlined text-surface-container-highest mb-4 text-6xl"
+            className="material-symbols-outlined text-[#e5e5e5] mb-4 text-6xl"
             style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}
           >
             restaurant_menu

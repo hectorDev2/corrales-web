@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 
 export default function CareersPage() {
   return (
-    <div className="min-h-[calc(100vh-80px)] bg-[#fff8f2] flex flex-col relative overflow-hidden">
+    <div className="min-h-[calc(100vh-80px)] bg-[#f5f5f5] flex flex-col relative overflow-hidden">
       {/* Background Decorative Elements */}
       <div className="absolute top-0 left-0 w-full h-[500px] bg-gradient-to-b from-primary/10 to-transparent pointer-events-none" />
       <div className="absolute top-[-100px] right-[-100px] w-[400px] h-[400px] bg-primary/5 rounded-full blur-[100px] pointer-events-none" />
@@ -34,7 +34,7 @@ export default function CareersPage() {
         </div>
 
         {/* Upload Card */}
-        <div className="bg-white rounded-3xl p-8 md:p-12 shadow-[0_20px_60px_rgba(89,65,61,0.08)] border border-outline-variant/10 w-full max-w-2xl mx-auto relative group overflow-hidden">
+        <div className="bg-white rounded-3xl p-8 md:p-12 shadow-card border border-[#e5e5e5] w-full max-w-2xl mx-auto relative group overflow-hidden">
           {/* Subtle hover gradient */}
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
 

@@ -6,9 +6,9 @@ import { getSlides } from "@/lib/api/slider";
 export default async function Home({
   searchParams,
 }: {
-  searchParams: Promise<{ cat?: string }>;
+  searchParams: Promise<{ cat?: string; q?: string }>;
 }) {
-  const [slides, products, categories, { cat }] = await Promise.all([
+  const [slides, products, categories, { cat, q }] = await Promise.all([
     getSlides(),
     getProducts(),
     getCategories(),
@@ -20,7 +20,7 @@ export default async function Home({
       <HomeSlider slides={slides} />
       <HeroSection />
       <section id="menu" className="py-8">
-        <MenuPage products={products} categories={categories} initialCategory={cat} />
+        <MenuPage products={products} categories={categories} initialCategory={cat} initialQuery={q} />
       </section>
     </>
   );

@@ -1,118 +1,119 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@import "swiper/css";
+@import "swiper/css/navigation";
+@import "swiper/css/pagination";
 
 @custom-variant dark (&:is(.dark *));
 
-/* ============================================================
-   CORRALES — "The Modern Hearth"
-   Design System · Tailwind v4 CSS-first configuration
-   ============================================================ */
-
 @theme {
-  /* --- shadcn/ui compat tokens ----------------------------- */
-  --color-background:         #ffffff;
-  --color-foreground:         #1e1b18;
-  --color-card:               #ffffff;
-  --color-card-foreground:    #1e1b18;
-  --color-popover:            #ffffff;
-  --color-popover-foreground: #1e1b18;
-  --color-muted:              #f9f2ec;
-  --color-muted-foreground:   #59413d;
-  --color-accent:             #f3ede7;
-  --color-accent-foreground:  #1e1b18;
-  --color-destructive:        #ba1a1a;
-  --color-border:             #e1bfb9;
-  --color-input:              #eee7e1;
-  --color-ring:               #f25600;
+  /* ── shadcn/ui compat ──────────────────────────── */
+  --color-background: #ffffff;
+  --color-foreground: #111111;
+  --color-card: #ffffff;
+  --color-card-foreground: #111111;
+  --color-popover: #ffffff;
+  --color-popover-foreground: #111111;
+  --color-muted: #f5f5f5;
+  --color-muted-foreground: #666666;
+  --color-accent: #f5f5f5;
+  --color-accent-foreground: #111111;
+  --color-destructive: #ba1a1a;
+  --color-destructive-foreground: #ffffff;
+  --color-border: #e5e5e5;
+  --color-input: #e5e5e5;
+  --color-ring: #e4002b;
 
-  /* --- Primary — Corrales Orange --------------------------- */
-  --color-primary:                  #f25600;
-  --color-primary-foreground:       #ffffff;
-  --color-primary-container:        #f25600;
-  --color-on-primary:               #ffffff;
-  --color-on-primary-container:     #ffe8d9;
-  --color-primary-fixed:            #ffd8b8;
-  --color-primary-fixed-dim:        #ffb07a;
-  --color-on-primary-fixed:         #341200;
-  --color-on-primary-fixed-variant: #c94800;
-  --color-surface-tint:             #f25600;
-  --color-inverse-primary:          #ffb07a;
+  /* ── Primary — Red ─────────────────────────────── */
+  --color-primary: #e4002b;
+  --color-primary-foreground: #ffffff;
+  --color-primary-container: #e4002b;
+  --color-on-primary: #ffffff;
+  --color-on-primary-container: #ffffff;
+  --color-primary-fixed: #ffd9d9;
+  --color-primary-fixed-dim: #ffb3b3;
+  --color-on-primary-fixed: #390008;
+  --color-on-primary-fixed-variant: #a8001f;
 
-  /* --- Secondary — Neutral Grey ---------------------------- */
-  --color-secondary:                  #6b7280;
-  --color-secondary-foreground:       #ffffff;
-  --color-on-secondary:               #ffffff;
-  --color-secondary-container:        #f3f4f6;
-  --color-on-secondary-container:     #374151;
-  --color-secondary-fixed:            #e5e7eb;
-  --color-secondary-fixed-dim:        #d1d5db;
-  --color-on-secondary-fixed:         #111827;
+  /* ── Secondary ─────────────────────────────────── */
+  --color-secondary: #6b7280;
+  --color-secondary-foreground: #ffffff;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #f3f4f6;
+  --color-on-secondary-container: #374151;
+  --color-secondary-fixed: #e5e7eb;
+  --color-secondary-fixed-dim: #d1d5db;
+  --color-on-secondary-fixed: #111827;
   --color-on-secondary-fixed-variant: #4b5563;
 
-  /* --- Tertiary — Neutral Grey ----------------------------- */
-  --color-tertiary:                  #9ca3af;
-  --color-on-tertiary:               #ffffff;
-  --color-tertiary-container:        #6b7280;
-  --color-on-tertiary-container:     #f9fafb;
-  --color-tertiary-fixed:            #e5e7eb;
-  --color-tertiary-fixed-dim:        #d1d5db;
-  --color-on-tertiary-fixed:         #111827;
+  /* ── Tertiary ──────────────────────────────────── */
+  --color-tertiary: #9ca3af;
+  --color-on-tertiary: #ffffff;
+  --color-tertiary-container: #6b7280;
+  --color-on-tertiary-container: #f9fafb;
+  --color-tertiary-fixed: #e5e7eb;
+  --color-tertiary-fixed-dim: #d1d5db;
+  --color-on-tertiary-fixed: #111827;
   --color-on-tertiary-fixed-variant: #4b5563;
 
-  /* --- Error ----------------------------------------------- */
-  --color-error:              #ba1a1a;
-  --color-on-error:           #ffffff;
-  --color-error-container:    #ffdad6;
+  /* ── Error ─────────────────────────────────────── */
+  --color-error: #ba1a1a;
+  --color-error-container: #ffdad6;
+  --color-on-error: #ffffff;
   --color-on-error-container: #93000a;
 
-  /* --- Surfaces -------------------------------------------- */
-  --color-surface:                   #ffffff;
-  --color-on-surface:                #1e1b18;
-  --color-on-background:             #1e1b18;
-  --color-surface-variant:           #e8e1dc;
-  --color-on-surface-variant:        #59413d;
-  --color-surface-dim:               #dfd9d3;
-  --color-surface-bright:            #ffffff;
-  --color-surface-container-lowest:  #ffffff;
-  --color-surface-container-low:     #f9f2ec;
-  --color-surface-container:         #f3ede7;
-  --color-surface-container-high:    #eee7e1;
-  --color-surface-container-highest: #e8e1dc;
-  --color-inverse-surface:           #33302c;
-  --color-inverse-on-surface:        #f6f0ea;
+  /* ── Surfaces ──────────────────────────────────── */
+  --color-surface: #ffffff;
+  --color-on-surface: #111111;
+  --color-surface-variant: #f5f5f5;
+  --color-on-surface-variant: #666666;
+  --color-surface-dim: #e5e5e5;
+  --color-surface-bright: #ffffff;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f5f5f5;
+  --color-surface-container: #f0f0f0;
+  --color-surface-container-high: #ebebeb;
+  --color-surface-container-highest: #e5e5e5;
+  --color-inverse-surface: #111111;
+  --color-inverse-on-surface: #f5f5f5;
+  --color-surface-tint: #e4002b;
 
-  /* --- Outline --------------------------------------------- */
-  --color-outline:         #8d706c;
-  --color-outline-variant: #e1bfb9;
+  /* ── Outline ───────────────────────────────────── */
+  --color-outline: #d1d5db;
+  --color-outline-variant: #e5e5e5;
 
-  /* --- Typography ------------------------------------------ */
-  --font-sans:     var(--font-inter), "Inter", sans-serif;
+  /* ── Semantic ──────────────────────────────────── */
+  --color-success: #4caf50;
+  --color-warning: #ffc107;
+
+  /* ── Typography ────────────────────────────────── */
+  --font-sans: var(--font-inter), "Inter", sans-serif;
   --font-headline: var(--font-inter), "Inter", sans-serif;
-  --font-body:     var(--font-inter), "Inter", sans-serif;
-  --font-label:    var(--font-inter), "Inter", sans-serif;
-  --font-mono:     ui-monospace, monospace;
+  --font-body: var(--font-inter), "Inter", sans-serif;
+  --font-label: var(--font-inter), "Inter", sans-serif;
 
-  /* --- Border Radius --------------------------------------- */
-  --radius:     0.625rem;
-  --radius-sm:  calc(0.625rem * 0.6);
-  --radius-md:  calc(0.625rem * 0.8);
-  --radius-lg:  0.5rem;
-  --radius-xl:  0.75rem;
-  --radius-2xl: 1rem;
+  /* ── Border Radius ─────────────────────────────── */
+  --radius: 0.5rem;
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.25rem;
   --radius-3xl: 1.5rem;
-  --radius-4xl: 2.5rem;
   --radius-full: 9999px;
 
+  /* ── Shadows ───────────────────────────────────── */
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 @keyframes cart-pop {
-  0%   { transform: scale(1);    box-shadow: 0 0 0 0   rgba(242,86,0,0.7); }
-  25%  { transform: scale(1.45); box-shadow: 0 0 0 14px rgba(242,86,0,0.25); }
-  50%  { transform: scale(0.88); box-shadow: 0 0 0 8px  rgba(242,86,0,0.1); }
-  70%  { transform: scale(1.18); box-shadow: 0 0 0 0   rgba(242,86,0,0); }
+  0%   { transform: scale(1);    box-shadow: 0 0 0 0   rgba(228,0,43,0.7); }
+  25%  { transform: scale(1.45); box-shadow: 0 0 0 14px rgba(228,0,43,0.25); }
+  50%  { transform: scale(0.88); box-shadow: 0 0 0 8px  rgba(228,0,43,0.1); }
+  70%  { transform: scale(1.18); box-shadow: 0 0 0 0   rgba(228,0,43,0); }
   85%  { transform: scale(0.96); }
-  100% { transform: scale(1);    box-shadow: 0 0 0 0   rgba(242,86,0,0); }
+  100% { transform: scale(1);    box-shadow: 0 0 0 0   rgba(228,0,43,0); }
 }
 
 @layer base {
@@ -128,5 +129,122 @@
   .scrollbar-none {
     scrollbar-width: none;
     &::-webkit-scrollbar { display: none; }
+  }
+}
+
+/* ── Mapbox Geocoder overrides ─────────────────── */
+.mapbox-autocomplete {
+  .mapboxgl-ctrl-geocoder {
+    box-shadow: none;
+    border-radius: var(--radius-xl);
+    background-color: var(--color-surface-container-high);
+    font-family: inherit;
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .mapboxgl-ctrl-geocoder--input {
+    height: 3.5rem;
+    padding: 1rem 1rem 1rem 3rem;
+    font-size: inherit;
+    color: var(--color-on-surface);
+    background: transparent;
+    &::placeholder {
+      color: var(--color-outline);
+    }
+  }
+
+  .mapboxgl-ctrl-geocoder--icon {
+    display: none;
+  }
+
+  .mapboxgl-ctrl-geocoder--suggestions {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-outline-variant);
+    overflow: hidden;
+    margin-top: 4px;
+  }
+
+  .mapboxgl-ctrl-geocoder--suggestion {
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-surface-container-high);
+    transition: background 0.15s;
+    &:hover,
+    &.mapboxgl-ctrl-geocoder--suggestion-active {
+      background: var(--color-surface-container-high);
+    }
+  }
+}
+
+/* ── Swiper overrides ──────────────────────────── */
+.swiper {
+  overflow: visible;
+}
+
+.swiper-wrapper {
+  align-items: stretch;
+}
+
+.swiper-slide {
+  height: auto;
+  border-radius: var(--radius-2xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+}
+
+.swiper-pagination-bullet {
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+  background: var(--color-outline-variant);
+  opacity: 1;
+  transition: all 0.3s;
+}
+
+.swiper-pagination-bullet-active {
+  width: 24px;
+  background: var(--color-primary);
+  border-radius: 9999px;
+}
+
+.swiper-button-prev::after,
+.swiper-button-next::after {
+  display: none;
+}
+
+.swiper-button-prev,
+.swiper-button-next {
+  position: absolute;
+  top: 50%;
+  z-index: 10;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.8);
+  color: var(--color-on-surface);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  backdrop-filter: blur(4px);
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 0;
+  transform: translateY(-50%);
+}
+
+.swiper-button-prev:hover,
+.swiper-button-next:hover {
+  background: rgba(255, 255, 255, 1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.16);
+}
+
+@media (min-width: 768px) {
+  .swiper-button-prev,
+  .swiper-button-next {
+    display: flex;
   }
 }

@@ -7,10 +7,11 @@ const NAV_ITEMS = [
   { href: "/admin", icon: "receipt_long", label: "Pedidos" },
   { href: "/admin/productos", icon: "restaurant_menu", label: "Productos" },
   { href: "/admin/categorias", icon: "category", label: "Categorías" },
+  { href: "/admin/facturacion", icon: "receipt", label: "Facturación" },
+  { href: "/admin/slider", icon: "slideshow", label: "Slider" },
   { href: "/admin/usuarios", icon: "group", label: "Usuarios" },
   { href: "/admin/historial", icon: "history", label: "Historial" },
   { href: "/admin/reservas", icon: "event_seat", label: "Reservas" },
-  { href: "/admin/slider", icon: "slideshow", label: "Slider" },
   { href: "/", icon: "home", label: "Inicio" },
 ] as const;
 
@@ -18,7 +19,7 @@ export function AdminBottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-0 w-full z-50 bg-surface/90 backdrop-blur-xl shadow-[0_-8px_30px_rgba(89,65,61,0.12)] rounded-t-3xl">
+    <nav className="fixed bottom-0 left-0 w-full z-50 bg-white/90 backdrop-blur-xl shadow-[0_-8px_30px_rgba(0,0,0,0.08)] rounded-t-3xl border-t border-[#e5e5e5]">
       <div className="flex items-center gap-1 overflow-x-auto scrollbar-none px-3 pb-6 pt-2 snap-x snap-mandatory">
       {NAV_ITEMS.map(({ href, icon, label }, i) => {
         const isActive =

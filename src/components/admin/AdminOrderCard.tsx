@@ -4,6 +4,8 @@ import { useState } from "react";
 
 import type { AdminOrder, AdminOrderStatus, DeliveryProfile } from "@/types/admin";
 
+import { InvoiceModal } from "./InvoiceModal";
+
 interface Props {
   order: AdminOrder;
   deliveryProfiles: DeliveryProfile[];
@@ -23,6 +25,7 @@ const STATUS_CONFIG: Record<AdminOrderStatus, { label: string; bg: string; text:
 
 export function AdminOrderCard({ order, deliveryProfiles, onAdvance, onAssign, onCancel }: Props) {
   const [selectedDelivery, setSelectedDelivery] = useState("");
+  const [invoiceOpen, setInvoiceOpen] = useState(false);
   const { label, bg, text } = STATUS_CONFIG[order.status];
   const whatsappHref = `https://wa.me/51${order.customer_phone.replace(/\s/g, "")}`;
   const createdAt = new Date(order.created_at).toLocaleTimeString("es-PE", {
@@ -31,7 +34,7 @@ export function AdminOrderCard({ order, deliveryProfiles, onAdvance, onAssign, o
   });
 
   return (
-    <div className="bg-surface-container-lowest rounded-3xl shadow-[0_12px_40px_rgba(89,65,61,0.08)] overflow-hidden transition-all duration-300">
+    <div className="bg-white rounded-3xl shadow-card overflow-hidden transition-all duration-300">
       {/* Header */}
       <div className="p-5 border-b border-outline-variant/15 flex justify-between items-start">
         <div>
@@ -101,7 +104,7 @@ export function AdminOrderCard({ order, deliveryProfiles, onAdvance, onAssign, o
                 >
                   open_in_new
                 </span>
-                Ver en Google Maps
+                Ver ubicación
               </a>
             )}
 
@@ -265,7 +268,58 @@ export function AdminOrderCard({ order, deliveryProfiles, onAdvance, onAssign, o
             En camino con {order.assigned_profile?.full_name ?? "el repartidor"}
           </div>
         )}
+
+        {/* Invoice button */}
+        {(() => {
+          const inv = order.invoice;
+          const accepted = inv?.sunat_status === "accepted";
+          const rejected = inv?.sunat_status === "rejected";
+
+          if (accepted) {
+            return (
+              <div className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-success/30 bg-success/5 text-success text-[11px] font-bold uppercase tracking-wider">
+                <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>check_circle</span>
+                {inv?.series}-{String(inv?.number).padStart(8, "0")} · Aceptado
+              </div>
+            );
+          }
+
+          if (rejected) {
+            return (
+              <button
+                onClick={() => setInvoiceOpen(true)}
+                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-dashed border-[#e5e5e5] text-[#666666] text-[11px] font-bold uppercase tracking-wider hover:border-primary hover:text-primary active:scale-95 transition-all"
+              >
+                <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>receipt_long</span>
+                Reintentar · {inv?.series}-{String(inv?.number).padStart(8, "0")} (rechazado)
+              </button>
+            );
+          }
+
+          return (
+            <button
+              onClick={() => setInvoiceOpen(true)}
+              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-dashed border-[#e5e5e5] text-[#666666] text-[11px] font-bold uppercase tracking-wider hover:border-primary hover:text-primary active:scale-95 transition-all"
+            >
+              <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>
+                receipt_long
+              </span>
+              Emitir comprobante
+            </button>
+          );
+        })()}
       </div>
+
+      {/* Invoice modal */}
+      {invoiceOpen && (
+        <InvoiceModal
+          orderId={order.id}
+          orderNumber={order.order_number}
+          total={order.total}
+          invoice={order.invoice}
+          onClose={() => setInvoiceOpen(false)}
+        />
+      )}
     </div>
   );
 }

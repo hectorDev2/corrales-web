@@ -19,7 +19,8 @@ export async function getActiveOrders(): Promise<AdminOrder[]> {
       assigned_to,
       created_at,
       profiles!orders_assigned_to_fkey ( full_name ),
-      order_items ( id, product_name, variant_label, quantity, unit_price )
+      order_items ( id, product_name, variant_label, quantity, unit_price ),
+      invoices ( id, series, number, sunat_status, pdf_url )
     `)
     .not("status", "in", '("entregado","cancelado")')
     .order("created_at", { ascending: false });
@@ -30,6 +31,7 @@ export async function getActiveOrders(): Promise<AdminOrder[]> {
     ...row,
     assigned_profile: row.profiles as { full_name: string } | null,
     items: (row.order_items as AdminOrder["items"]) ?? [],
+    invoice: ((row.invoices as AdminOrder["invoice"][]) ?? [])[0] ?? null,
   }));
 }
 
@@ -79,7 +81,8 @@ export async function getOrderHistory(
       assigned_to,
       created_at,
       profiles!orders_assigned_to_fkey ( full_name ),
-      order_items ( id, product_name, variant_label, quantity, unit_price )
+      order_items ( id, product_name, variant_label, quantity, unit_price ),
+      invoices ( id, series, number, sunat_status, pdf_url )
     `)
     .in("status", statuses)
     .gte("created_at", `${from}T00:00:00`)
@@ -92,6 +95,7 @@ export async function getOrderHistory(
     ...row,
     assigned_profile: row.profiles as { full_name: string } | null,
     items: (row.order_items as AdminOrder["items"]) ?? [],
+    invoice: ((row.invoices as AdminOrder["invoice"][]) ?? [])[0] ?? null,
   }));
 }
 

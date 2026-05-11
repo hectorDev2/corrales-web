@@ -45,7 +45,7 @@ export function LoginForm() {
 
       <form
         onSubmit={handleSubmit}
-        className="bg-surface-container-lowest rounded-3xl p-8 shadow-[0_12px_40px_rgba(89,65,61,0.08)] space-y-5"
+        className="bg-white rounded-3xl p-8 shadow-card space-y-5"
       >
         <div className="space-y-1.5">
           <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant ml-1">
@@ -78,7 +78,7 @@ export function LoginForm() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-linear-to-br from-primary to-primary-container text-on-primary font-black py-4 rounded-2xl shadow-[0_8px_30px_rgba(158,32,22,0.3)] hover:scale-[1.02] active:scale-95 transition-all tracking-tight disabled:opacity-60 disabled:cursor-not-allowed disabled:scale-100"
+          className="w-full bg-primary text-on-primary font-black py-4 rounded-2xl shadow-lg shadow-primary/30 hover:scale-[1.02] active:scale-95 transition-all tracking-tight disabled:opacity-60 disabled:cursor-not-allowed disabled:scale-100"
         >
           {loading ? "Ingresando..." : "Ingresar"}
         </button>
