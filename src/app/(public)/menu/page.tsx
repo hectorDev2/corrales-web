@@ -8,11 +8,16 @@ export const metadata: Metadata = {
   description: "Pollo a la brasa, parrillas, fast food y más. Pedí online.",
 };
 
-export default async function Page() {
-  const [products, categories] = await Promise.all([
+export default async function Page({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}) {
+  const [products, categories, { q }] = await Promise.all([
     getProducts(),
     getCategories(),
+    searchParams,
   ]);
 
-  return <MenuPage products={products} categories={categories} />;
+  return <MenuPage products={products} categories={categories} initialQuery={q} />;
 }

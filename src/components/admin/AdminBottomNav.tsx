@@ -7,10 +7,11 @@ const NAV_ITEMS = [
   { href: "/admin", icon: "receipt_long", label: "Pedidos" },
   { href: "/admin/productos", icon: "restaurant_menu", label: "Productos" },
   { href: "/admin/categorias", icon: "category", label: "Categorías" },
+  { href: "/admin/facturacion", icon: "receipt", label: "Facturación" },
+  { href: "/admin/slider", icon: "slideshow", label: "Slider" },
   { href: "/admin/usuarios", icon: "group", label: "Usuarios" },
   { href: "/admin/historial", icon: "history", label: "Historial" },
   { href: "/admin/reservas", icon: "event_seat", label: "Reservas" },
-  { href: "/admin/slider", icon: "slideshow", label: "Slider" },
   { href: "/", icon: "home", label: "Inicio" },
 ] as const;
 

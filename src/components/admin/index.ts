@@ -7,4 +7,5 @@ export { AdminProductsPage } from "./AdminProductsPage";
 export { AdminReservationsPage } from "./AdminReservationsPage";
 export { AdminSliderPage } from "./AdminSliderPage";
 export { AdminOrderHistoryPage } from "./AdminOrderHistoryPage";
+export { FacturacionPage } from "./FacturacionPage";
 export { PushNotificationBanner } from "./PushNotificationBanner";

@@ -2,6 +2,8 @@ import Link from "next/link";
 
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 
+import { HeaderClient } from "./HeaderClient";
+import { HeaderSearch } from "./HeaderSearch";
 import { MobileNav } from "./MobileNav";
 
 const NAV_LINKS = [
@@ -25,23 +27,22 @@ export async function Header() {
       .single();
     isAdmin = profile?.role === "admin";
   }
+
   return (
     <>
-      <header className="fixed top-0 w-full z-50 bg-primary h-[72px] shadow-md">
-        <div className="max-w-7xl mx-auto flex justify-between items-center px-4 h-full">
-          {/* Mobile: hamburger + drawer */}
-          <MobileNav isAdmin={isAdmin} />
-
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-3">
-            <div className="flex items-center gap-2">
+      <header className="fixed top-0 w-full z-50 bg-primary shadow-md h-[72px]">
+        <div className="max-w-7xl mx-auto h-full flex items-center gap-4 px-4">
+          {/* Left: hamburger + logo */}
+          <div className="flex items-center gap-2 shrink-0">
+            <MobileNav isAdmin={isAdmin} />
+            <Link href="/" className="flex items-center gap-2">
               <span
                 className="material-symbols-outlined text-white text-3xl"
                 style={{ fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}
               >
                 local_fire_department
               </span>
-              <div className="flex flex-col leading-none">
+              <div className="flex flex-col leading-none max-md:hidden">
                 <span className="text-xl font-black text-white uppercase tracking-tight">
                   Corrales
                 </span>
@@ -49,51 +50,29 @@ export async function Header() {
                   Pollería &amp; Fastfood
                 </span>
               </div>
-            </div>
-          </Link>
+            </Link>
+          </div>
+
+          {/* Center: search (desktop) */}
+          <div className="hidden md:block flex-1 max-w-md">
+            <HeaderSearch />
+          </div>
 
           {/* Desktop nav */}
-          <nav className="hidden md:flex items-center gap-8" aria-label="Navegación desktop">
+          <nav className="hidden lg:flex items-center gap-6" aria-label="Navegación desktop">
             {NAV_LINKS.map(({ href, label }) => (
               <Link
                 key={href}
                 href={href}
-                className="text-white/80 font-medium hover:text-white transition-colors duration-200 text-sm tracking-wide"
+                className="text-white/80 font-medium hover:text-white transition-colors duration-200 text-sm tracking-wide whitespace-nowrap"
               >
                 {label}
               </Link>
             ))}
           </nav>
 
-          {/* Actions */}
-          <div className="flex items-center gap-2">
-            <button
-              aria-label="Buscar"
-              className="hidden md:flex p-2 text-white/80 hover:text-white transition-colors"
-            >
-              <span
-                className="material-symbols-outlined"
-                style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}
-              >
-                search
-              </span>
-            </button>
-
-            {isAdmin && (
-              <Link
-                href="/admin"
-                className="flex items-center gap-1.5 bg-white/20 text-white text-xs font-black uppercase tracking-widest px-3 py-2 rounded-xl hover:bg-white/30 active:scale-95 transition-all"
-              >
-                <span
-                  className="material-symbols-outlined text-base"
-                  style={{ fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}
-                >
-                  admin_panel_settings
-                </span>
-                Panel
-              </Link>
-            )}
-          </div>
+          {/* Right: actions (client component) */}
+          <HeaderClient isAdmin={isAdmin} />
         </div>
       </header>
     </>

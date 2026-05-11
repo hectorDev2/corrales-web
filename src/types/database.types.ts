@@ -370,6 +370,98 @@ export type Database = {
         }
         Relationships: []
       }
+      invoice_series: {
+        Row: {
+          id: string
+          type: string
+          series: string
+          current_number: number
+          is_active: boolean
+        }
+        Insert: {
+          id?: string
+          type: string
+          series: string
+          current_number?: number
+          is_active?: boolean
+        }
+        Update: {
+          id?: string
+          type?: string
+          series?: string
+          current_number?: number
+          is_active?: boolean
+        }
+        Relationships: []
+      }
+      invoices: {
+        Row: {
+          id: string
+          order_id: string
+          invoice_type: string
+          series: string
+          number: number
+          customer_doc_type: string
+          customer_doc_number: string
+          customer_business_name: string | null
+          customer_address: string | null
+          total: number
+          sunat_status: string
+          sunat_code: string | null
+          sunat_message: string | null
+          sunat_response: unknown | null
+          pdf_url: string | null
+          xml_url: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          order_id: string
+          invoice_type: string
+          series: string
+          number: number
+          customer_doc_type: string
+          customer_doc_number: string
+          customer_business_name?: string | null
+          customer_address?: string | null
+          total: number
+          sunat_status: string
+          sunat_code?: string | null
+          sunat_message?: string | null
+          sunat_response?: unknown | null
+          pdf_url?: string | null
+          xml_url?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          order_id?: string
+          invoice_type?: string
+          series?: string
+          number?: number
+          customer_doc_type?: string
+          customer_doc_number?: string
+          customer_business_name?: string | null
+          customer_address?: string | null
+          total?: number
+          sunat_status?: string
+          sunat_code?: string | null
+          sunat_message?: string | null
+          sunat_response?: unknown | null
+          pdf_url?: string | null
+          xml_url?: string | null
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoices_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       slider_slides: {
         Row: {
           accent_color: string | null

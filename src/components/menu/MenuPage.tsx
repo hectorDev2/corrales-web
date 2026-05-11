@@ -25,10 +25,11 @@ interface MenuPageProps {
   products: Product[];
   categories: string[];
   initialCategory?: string;
+  initialQuery?: string;
 }
 
-export function MenuPage({ products, categories, initialCategory }: MenuPageProps) {
-  const [search, setSearch] = useState("");
+export function MenuPage({ products, categories, initialCategory, initialQuery }: MenuPageProps) {
+  const [search, setSearch] = useState(initialQuery ?? "");
   const [activeCategory, setActiveCategory] = useState<string>(() => {
     if (initialCategory && categories.includes(initialCategory)) return initialCategory;
     return "Todos";
