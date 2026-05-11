@@ -2,7 +2,7 @@ import { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Trabaja con nosotros | Corrales",
-  description: "Únete a nuestro equipo y forma parte de la familia Corrales.",
+  description: "Unete a nuestro equipo y forma parte de la familia Corrales.",
 };
 
 export default function CareersPage() {
