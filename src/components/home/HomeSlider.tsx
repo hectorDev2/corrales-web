@@ -168,23 +168,37 @@ export function HomeSlider({ slides }: HomeSliderProps) {
 
         {/* Navigation arrows */}
         <button
-          className="swiper-button-prev absolute left-3 top-1/2 z-10 hidden -translate-y-1/2 items-center justify-center rounded-full bg-white/80 p-2.5 text-on-surface shadow-md backdrop-blur-sm transition-all hover:bg-white hover:shadow-lg md:flex"
+          className="swiper-button-prev absolute left-3 top-1/2 z-10 hidden -translate-y-1/2 items-center justify-center rounded-2xl !bg-primary px-2 py-4 !h-auto !w-auto !text-white transition-all active:scale-90 md:flex"
           aria-label="Anterior"
         >
-          <svg width="11" height="20" viewBox="0 0 11 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg
+            className="swiper-navigation-icon !h-auto !w-auto"
+            width="11"
+            height="20"
+            viewBox="0 0 11 20"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
             <path
-              d="M10.617 0.38296C10.8882 0.654131 10.8882 1.09379 10.617 1.36496L1.80242 10.1796L10.617 18.9942C10.8882 19.2654 10.8882 19.705 10.617 19.9762C10.3459 20.2474 9.90621 20.2474 9.63504 19.9762L0.565867 10.907C0.164105 10.5053 0.164105 9.85389 0.565867 9.45213L9.63504 0.38296C9.90621 0.111788 10.3459 0.111788 10.617 0.38296Z"
+              d="M0.38296 20.0762C0.111788 19.805 0.111788 19.3654 0.38296 19.0942L9.19758 10.2796L0.38296 1.46497C0.111788 1.19379 0.111788 0.754138 0.38296 0.482966C0.654131 0.211794 1.09379 0.211794 1.36496 0.482966L10.4341 9.55214C10.8359 9.9539 10.8359 10.6053 10.4341 11.007L1.36496 20.0762C1.09379 20.3474 0.654131 20.3474 0.38296 20.0762Z"
               fill="currentColor"
             />
           </svg>
         </button>
         <button
-          className="swiper-button-next absolute right-3 top-1/2 z-10 hidden -translate-y-1/2 items-center justify-center rounded-full bg-white/80 p-2.5 text-on-surface shadow-md backdrop-blur-sm transition-all hover:bg-white hover:shadow-lg md:flex"
+          className="swiper-button-next absolute right-3 top-1/2 z-10 hidden -translate-y-1/2 items-center justify-center rounded-2xl !bg-primary px-2 py-4 !h-auto !w-auto !text-white transition-all active:scale-90 md:flex"
           aria-label="Siguiente"
         >
-          <svg width="11" height="20" viewBox="0 0 11 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg
+            className="swiper-navigation-icon !h-auto !w-auto"
+            width="11"
+            height="20"
+            viewBox="0 0 11 20"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
             <path
-              d="M0.38296 19.617C0.111788 19.3459 0.111788 18.9062 0.38296 18.635L9.19758 9.82042L0.38296 1.0058C0.111788 0.734627 0.111788 0.294969 0.38296 0.0237977C0.654131 -0.247374 1.09379 -0.247374 1.36496 0.0237977L10.4341 9.09297C10.8359 9.49473 10.8359 10.1461 10.4341 10.5479L1.36496 19.617C1.09379 19.8882 0.654131 19.8882 0.38296 19.617Z"
+              d="M0.38296 20.0762C0.111788 19.805 0.111788 19.3654 0.38296 19.0942L9.19758 10.2796L0.38296 1.46497C0.111788 1.19379 0.111788 0.754138 0.38296 0.482966C0.654131 0.211794 1.09379 0.211794 1.36496 0.482966L10.4341 9.55214C10.8359 9.9539 10.8359 10.6053 10.4341 11.007L1.36496 20.0762C1.09379 20.3474 0.654131 20.3474 0.38296 20.0762Z"
               fill="currentColor"
             />
           </svg>
