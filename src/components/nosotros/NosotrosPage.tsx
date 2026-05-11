@@ -78,7 +78,7 @@ export function NosotrosPage() {
         </div>
 
         {/* Hero image */}
-        <div className="relative w-full h-64 md:h-80 rounded-3xl overflow-hidden shadow-[0_12px_40px_rgba(89,65,61,0.15)]">
+        <div className="relative w-full h-64 md:h-80 rounded-3xl overflow-hidden shadow-card">
           <Image
             src="https://lh3.googleusercontent.com/aida-public/AB6AXuAKPaHQQaFBKZRRekE3sA0MJt_s6EIRvl3dB0p4mL_6bPBr-4-ZITYdkHdXaTZr_vU0bVTXoB1NL5pJj5yR72EaTsEkA8N1z2Nrn3lBKSjh7C6bxTmfXFYUSBrS8Y7OOQVnbQOF6sMFT3Vhc1y-EEDqj3PEVzRBHXKnFmA8igH8AxkGfNlD1VrSgJJmPm6mNxhqL9d5Sp-3TkzL1hgKaH9YBCN6SIjwn3NkHgVnIhekVJwnFoHGBmpAJSSqrXByKxcA65Pu19M27"
             alt="El equipo Corrales frente al restaurante"
@@ -162,7 +162,7 @@ export function NosotrosPage() {
       </section>
 
       {/* ── CTA ──────────────────────────────────────── */}
-      <section className="bg-surface-container-low rounded-3xl p-8 text-center space-y-4">
+      <section className="bg-white rounded-3xl p-8 text-center space-y-4 shadow-card">
         <span
           className="material-symbols-outlined text-primary text-4xl"
           style={{ fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 48" }}
@@ -180,7 +180,7 @@ export function NosotrosPage() {
         <div className="flex gap-3 justify-center flex-wrap">
           <Link
             href="/menu"
-            className="bg-linear-to-br from-primary to-primary-container text-on-primary font-black px-6 py-3 rounded-2xl shadow-[0_8px_30px_rgba(158,32,22,0.25)] hover:scale-[1.02] active:scale-95 transition-all text-sm"
+            className="bg-primary text-on-primary font-black px-6 py-3 rounded-2xl shadow-lg shadow-primary/25 hover:scale-[1.02] active:scale-95 transition-all text-sm"
           >
             Ver Carta
           </Link>

@@ -11,9 +11,9 @@ interface ProductCardProps {
 
 export function ProductCard({ product, onAdd }: ProductCardProps) {
   return (
-    <article className="group bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm hover:shadow-[0_12px_40px_rgba(89,65,61,0.08)] hover:-translate-y-1 transition-all duration-300">
-      {/* Image */}
-      <div className="relative aspect-[4/3] overflow-hidden">
+    <article className="group bg-white rounded-xl overflow-hidden shadow-card hover:shadow-[0_8px_24px_rgba(0,0,0,0.12)] hover:-translate-y-0.5 transition-all duration-300">
+      {/* Image: 1:1 aspect ratio */}
+      <div className="relative aspect-square overflow-hidden">
         <Image
           src={product.image.src}
           alt={product.image.alt}
@@ -22,8 +22,8 @@ export function ProductCard({ product, onAdd }: ProductCardProps) {
           sizes="(min-width: 768px) 50vw, 100vw"
         />
         {product.tag && (
-          <div className="absolute top-4 left-4">
-            <span className="bg-tertiary-fixed text-on-tertiary-fixed px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">
+          <div className="absolute top-3 left-3">
+            <span className="bg-primary text-white px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-widest">
               {product.tag}
             </span>
           </div>
@@ -31,27 +31,29 @@ export function ProductCard({ product, onAdd }: ProductCardProps) {
       </div>
 
       {/* Content */}
-      <div className="p-6">
-        <h3 className="text-lg font-bold text-primary tracking-tight mb-2">
+      <div className="p-3">
+        <h3 className="text-lg font-bold text-[#111111] tracking-tight mb-1">
           {product.name}
         </h3>
-        <p className="text-on-surface-variant text-sm mb-6 leading-relaxed">
+        <p className="text-on-surface-variant text-xs mb-3 leading-relaxed line-clamp-2">
           {product.description}
         </p>
-        <div className="flex justify-between items-center">
-          <span className="text-primary-container text-xl font-extrabold">
+
+        {/* Price and add button */}
+        <div className="flex items-center justify-between">
+          <span className="text-[28px] font-extrabold text-[#111111] leading-none">
             S/ {product.variants[0]?.price.toFixed(2)}
           </span>
           <button
             onClick={() => onAdd?.(product, product.variants[0])}
-            className="bg-linear-to-br from-primary to-primary-container text-on-primary px-5 py-2 rounded-xl text-sm font-bold flex items-center gap-2 active:scale-95 transition-transform"
+            className="w-9 h-9 flex items-center justify-center rounded-lg border border-[#dddddd] bg-white text-primary hover:bg-primary hover:text-white hover:border-primary active:scale-90 transition-all"
+            aria-label={`Agregar ${product.name} al carrito`}
           >
-            Agregar
             <span
-              className="material-symbols-outlined text-sm"
+              className="material-symbols-outlined text-lg"
               style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}
             >
-              add_shopping_cart
+              add
             </span>
           </button>
         </div>

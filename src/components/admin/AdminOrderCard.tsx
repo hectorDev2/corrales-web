@@ -31,7 +31,7 @@ export function AdminOrderCard({ order, deliveryProfiles, onAdvance, onAssign, o
   });
 
   return (
-    <div className="bg-surface-container-lowest rounded-3xl shadow-[0_12px_40px_rgba(89,65,61,0.08)] overflow-hidden transition-all duration-300">
+    <div className="bg-white rounded-3xl shadow-card overflow-hidden transition-all duration-300">
       {/* Header */}
       <div className="p-5 border-b border-outline-variant/15 flex justify-between items-start">
         <div>

@@ -203,7 +203,7 @@ export function CheckoutForm() {
         >
           {/* ── Left: Customer data ──────────────────────── */}
           <section className="space-y-6">
-            <div className="bg-surface-container-low p-6 rounded-3xl space-y-6">
+            <div className="bg-white p-6 rounded-3xl space-y-6 shadow-card">
               <h2 className="text-xl font-bold tracking-tight flex items-center gap-2">
                 <span
                   className="material-symbols-outlined text-primary"
@@ -383,12 +383,12 @@ export function CheckoutForm() {
             <OrderSummary />
             <UpsellSection />
 
-            <div className="bg-surface-container-lowest p-6 rounded-3xl shadow-[0_12px_40px_rgba(89,65,61,0.08)] space-y-4">
+            <div className="bg-white p-6 rounded-3xl shadow-card space-y-4">
               {/* Submit */}
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-linear-to-br from-primary to-primary-container text-on-primary font-black py-5 rounded-2xl shadow-[0_8px_30px_rgba(158,32,22,0.3)] hover:scale-[1.02] active:scale-95 transition-all text-lg tracking-tight disabled:opacity-60 disabled:cursor-not-allowed disabled:scale-100 flex items-center justify-center gap-3"
+                className="w-full bg-primary text-on-primary font-black py-5 rounded-2xl shadow-lg shadow-primary/30 hover:scale-[1.02] active:scale-95 transition-all text-lg tracking-tight disabled:opacity-60 disabled:cursor-not-allowed disabled:scale-100 flex items-center justify-center gap-3"
               >
                 {isLoading ? (
                   <>

@@ -5,7 +5,7 @@ import { useEffect, useRef } from "react";
 
 import { useCartStore } from "@/store/cart";
 
-const WHATSAPP_NUMBER = "51999999999"; // TODO: reemplazar con el número real del negocio
+const WHATSAPP_NUMBER = "51999999999";
 
 export function FloatingActions() {
   const { openDrawer, totalItems } = useCartStore();
@@ -16,9 +16,8 @@ export function FloatingActions() {
   useEffect(() => {
     if (count > prevCount.current && btnRef.current) {
       const btn = btnRef.current;
-      // inline style — no depende del scanning de Tailwind
       btn.style.animation = "none";
-      void btn.offsetWidth; // force reflow
+      void btn.offsetWidth;
       btn.style.animation = "cart-pop 0.6s cubic-bezier(0.36,0.07,0.19,0.97) both";
     }
     prevCount.current = count;
@@ -50,7 +49,7 @@ export function FloatingActions() {
         ref={btnRef}
         aria-label="Carrito de compras"
         onClick={openDrawer}
-        className="bg-primary text-on-primary shadow-primary/40 relative flex h-16 w-16 items-center justify-center rounded-full shadow-lg transition-transform hover:scale-105 active:scale-90"
+        className="bg-primary text-white shadow-primary/40 relative flex h-16 w-16 items-center justify-center rounded-full shadow-lg transition-transform hover:scale-105 active:scale-90"
       >
         <span
           className="material-symbols-outlined text-[30px]"
@@ -60,7 +59,7 @@ export function FloatingActions() {
           shopping_cart
         </span>
         {count > 0 && (
-          <span className="text-primary ring-primary/20 absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-white text-[10px] font-bold shadow-md ring-2">
+          <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-white text-[10px] font-bold text-primary shadow-md ring-2 ring-primary/20">
             {count > 99 ? "99+" : count}
           </span>
         )}
@@ -69,7 +68,7 @@ export function FloatingActions() {
       {count > 0 && (
         <Link
           href="/checkout"
-          className="bg-primary text-on-primary shadow-primary/40 flex items-center gap-2 rounded-full px-5 py-3 text-sm font-black shadow-lg transition-transform hover:scale-105 active:scale-95"
+          className="bg-primary text-white shadow-primary/40 flex items-center gap-2 rounded-full px-5 py-3 text-sm font-black shadow-lg transition-transform hover:scale-105 active:scale-95"
         >
           Proceder con la compra
           <span

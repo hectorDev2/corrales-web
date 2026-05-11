@@ -42,7 +42,7 @@ export function UpsellSection() {
   if (products.length === 0) return null;
 
   return (
-    <div className="bg-surface-container-low p-5 rounded-3xl">
+    <div className="bg-white p-5 rounded-3xl shadow-card">
       <h3 className="text-sm font-black tracking-tight mb-3 flex items-center gap-2">
         <span
           className="material-symbols-outlined text-primary text-base"
@@ -65,7 +65,7 @@ export function UpsellSection() {
               key={product.id}
               className="snap-start shrink-0 w-28 flex flex-col gap-1.5"
             >
-              <div className="relative w-full aspect-square rounded-2xl overflow-hidden bg-surface-container">
+              <div className="relative w-full aspect-square rounded-2xl overflow-hidden bg-[#f0f0f0]">
                 {product.image.src ? (
                   <Image
                     src={product.image.src}
@@ -98,7 +98,7 @@ export function UpsellSection() {
                 onClick={() => addItem(product, variant)}
                 className={`w-full py-1.5 rounded-xl text-[11px] font-bold transition-all active:scale-95 flex items-center justify-center gap-1 ${
                   inCart
-                    ? "bg-tertiary-fixed text-on-tertiary-fixed"
+                    ? "bg-[#e5e7eb] text-[#111827]"
                     : "bg-primary/10 text-primary hover:bg-primary/20"
                 }`}
               >

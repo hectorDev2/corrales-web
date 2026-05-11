@@ -66,7 +66,7 @@ export function ReservaForm() {
       </header>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        <div className="bg-surface-container-low space-y-6 rounded-3xl p-6">
+        <div className="bg-white space-y-6 rounded-3xl p-6 shadow-card">
           {/* Name */}
           <div className="space-y-1.5">
             <label className="text-on-surface-variant ml-1 text-xs font-bold tracking-widest uppercase">
@@ -163,7 +163,7 @@ export function ReservaForm() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="from-primary to-primary-container text-on-primary w-full rounded-2xl bg-linear-to-br py-5 text-lg font-black tracking-tight shadow-[0_8px_30px_rgba(158,32,22,0.3)] transition-all hover:scale-[1.02] active:scale-95 disabled:scale-100 disabled:cursor-not-allowed disabled:opacity-60"
+          className="bg-primary text-on-primary w-full rounded-2xl py-5 text-lg font-black tracking-tight shadow-lg shadow-primary/30 transition-all hover:scale-[1.02] active:scale-95 disabled:scale-100 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isSubmitting ? "Enviando..." : "Confirmar Reserva por WhatsApp"}
         </button>

@@ -34,10 +34,10 @@ const ICON_OPTIONS = [
 ] as const;
 
 const GRADIENT_PRESETS = [
-  { label: "Naranja fuego",  value: "from-[#1a0a00] via-[#3d1500] to-[#f25600]", preview: "linear-gradient(135deg,#1a0a00,#3d1500,#f25600)" },
+  { label: "Rojo Corrales",  value: "from-[#800018] via-[#b30022] to-[#e4002b]", preview: "linear-gradient(135deg,#800018,#b30022,#e4002b)" },
   { label: "Verde campo",    value: "from-[#0a1a00] via-[#1a3a00] to-[#2d5a00]", preview: "linear-gradient(135deg,#0a1a00,#1a3a00,#2d5a00)" },
   { label: "Dorado",         value: "from-[#1a1000] via-[#3d2800] to-[#a06000]", preview: "linear-gradient(135deg,#1a1000,#3d2800,#a06000)" },
-  { label: "Rojo intenso",   value: "from-[#1a0000] via-[#3d0000] to-[#9e2016]", preview: "linear-gradient(135deg,#1a0000,#3d0000,#9e2016)" },
+  { label: "Rojo intenso",   value: "from-[#1a0000] via-[#3d0000] to-[#c00020]", preview: "linear-gradient(135deg,#1a0000,#3d0000,#c00020)" },
   { label: "Azul noche",     value: "from-[#000a1a] via-[#00133d] to-[#0a2060]", preview: "linear-gradient(135deg,#000a1a,#00133d,#0a2060)" },
   { label: "Negro elegante", value: "from-[#000000] via-[#1a1a1a] to-[#333333]", preview: "linear-gradient(135deg,#000000,#1a1a1a,#333333)" },
 ] as const;
@@ -68,7 +68,7 @@ const BLANK_CUSTOM: SlideInput = {
   cta_label: "Ver Carta",
   cta_href: "/menu",
   bg_gradient: GRADIENT_PRESETS[0].value,
-  accent_color: "#f25600",
+  accent_color: "#e4002b",
   icon: "outdoor_grill",
 };
 
@@ -392,7 +392,7 @@ function SlideForm({
             <div className="mt-1 flex items-center gap-3 bg-surface-container-high rounded-xl px-4 py-3">
               <input
                 type="color"
-                value={data.accent_color ?? "#f25600"}
+                value={data.accent_color ?? "#e4002b"}
                 onChange={(e) => onChange({ ...data, accent_color: e.target.value })}
                 className="w-10 h-10 rounded-lg cursor-pointer border-0 bg-transparent"
               />
@@ -400,7 +400,7 @@ function SlideForm({
                 <p className="text-sm font-bold text-on-surface">{data.accent_color}</p>
                 <p className="text-xs text-on-surface-variant">Tocá para elegir el color</p>
               </div>
-              <div className="ml-auto w-10 h-10 rounded-lg shadow-inner" style={{ background: data.accent_color ?? "#f25600" }} />
+              <div className="ml-auto w-10 h-10 rounded-lg shadow-inner" style={{ background: data.accent_color ?? "#e4002b" }} />
             </div>
           </div>
         </>
@@ -573,7 +573,7 @@ export function AdminSliderPage({ initialSlides }: AdminSliderPageProps) {
                   className="absolute inset-0"
                   style={{
                     background: GRADIENT_PRESETS.find((p) => p.value === slide.bg_gradient)?.preview
-                      ?? "linear-gradient(135deg,#1a0a00,#3d1500,#f25600)",
+                      ?? "linear-gradient(135deg,#800018,#b30022,#e4002b)",
                   }}
                 />
               )}

@@ -16,7 +16,7 @@ export function CartItemRow({ item }: CartItemRowProps) {
   return (
     <div className="flex gap-4 items-center">
       {/* Thumbnail */}
-      <div className="w-20 h-20 rounded-xl overflow-hidden shrink-0 bg-surface-container-low relative">
+      <div className="w-20 h-20 rounded-xl overflow-hidden shrink-0 bg-[#f5f5f5] relative">
         <Image
           src={product.image.src}
           alt={product.image.alt}
@@ -29,7 +29,7 @@ export function CartItemRow({ item }: CartItemRowProps) {
       {/* Info */}
       <div className="flex-1 min-w-0">
         <div className="flex justify-between items-start">
-          <h3 className="font-bold text-on-surface truncate pr-2">
+          <h3 className="font-bold text-[#111111] truncate pr-2">
             {product.name}
             {variant.label && (
               <span className="ml-1 text-xs font-normal text-on-surface-variant">
@@ -57,11 +57,11 @@ export function CartItemRow({ item }: CartItemRowProps) {
 
         <div className="flex items-center justify-between">
           {/* Stepper */}
-          <div className="flex items-center bg-surface-container-low rounded-lg p-1">
+          <div className="flex items-center bg-[#f5f5f5] rounded-lg p-1">
             <button
               onClick={() => updateQuantity(variant.id, quantity - 1)}
               aria-label="Reducir cantidad"
-              className="w-7 h-7 flex items-center justify-center rounded-md bg-surface-container-lowest text-primary shadow-sm active:scale-90 transition-transform"
+              className="w-7 h-7 flex items-center justify-center rounded-md bg-white text-primary border border-[#e5e5e5] active:scale-90 transition-transform"
             >
               <span
                 className="material-symbols-outlined text-[18px]"
@@ -76,7 +76,7 @@ export function CartItemRow({ item }: CartItemRowProps) {
             <button
               onClick={() => updateQuantity(variant.id, quantity + 1)}
               aria-label="Aumentar cantidad"
-              className="w-7 h-7 flex items-center justify-center rounded-md bg-primary-container text-on-primary shadow-sm active:scale-90 transition-transform"
+              className="w-7 h-7 flex items-center justify-center rounded-md bg-primary text-white active:scale-90 transition-transform"
             >
               <span
                 className="material-symbols-outlined text-[18px]"
@@ -87,7 +87,7 @@ export function CartItemRow({ item }: CartItemRowProps) {
             </button>
           </div>
 
-          <span className="font-bold text-on-surface">
+          <span className="font-bold text-[#111111]">
             S/ {(variant.price * quantity).toFixed(2)}
           </span>
         </div>
