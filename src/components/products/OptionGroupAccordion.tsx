@@ -23,9 +23,9 @@ function getStatusText(
   const selected = getSelectedCount(selections);
 
   if (group.selectionType === "single") {
-    if (selected === 0) return "Elige 1 opción";
+    if (selected === 0) return "Ninguna seleccionada";
     const selectedOption = group.options.find((o) => (selections[o.id] ?? 0) > 0);
-    return selectedOption?.name ?? "Elige 1 opción";
+    return selectedOption?.name ?? "Ninguna";
   }
 
   if (group.selectionType === "quantity") {
@@ -48,11 +48,11 @@ function getBadge(
 ): { label: string; variant: "success" | "neutral" | "muted" } {
   const selected = getSelectedCount(selections);
 
-  if (selected >= group.minSelect) {
+  if (selected > 0) {
     return { label: "Completado", variant: "success" };
   }
-  if (group.isRequired) {
-    return { label: "Requerido", variant: "neutral" };
+  if (group.selectionType === "single") {
+    return { label: "Opcional", variant: "muted" };
   }
   return { label: "Opcional", variant: "muted" };
 }
@@ -245,6 +245,36 @@ export function OptionGroupAccordion({
 
       {isOpen && (
         <div className="px-3 pb-3 space-y-1">
+          {/* "Ninguna" primero para grupos de selección única */}
+          {group.selectionType === "single" && (
+            <button
+              type="button"
+              onClick={() => {
+                const selectedOption = group.options.find(
+                  (o) => (selections[o.id] ?? 0) > 0,
+                );
+                if (selectedOption) onChange(selectedOption.id, -1);
+              }}
+              className={`flex items-center gap-3 w-full px-3 py-3 rounded-xl border-2 transition-all ${
+                selectedCount === 0
+                  ? "border-primary bg-primary/5"
+                  : "border-transparent bg-surface-container-high hover:bg-surface-container-higher"
+              }`}
+            >
+              <div className="flex-1 text-left">
+                <span className="text-sm font-bold text-on-surface">Ninguna</span>
+              </div>
+              {selectedCount === 0 && (
+                <span
+                  className="material-symbols-outlined text-primary"
+                  style={{ fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}
+                >
+                  check_circle
+                </span>
+              )}
+            </button>
+          )}
+
           {group.options.map((option) => {
             const qty = selections[option.id] ?? 0;
             const atMax =

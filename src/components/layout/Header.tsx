@@ -3,7 +3,6 @@ import Link from "next/link";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 
 import { HeaderClient } from "./HeaderClient";
-import { HeaderSearch } from "./HeaderSearch";
 import { MobileNav } from "./MobileNav";
 
 const NAV_LINKS = [
@@ -53,26 +52,21 @@ export async function Header() {
             </Link>
           </div>
 
-          {/* Center: search (desktop) */}
-          <div className="hidden md:block flex-1 max-w-md">
-            <HeaderSearch />
+          {/* Spacer + desktop nav + actions */}
+          <div className="hidden lg:flex items-center gap-6 ml-auto">
+            <nav className="flex items-center gap-6" aria-label="Navegación desktop">
+              {NAV_LINKS.map(({ href, label }) => (
+                <Link
+                  key={href}
+                  href={href}
+                  className="text-white/80 font-medium hover:text-white transition-colors duration-200 text-sm tracking-wide whitespace-nowrap"
+                >
+                  {label}
+                </Link>
+              ))}
+            </nav>
+            <HeaderClient isAdmin={isAdmin} />
           </div>
-
-          {/* Desktop nav */}
-          <nav className="hidden lg:flex items-center gap-6" aria-label="Navegación desktop">
-            {NAV_LINKS.map(({ href, label }) => (
-              <Link
-                key={href}
-                href={href}
-                className="text-white/80 font-medium hover:text-white transition-colors duration-200 text-sm tracking-wide whitespace-nowrap"
-              >
-                {label}
-              </Link>
-            ))}
-          </nav>
-
-          {/* Right: actions (client component) */}
-          <HeaderClient isAdmin={isAdmin} />
         </div>
       </header>
     </>

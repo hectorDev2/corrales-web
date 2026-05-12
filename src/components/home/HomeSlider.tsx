@@ -168,7 +168,7 @@ export function HomeSlider({ slides }: HomeSliderProps) {
 
         {/* Navigation arrows */}
         <button
-          className="swiper-button-prev absolute left-3 top-1/2 z-10 hidden -translate-y-1/2 items-center justify-center rounded-2xl !bg-primary px-2 py-4 !h-auto !w-auto !text-white transition-all active:scale-90 md:flex"
+          className="swiper-button-prev absolute left-3 bottom-4 z-10 flex -translate-y-1/2 items-center justify-center rounded-2xl !bg-primary/80 px-2 py-3 !h-auto !w-auto !text-white backdrop-blur-sm transition-all active:scale-90 md:top-1/2 md:bottom-auto md:!bg-primary md:px-2 md:py-4"
           aria-label="Anterior"
         >
           <svg
@@ -186,7 +186,7 @@ export function HomeSlider({ slides }: HomeSliderProps) {
           </svg>
         </button>
         <button
-          className="swiper-button-next absolute right-3 top-1/2 z-10 hidden -translate-y-1/2 items-center justify-center rounded-2xl !bg-primary px-2 py-4 !h-auto !w-auto !text-white transition-all active:scale-90 md:flex"
+          className="swiper-button-next absolute right-3 bottom-4 z-10 flex -translate-y-1/2 items-center justify-center rounded-2xl !bg-primary/80 px-2 py-3 !h-auto !w-auto !text-white backdrop-blur-sm transition-all active:scale-90 md:top-1/2 md:bottom-auto md:!bg-primary md:px-2 md:py-4"
           aria-label="Siguiente"
         >
           <svg

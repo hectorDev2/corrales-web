@@ -215,36 +215,8 @@
   display: none;
 }
 
-.swiper-button-prev,
-.swiper-button-next {
-  position: absolute;
-  top: 50%;
-  z-index: 10;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.8);
-  color: var(--color-on-surface);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
-  backdrop-filter: blur(4px);
-  cursor: pointer;
-  transition: all 0.2s;
-  margin-top: 0;
-  transform: translateY(-50%);
-}
-
 .swiper-button-prev:hover,
 .swiper-button-next:hover {
   background: rgba(255, 255, 255, 1);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.16);
-}
-
-@media (min-width: 768px) {
-  .swiper-button-prev,
-  .swiper-button-next {
-    display: flex;
-  }
 }

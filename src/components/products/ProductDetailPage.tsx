@@ -113,6 +113,7 @@ export function ProductDetailPage({ product }: Props) {
         (s, q) => s + q,
         0,
       );
+      if (group.selectionType === "single" && selectedCount === 0) continue;
       if (group.isRequired && selectedCount < group.minSelect) {
         return `Completá "${group.name}"`;
       }

@@ -1,13 +1,44 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { ProductCardMini } from "@/components/products";
 import { useCartStore } from "@/store/cart";
 import type { Product, ProductVariant } from "@/types/product";
 
+function AutoScrollCarousel({ children }: { children: React.ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const interval = setInterval(() => {
+      const cardWidth = el.children[0]?.getBoundingClientRect().width ?? 188;
+      const gap = 12;
+      const step = cardWidth + gap;
+
+      if (el.scrollLeft + el.clientWidth >= el.scrollWidth - 10) {
+        el.scrollTo({ left: 0, behavior: "smooth" });
+      } else {
+        el.scrollBy({ left: step, behavior: "smooth" });
+      }
+    }, 30000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div
+      ref={ref}
+      className="flex gap-3 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden snap-x snap-mandatory"
+    >
+      {children}
+    </div>
+  );
+}
+
 const CATEGORY_ICONS: Record<string, string> = {
-  Todos: "apps",
   "Pollo a la Brasa": "outdoor_grill",
   Parrillas: "kebab_dining",
   Acompañamiento: "yakitori",
@@ -24,35 +55,39 @@ const CATEGORY_ICONS: Record<string, string> = {
 interface MenuPageProps {
   products: Product[];
   categories: string[];
-  initialCategory?: string;
   initialQuery?: string;
 }
 
-export function MenuPage({ products, categories, initialCategory, initialQuery }: MenuPageProps) {
+export function MenuPage({ products, categories, initialQuery }: MenuPageProps) {
   const [search, setSearch] = useState(initialQuery ?? "");
-  const [activeCategory, setActiveCategory] = useState<string>(() => {
-    if (initialCategory && categories.includes(initialCategory)) return initialCategory;
-    return "Todos";
-  });
   const { addItem } = useCartStore();
 
-  const filtered = useMemo(() => {
-    return products.filter((p) => {
-      const matchesCategory = activeCategory === "Todos" || p.category === activeCategory;
-      const matchesSearch =
-        search.trim() === "" ||
-        p.name.toLowerCase().includes(search.toLowerCase()) ||
-        p.description.toLowerCase().includes(search.toLowerCase());
-      return matchesCategory && matchesSearch;
-    });
-  }, [products, search, activeCategory]);
+  const filteredBySearch = useMemo(() => {
+    if (!search.trim()) return products;
+    const q = search.toLowerCase();
+    return products.filter(
+      (p) =>
+        p.name.toLowerCase().includes(q) ||
+        p.description.toLowerCase().includes(q),
+    );
+  }, [products, search]);
+
+  const categorySections = useMemo(() => {
+    return categories
+      .map((cat) => ({
+        name: cat,
+        icon: CATEGORY_ICONS[cat] ?? "label",
+        items: filteredBySearch.filter((p) => p.category === cat),
+      }))
+      .filter((s) => s.items.length > 0);
+  }, [categories, filteredBySearch]);
 
   function handleAdd(product: Product, variant: ProductVariant) {
     addItem(product, variant);
   }
 
   return (
-    <div className="mx-auto max-w-2xl px-4">
+    <div className="mx-auto max-w-2xl px-4 pb-8">
       {/* Sticky search bar */}
       <div className="bg-background sticky top-[72px] z-40 py-3">
         <div className="relative">
@@ -72,47 +107,34 @@ export function MenuPage({ products, categories, initialCategory, initialQuery }
         </div>
       </div>
 
-      {/* Sticky category tabs */}
-      <div className="bg-background sticky top-[124px] z-40 -mx-4 mb-6 px-4 py-2">
-        <nav
-          aria-label="Categorías"
-          className="flex gap-2 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-        >
-          {["Todos", ...categories].map((cat) => {
-            const isActive = activeCategory === cat;
-            return (
-              <button
-                key={cat}
-                onClick={() => setActiveCategory(cat)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium whitespace-nowrap rounded-full transition-colors ${
-                  isActive
-                    ? "bg-primary text-white shadow-sm"
-                    : "bg-[#f5f5f5] text-on-surface-variant hover:bg-[#ebebeb]"
-                }`}
-              >
+      {/* Category carousels */}
+      {categorySections.length > 0 ? (
+        <div className="space-y-8">
+          {categorySections.map((section) => (
+            <section key={section.name}>
+              <h2 className="flex items-center gap-2 mb-3">
                 <span
-                  className="material-symbols-outlined text-[16px]"
-                  style={{ fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 20" }}
-                  aria-hidden="true"
+                  className="material-symbols-outlined text-primary"
+                  style={{ fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}
                 >
-                  {CATEGORY_ICONS[cat] ?? "label"}
+                  {section.icon}
                 </span>
-                {cat}
-              </button>
-            );
-          })}
-        </nav>
-      </div>
-
-      {/* Product grid */}
-      {filtered.length > 0 ? (
-        <div className="grid grid-cols-2 gap-4 pb-8">
-          {filtered.map((product) => (
-            <ProductCardMini key={product.id} product={product} onAdd={handleAdd} />
+                <span className="text-lg font-black tracking-tight text-on-surface">
+                  {section.name}
+                </span>
+              </h2>
+              <AutoScrollCarousel>
+                {section.items.map((product) => (
+                  <div key={product.id} className="w-44 shrink-0 snap-start">
+                    <ProductCardMini product={product} onAdd={handleAdd} />
+                  </div>
+                ))}
+              </AutoScrollCarousel>
+            </section>
           ))}
         </div>
       ) : (
-        <div className="col-span-2 flex flex-col items-center justify-center py-16 text-center">
+        <div className="flex flex-col items-center justify-center py-16 text-center">
           <span
             className="material-symbols-outlined text-[#e5e5e5] mb-4 text-6xl"
             style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}

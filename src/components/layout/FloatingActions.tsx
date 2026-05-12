@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
 
 import { useCartStore } from "@/store/cart";
@@ -8,6 +9,7 @@ import { useCartStore } from "@/store/cart";
 const WHATSAPP_NUMBER = "51999999999";
 
 export function FloatingActions() {
+  const pathname = usePathname();
   const { openDrawer, totalItems } = useCartStore();
   const count = totalItems();
   const prevCount = useRef(count);
@@ -22,6 +24,9 @@ export function FloatingActions() {
     }
     prevCount.current = count;
   }, [count]);
+
+  // Ocultar en la página de detalle de producto
+  if (pathname.startsWith("/producto/")) return null;
 
   return (
     <div className="fixed right-4 bottom-6 z-50 flex flex-col items-end gap-3">

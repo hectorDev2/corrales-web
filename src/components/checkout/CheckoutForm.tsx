@@ -83,6 +83,8 @@ export function CheckoutForm() {
   const [mapboxCoords, setMapboxCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [locLoading, setLocLoading] = useState(false);
   const [isPaying, setIsPaying] = useState(false);
+  const [needsHouseNumber, setNeedsHouseNumber] = useState(false);
+  const [baseAddress, setBaseAddress] = useState("");
 
   async function handleLocation() {
     if (!navigator.geolocation) {
@@ -98,6 +100,8 @@ export function CheckoutForm() {
       const address = await reverseGeocode(loc.lat, loc.lng);
       if (address) {
         setValue("address", address, { shouldValidate: true });
+        setBaseAddress(address);
+        setNeedsHouseNumber(!/\d/.test(address));
         toast.success("Dirección obtenida desde tu ubicación.");
       } else {
         toast.success("Ubicación capturada correctamente.");
@@ -302,6 +306,31 @@ export function CheckoutForm() {
                     onChange={(val) => setValue("address", val, { shouldValidate: true })}
                     onCoordinates={(lat, lng) => setMapboxCoords({ lat, lng })}
                   />
+                  {needsHouseNumber && (
+                    <div className="flex items-center gap-2 pt-1">
+                      <span className="text-[11px] font-bold uppercase tracking-widest text-on-surface-variant shrink-0">
+                        Nro de casa
+                      </span>
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        placeholder="123"
+                        autoFocus
+                        onChange={(e) => {
+                          const nro = e.target.value;
+                          if (nro) {
+                            setValue("address", `${baseAddress} ${nro}`, {
+                              shouldValidate: true,
+                            });
+                          } else {
+                            setValue("address", baseAddress, { shouldValidate: true });
+                          }
+                        }}
+                        className="w-16 bg-surface-container-high rounded-lg py-1.5 px-2 text-sm text-center font-bold text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/20"
+                      />
+                      <span className="text-[11px] text-outline">Sin número → dejalo vacío</span>
+                    </div>
+                  )}
                   {errors.address && (
                     <p className="text-xs text-error ml-1">{errors.address.message}</p>
                   )}

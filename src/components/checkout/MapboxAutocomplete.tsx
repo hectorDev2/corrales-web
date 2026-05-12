@@ -117,6 +117,35 @@ export function MapboxAutocomplete({
   );
 }
 
+const ADDRESS_PRIORITY: Record<string, number> = {
+  address: 0,
+  poi: 1,
+  neighborhood: 2,
+  locality: 3,
+  place: 4,
+  district: 5,
+};
+
+function formatShortAddress(feature: { id: string; text: string; place_name: string; context?: Array<{ id: string; text: string }> }): string {
+  const type = feature.id.split(".")[0];
+
+  if (type === "address") {
+    const hood =
+      feature.context?.find((c) => c.id.startsWith("neighborhood."))?.text ??
+      feature.context?.find((c) => c.id.startsWith("locality."))?.text;
+    return hood ? `${feature.text}, ${hood}` : feature.text;
+  }
+
+  if (type === "neighborhood") {
+    const locality =
+      feature.context?.find((c) => c.id.startsWith("locality."))?.text ??
+      feature.context?.find((c) => c.id.startsWith("place."))?.text;
+    return locality ? `${feature.text}, ${locality}` : feature.text;
+  }
+
+  return feature.place_name;
+}
+
 export async function reverseGeocode(
   lat: number,
   lng: number,
@@ -126,12 +155,33 @@ export async function reverseGeocode(
       ? process.env.NEXT_PUBLIC_MAPBOX_TOKEN
       : undefined;
   if (!token) return null;
+
   try {
+    // 1er intento: solo direcciones exactas (calle + número)
+    const exactRes = await fetch(
+      `https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?access_token=${token}&language=es&country=PE&types=address&limit=1`,
+    );
+    const exactData = await exactRes.json();
+    const exactFeature = exactData.features?.[0];
+
+    if (exactFeature?.id?.startsWith("address.")) {
+      return formatShortAddress(exactFeature);
+    }
+
+    // 2do intento: tipos amplios, priorizando address
     const res = await fetch(
-      `https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?access_token=${token}&language=es&country=PE&types=address,place,locality,neighborhood,district&limit=1`,
+      `https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?access_token=${token}&language=es&country=PE&types=address,poi,neighborhood,locality,place,district&limit=5`,
     );
     const data = await res.json();
-    return data.features?.[0]?.place_name ?? null;
+    if (!data.features?.length) return null;
+
+    const sorted = [...data.features].sort(
+      (a, b) =>
+        (ADDRESS_PRIORITY[a.id.split(".")[0]] ?? 99) -
+        (ADDRESS_PRIORITY[b.id.split(".")[0]] ?? 99),
+    );
+
+    return formatShortAddress(sorted[0]);
   } catch {
     return null;
   }
