@@ -14,6 +14,7 @@ import {
 } from "@/lib/api/products";
 
 import { ImageUploadField } from "./ImageUploadField";
+import { OptionGroupsForm } from "./OptionGroupsForm";
 
 // ─── Schema ───────────────────────────────────────────────────────────────────
 
@@ -320,6 +321,11 @@ export function ProductForm({ product, categories, onSuccess, onClose }: Props) 
             </div>
           ))}
         </div>
+
+        {/* Option groups (solo en edición) */}
+        {product && (
+          <OptionGroupsForm productId={product.id} onSaved={() => {}} />
+        )}
       </div>
 
       {/* Footer */}

@@ -511,7 +511,7 @@ export function AdminSliderPage({ initialSlides }: AdminSliderPageProps) {
   // ── Render ─────────────────────────────────────────────────────────────────
 
   return (
-    <div className="max-w-lg mx-auto px-4 pb-32">
+    <div className="max-w-2xl md:max-w-5xl lg:max-w-7xl mx-auto px-4 md:px-8 pb-32">
       <div className="py-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <a

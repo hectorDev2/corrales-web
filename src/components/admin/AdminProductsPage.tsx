@@ -82,7 +82,7 @@ export function AdminProductsPage() {
   }
 
   return (
-    <div className="w-full max-w-[390px] mx-auto px-4 space-y-6 py-4 pb-24">
+    <div className="w-full max-w-2xl md:max-w-5xl lg:max-w-7xl mx-auto px-4 md:px-8 space-y-6 py-4 md:py-8 pb-28">
       {/* Header */}
       <div className="flex justify-between items-end py-2">
         <div>
@@ -119,15 +119,17 @@ export function AdminProductsPage() {
             <p className="font-bold text-sm">Sin productos</p>
           </div>
         ) : (
-          products.map((product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              toggling={togglingId === product.id}
-              onEdit={() => openEdit(product)}
-              onToggle={() => handleToggle(product)}
-            />
-          ))
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {products.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                toggling={togglingId === product.id}
+                onEdit={() => openEdit(product)}
+                onToggle={() => handleToggle(product)}
+              />
+            ))}
+          </div>
         )}
       </section>
 
@@ -151,7 +153,7 @@ export function AdminProductsPage() {
             className="fixed inset-0 bg-scrim/40 z-[60]"
             onClick={closeForm}
           />
-          <div className="fixed inset-x-0 bottom-0 z-[60] max-h-[92dvh] overflow-hidden bg-surface rounded-t-3xl flex flex-col shadow-[0_-16px_60px_rgba(0,0,0,0.2)]">
+          <div className="fixed inset-x-0 bottom-0 z-[60] max-h-[92dvh] overflow-hidden bg-surface rounded-t-3xl flex flex-col shadow-[0_-16px_60px_rgba(0,0,0,0.2)] md:inset-x-auto md:left-1/2 md:-translate-x-1/2 md:top-1/2 md:-translate-y-1/2 md:max-h-[90vh] md:rounded-3xl md:max-w-xl md:w-full">
             <div className="flex justify-center pt-3 pb-1">
               <div className="w-10 h-1 rounded-full bg-outline-variant" />
             </div>

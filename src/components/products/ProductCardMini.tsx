@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useState } from "react";
 
 import type { Product, ProductVariant } from "@/types/product";
@@ -22,13 +23,9 @@ export function ProductCardMini({ product, onAdd }: ProductCardMiniProps) {
   }
 
   return (
-    <article
-      role="button"
-      tabIndex={0}
-      aria-label={`Agregar ${product.name} al carrito`}
-      onClick={() => onAdd?.(product, selectedVariant)}
-      onKeyDown={(e) => e.key === "Enter" && onAdd?.(product, selectedVariant)}
-      className="group cursor-pointer bg-white rounded-xl overflow-hidden shadow-card flex flex-col active:scale-95 transition-transform duration-200"
+    <Link
+      href={`/producto/${product.id}`}
+      className="group bg-white rounded-xl overflow-hidden shadow-card flex flex-col active:scale-95 transition-transform duration-200"
     >
       {/* Image */}
       <div className="relative h-32 w-full overflow-hidden">
@@ -94,6 +91,6 @@ export function ProductCardMini({ product, onAdd }: ProductCardMiniProps) {
           </button>
         </div>
       </div>
-    </article>
+    </Link>
   );
 }

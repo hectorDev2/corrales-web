@@ -73,7 +73,7 @@ export function AdminUsersPage() {
   const inactive = users.filter((u) => !u.is_active);
 
   return (
-    <div className="w-full max-w-97.5 mx-auto px-4 space-y-6 py-4 pb-28">
+    <div className="w-full max-w-2xl md:max-w-5xl lg:max-w-7xl mx-auto px-4 md:px-8 space-y-6 py-4 md:py-8 pb-28">
       {/* Header */}
       <div className="flex justify-between items-end py-2">
         <div>

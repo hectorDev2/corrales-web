@@ -30,7 +30,7 @@ export function FacturacionPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8 space-y-8">
+    <div className="max-w-2xl md:max-w-5xl lg:max-w-7xl mx-auto px-4 md:px-8 py-8 space-y-8">
       <header>
         <h1 className="text-3xl font-black tracking-tighter text-on-surface">
           Facturación Electrónica
