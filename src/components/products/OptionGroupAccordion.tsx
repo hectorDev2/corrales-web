@@ -103,6 +103,11 @@ function OptionRow({
         )}
         <div className="flex-1 text-left">
           <span className="text-sm font-bold text-on-surface">{name}</span>
+          {priceDelta > 0 && (
+            <p className="text-[11px] text-primary font-bold">
+              + S/ {priceDelta.toFixed(2)}
+            </p>
+          )}
         </div>
         {isSelected && (
           <span

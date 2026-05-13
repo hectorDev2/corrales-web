@@ -97,12 +97,8 @@ export function ProductDetailPage({ product }: Props) {
 
   function handleAdd() {
     addItem(product, selectedVariant);
-    toast.success(`${product.name} agregado al carrito`, {
-      action: {
-        label: "Ver carrito",
-        onClick: () => openDrawer(),
-      },
-    });
+    toast.success(`${product.name} agregado al carrito`);
+    openDrawer();
   }
 
   function isAddDisabled(): string | null {

@@ -47,9 +47,9 @@ export function CartDrawer() {
               </div>
               <h3 className="text-lg font-bold text-[#111111]">Tu carrito está vacío</h3>
               <p className="text-sm text-on-surface-variant mt-2 max-w-[200px]">¡Parece que aún no has elegido tu banquete de hoy!</p>
-              <button onClick={closeDrawer}
+              <Link href="/menu" onClick={closeDrawer}
                 className="mt-6 px-6 py-3 bg-[#f5f5f5] text-[#374151] font-bold rounded-xl active:scale-95 transition-all"
-              >Explorar la Carta</button>
+              >Explorar la Carta</Link>
             </div>
           ) : (
             <div className="space-y-6">
@@ -76,6 +76,12 @@ export function CartDrawer() {
                 <span className="text-xl font-black text-primary">S/ {total().toFixed(2)}</span>
               </div>
             </div>
+            <Link href="/menu" onClick={closeDrawer}
+              className="w-full h-12 border-2 border-outline-variant text-on-surface-variant font-bold rounded-xl flex items-center justify-center gap-2 active:scale-[0.98] transition-all text-sm hover:border-outline hover:text-on-surface"
+            >
+              <span className="material-symbols-outlined text-lg">add</span>
+              Seguir eligiendo
+            </Link>
             <Link href="/checkout" onClick={closeDrawer}
               className="w-full h-14 bg-primary text-white font-bold text-lg rounded-xl shadow-lg shadow-primary/20 flex items-center justify-center gap-3 active:scale-[0.98] transition-all"
             >
