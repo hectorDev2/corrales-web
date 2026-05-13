@@ -21,10 +21,10 @@ function AutoScrollCarousel({ children }: { children: React.ReactNode }) {
     if (!el) return;
 
     function handleScroll() {
-      updateButtons(el);
+      if (el) updateButtons(el);
     }
 
-    updateButtons(el);
+    if (el) updateButtons(el);
 
     const interval = setInterval(() => {
       const cardWidth = el.children[0]?.getBoundingClientRect().width ?? 188;
