@@ -115,7 +115,7 @@ export function MenuPage({ products, categories, initialQuery }: MenuPageProps) 
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const { addItem } = useCartStore();
 
-  const sectionRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+  const sectionRefs = useRef<Map<string, HTMLElement>>(new Map());
   const navRef = useRef<HTMLDivElement>(null);
 
   const filteredBySearch = useMemo(() => {
@@ -152,7 +152,7 @@ export function MenuPage({ products, categories, initialQuery }: MenuPageProps) 
     activeButton?.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
   }
 
-  function setSectionRef(name: string, el: HTMLDivElement | null) {
+  function setSectionRef(name: string, el: HTMLElement | null) {
     if (el) {
       sectionRefs.current.set(name, el);
     } else {
