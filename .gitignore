@@ -68,3 +68,5 @@ stitch/
 .zencoder/
 skills/
 skills-lock.json
+/new-design/node_modules/
+/new-design/.next/

@@ -113,10 +113,26 @@ interface MenuPageProps {
 export function MenuPage({ products, categories, initialQuery }: MenuPageProps) {
   const [search, setSearch] = useState(initialQuery ?? "");
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [catCanScrollPrev, setCatCanScrollPrev] = useState(false);
+  const [catCanScrollNext, setCatCanScrollNext] = useState(true);
   const { addItem } = useCartStore();
 
   const sectionRefs = useRef<Map<string, HTMLElement>>(new Map());
   const navRef = useRef<HTMLDivElement>(null);
+
+  function updateCatButtons(el: HTMLDivElement) {
+    setCatCanScrollPrev(el.scrollLeft > 4);
+    setCatCanScrollNext(el.scrollLeft + el.clientWidth < el.scrollWidth - 4);
+  }
+
+  function scrollCat(direction: "prev" | "next") {
+    const el = navRef.current;
+    if (!el) return;
+    const btnWidth = el.querySelector("button")?.getBoundingClientRect().width ?? 100;
+    const gap = 8;
+    const step = btnWidth + gap;
+    el.scrollBy({ left: direction === "next" ? step : -step, behavior: "smooth" });
+  }
 
   const filteredBySearch = useMemo(() => {
     if (!search.trim()) return products;
@@ -213,6 +229,15 @@ export function MenuPage({ products, categories, initialQuery }: MenuPageProps) 
     });
   }, [activeCategory]);
 
+  useEffect(() => {
+    const el = navRef.current;
+    if (!el) return;
+    function handleScroll() { if (el) updateCatButtons(el); }
+    updateCatButtons(el);
+    el.addEventListener("scroll", handleScroll, { passive: true });
+    return () => el.removeEventListener("scroll", handleScroll);
+  }, [categorySections]);
+
   return (
     <div className="mx-auto max-w-2xl px-4 pb-8">
       {/* Sticky search bar */}
@@ -237,30 +262,56 @@ export function MenuPage({ products, categories, initialQuery }: MenuPageProps) 
       {/* Category nav */}
       {categorySections.length > 1 && (
         <div className="bg-background sticky top-[135px] z-30 pb-2">
-          <div
-            ref={navRef}
-            className="-mx-4 flex snap-x snap-mandatory scroll-pl-4 gap-2 overflow-x-auto overflow-y-hidden pr-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-          >
-            {categorySections.map((section) => (
-              <button
-                key={section.name}
-                data-category={section.name}
-                onClick={() => scrollToCategory(section.name)}
-                className={`flex shrink-0 snap-start items-center gap-1.5 rounded-full border px-4 py-2 text-xs font-semibold transition-all active:scale-95 ${
-                  activeCategory === section.name
-                    ? "bg-primary border-primary text-white"
-                    : "text-on-surface-variant border-[#dddddd] bg-white"
-                }`}
-              >
-                <span
-                  className="material-symbols-outlined text-base !leading-none"
-                  style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20" }}
+          <div className="relative">
+            <div
+              ref={navRef}
+              className="-mx-4 flex snap-x snap-mandatory scroll-pl-4 gap-2 overflow-x-auto overflow-y-hidden pr-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            >
+              {categorySections.map((section) => (
+                <button
+                  key={section.name}
+                  data-category={section.name}
+                  onClick={() => scrollToCategory(section.name)}
+                  className={`flex shrink-0 snap-start items-center gap-1.5 rounded-full border px-4 py-2 text-xs font-semibold transition-all active:scale-95 ${
+                    activeCategory === section.name
+                      ? "bg-primary border-primary text-white"
+                      : "text-on-surface-variant border-[#dddddd] bg-white"
+                  }`}
                 >
-                  {section.icon}
-                </span>
-                {section.name}
+                  <span
+                    className="material-symbols-outlined text-base !leading-none"
+                    style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20" }}
+                  >
+                    {section.icon}
+                  </span>
+                  {section.name}
+                </button>
+              ))}
+            </div>
+
+            {catCanScrollPrev && (
+              <button
+                onClick={() => scrollCat("prev")}
+                className="absolute left-0 top-1/2 z-10 flex -translate-y-1/2 items-center justify-center rounded-r-xl !bg-primary/60 px-1.5 py-5 !h-auto !w-auto !text-white backdrop-blur-xs transition-all active:scale-95 md:-left-10 md:!bg-primary/80 md:px-2 md:py-7"
+                aria-label="Anterior"
+              >
+                <svg className="rotate-180" width="8" height="14" viewBox="0 0 11 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M0.38296 20.0762C0.111788 19.805 0.111788 19.3654 0.38296 19.0942L9.19758 10.2796L0.38296 1.46497C0.111788 1.19379 0.111788 0.754138 0.38296 0.482966C0.654131 0.211794 1.09379 0.211794 1.36496 0.482966L10.4341 9.55214C10.8359 9.9539 10.8359 10.6053 10.4341 11.007L1.36496 20.0762C1.09379 20.3474 0.654131 20.3474 0.38296 20.0762Z" fill="currentColor" />
+                </svg>
               </button>
-            ))}
+            )}
+
+            {catCanScrollNext && (
+              <button
+                onClick={() => scrollCat("next")}
+                className="absolute right-0 top-1/2 z-10 flex -translate-y-1/2 items-center justify-center rounded-l-xl !bg-primary/60 px-1.5 py-5 !h-auto !w-auto !text-white backdrop-blur-xs transition-all active:scale-95 md:-right-10 md:!bg-primary/80 md:px-2 md:py-7"
+                aria-label="Siguiente"
+              >
+                <svg width="8" height="14" viewBox="0 0 11 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M0.38296 20.0762C0.111788 19.805 0.111788 19.3654 0.38296 19.0942L9.19758 10.2796L0.38296 1.46497C0.111788 1.19379 0.111788 0.754138 0.38296 0.482966C0.654131 0.211794 1.09379 0.211794 1.36496 0.482966L10.4341 9.55214C10.8359 9.9539 10.8359 10.6053 10.4341 11.007L1.36496 20.0762C1.09379 20.3474 0.654131 20.3474 0.38296 20.0762Z" fill="currentColor" />
+                </svg>
+              </button>
+            )}
           </div>
         </div>
       )}
