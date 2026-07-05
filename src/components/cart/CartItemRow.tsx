@@ -4,6 +4,7 @@ import Image from "next/image";
 
 import { useCartStore } from "@/store/cart";
 import type { CartItem } from "@/types/cart";
+import { calcOptionsTotal } from "@/types/cart";
 
 interface CartItemRowProps {
   item: CartItem;
@@ -11,7 +12,37 @@ interface CartItemRowProps {
 
 export function CartItemRow({ item }: CartItemRowProps) {
   const { updateQuantity, removeItem } = useCartStore();
-  const { product, variant, quantity } = item;
+  const { product, variant, quantity, selectedOptions } = item;
+  const optionsExtra = calcOptionsTotal(product, selectedOptions);
+  const unitPrice = variant.price + optionsExtra;
+
+  interface OptionDisplay {
+    groupName: string;
+    optionName: string;
+    qty: number;
+    priceDelta: number;
+  }
+
+  const optionDisplays: OptionDisplay[] = [];
+
+  if (product.optionGroups && Object.keys(selectedOptions).length > 0) {
+    for (const group of product.optionGroups) {
+      const sel = selectedOptions[group.id];
+      if (!sel || sel.length === 0) continue;
+      for (const s of sel) {
+        const opt = group.options.find((o) => o.id === s.optionId);
+        if (!opt) continue;
+        optionDisplays.push({
+          groupName: group.name,
+          optionName: opt.name,
+          qty: s.quantity,
+          priceDelta: opt.priceDelta * s.quantity,
+        });
+      }
+    }
+  }
+
+  const hasDeltaOptions = optionsExtra > 0;
 
   return (
     <div className="flex gap-4 items-center">
@@ -29,18 +60,37 @@ export function CartItemRow({ item }: CartItemRowProps) {
       {/* Info */}
       <div className="flex-1 min-w-0">
         <div className="flex justify-between items-start">
-          <h3 className="font-bold text-[#111111] truncate pr-2">
-            {product.name}
-            {variant.label && (
-              <span className="ml-1 text-xs font-normal text-on-surface-variant">
-                ({variant.label})
-              </span>
+          <div className="min-w-0 pr-2">
+            <h3 className="font-bold text-[#111111] truncate">
+              {product.name}
+              {variant.label && (
+                <span className="ml-1 text-xs font-normal text-on-surface-variant">
+                  ({variant.label})
+                </span>
+              )}
+            </h3>
+            {optionDisplays.length > 0 && (
+              <div className="mt-1 space-y-0.5">
+                {optionDisplays.map((d, i) => (
+                  <div key={i} className="flex justify-between items-center">
+                    <span className="text-[11px] text-on-surface-variant leading-tight truncate pr-2">
+                      {d.groupName}: {d.optionName}
+                      {d.qty > 1 && ` x${d.qty}`}
+                    </span>
+                    {d.priceDelta > 0 && (
+                      <span className="text-[11px] font-bold text-primary shrink-0">
+                        +S/ {d.priceDelta.toFixed(2)}
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
             )}
-          </h3>
+          </div>
           <button
-            onClick={() => removeItem(variant.id)}
+            onClick={() => removeItem(item.key)}
             aria-label={`Eliminar ${product.name}`}
-            className="text-on-surface-variant hover:text-primary transition-colors"
+            className="shrink-0 text-on-surface-variant hover:text-primary transition-colors"
           >
             <span
               className="material-symbols-outlined text-[20px]"
@@ -51,15 +101,11 @@ export function CartItemRow({ item }: CartItemRowProps) {
           </button>
         </div>
 
-        <p className="text-sm text-on-surface-variant mb-3 line-clamp-1">
-          {product.description}
-        </p>
-
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mt-2">
           {/* Stepper */}
           <div className="flex items-center bg-[#f5f5f5] rounded-lg p-1">
             <button
-              onClick={() => updateQuantity(variant.id, quantity - 1)}
+              onClick={() => updateQuantity(item.key, quantity - 1)}
               aria-label="Reducir cantidad"
               className="w-7 h-7 flex items-center justify-center rounded-md bg-white text-primary border border-[#e5e5e5] active:scale-90 transition-transform"
             >
@@ -74,7 +120,7 @@ export function CartItemRow({ item }: CartItemRowProps) {
               {quantity}
             </span>
             <button
-              onClick={() => updateQuantity(variant.id, quantity + 1)}
+              onClick={() => updateQuantity(item.key, quantity + 1)}
               aria-label="Aumentar cantidad"
               className="w-7 h-7 flex items-center justify-center rounded-md bg-primary text-white active:scale-90 transition-transform"
             >
@@ -88,9 +134,14 @@ export function CartItemRow({ item }: CartItemRowProps) {
           </div>
 
           <span className="font-bold text-[#111111]">
-            S/ {(variant.price * quantity).toFixed(2)}
+            S/ {(unitPrice * quantity).toFixed(2)}
           </span>
         </div>
+        {hasDeltaOptions && (
+          <p className="text-[10px] text-on-surface-variant mt-0.5">
+            S/ {variant.price.toFixed(2)} base + S/ {optionsExtra.toFixed(2)} extras
+          </p>
+        )}
       </div>
     </div>
   );

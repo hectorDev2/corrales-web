@@ -3,15 +3,9 @@ import Link from "next/link";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 
 import { HeaderClient } from "./HeaderClient";
+import { LocationButton } from "./LocationButton";
 import { MobileNav } from "./MobileNav";
-
-const NAV_LINKS = [
-  { href: "/", label: "Inicio" },
-  { href: "/menu", label: "Menú" },
-  { href: "/reservas", label: "Reservas" },
-  { href: "/nosotros", label: "Nosotros" },
-  { href: "/trabaja-con-nosotros", label: "Trabaja con nosotros" },
-] as const;
+import { SearchBar } from "./SearchBar";
 
 export async function Header() {
   const supabase = await createSupabaseServerClient();
@@ -30,47 +24,43 @@ export async function Header() {
   }
 
   return (
-    <>
-      <header className="bg-primary fixed top-0 z-50 h-[72px] w-full shadow-md">
-        <div className="mx-auto flex h-full max-w-7xl items-center gap-4 px-4">
-          {/* Left: hamburger + logo */}
+    <header className="bg-primary sticky top-0 z-50 shadow-md">
+      <div className="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-2.5 md:flex-row md:items-center md:gap-3">
+        {/* Row 1: hamburger + logo + mobile actions */}
+        <div className="flex items-center justify-between md:w-auto">
           <div className="flex shrink-0 items-center gap-2">
             <MobileNav isAdmin={isAdmin} />
-            <Link href="/" className="flex items-center gap-2">
+            <Link href="/" className="flex items-center gap-1.5">
               <span
-                className="material-symbols-outlined text-3xl text-white"
+                className="material-symbols-outlined text-2xl text-white"
                 style={{ fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}
               >
                 local_fire_department
               </span>
-              <div className="flex flex-col leading-none max-md:hidden">
-                <span className="text-xl font-black tracking-tight text-white uppercase">
-                  Corrales
-                </span>
-                <span className="text-[10px] font-bold tracking-widest text-white/70 uppercase">
-                  Pollería &amp; Fastfood
-                </span>
-              </div>
+              <span className="text-base font-black tracking-tight text-white uppercase leading-none">
+                Corrales
+              </span>
             </Link>
           </div>
+          <div className="flex md:hidden">
+            <HeaderClient isAdmin={isAdmin} mobileOnly />
+          </div>
+        </div>
 
-          {/* Spacer + desktop nav + actions */}
-          <div className="ml-auto hidden items-center gap-6 lg:flex">
-            <nav className="flex items-center gap-6" aria-label="Navegación desktop">
-              {NAV_LINKS.map(({ href, label }) => (
-                <Link
-                  key={href}
-                  href={href}
-                  className="text-sm font-medium tracking-wide whitespace-nowrap text-white/80 transition-colors duration-200 hover:text-white"
-                >
-                  {label}
-                </Link>
-              ))}
-            </nav>
+        {/* Row 2: search + desktop actions */}
+        <div className="flex items-center gap-3 w-full md:flex-1">
+          {/* Search bar */}
+          <SearchBar />
+
+          {/* Location (desktop only) */}
+          <LocationButton />
+
+          {/* Actions: account + cart + notifications (desktop) */}
+          <div className="hidden md:flex">
             <HeaderClient isAdmin={isAdmin} />
           </div>
         </div>
-      </header>
-    </>
+      </div>
+    </header>
   );
 }

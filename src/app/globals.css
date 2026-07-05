@@ -107,6 +107,19 @@
   --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
+/* ── KFC-style spacing & typography tokens ──────── */
+@theme {
+  --spacing-gutter: 24px;
+  --spacing-margin-desktop: 48px;
+  --spacing-margin-mobile: 16px;
+  --spacing-container-max: 1280px;
+  --spacing-unit: 8px;
+  --color-off-white: #F2F2F2;
+  --color-pure-white: #FFFFFF;
+  --color-deep-black: #000000;
+  --color-kfc-red: #E4002B;
+}
+
 @keyframes cart-pop {
   0%   { transform: scale(1);    box-shadow: 0 0 0 0   rgba(228,0,43,0.7); }
   25%  { transform: scale(1.45); box-shadow: 0 0 0 14px rgba(228,0,43,0.25); }
@@ -215,8 +228,29 @@
   display: none;
 }
 
+.swiper-button-prev,
+.swiper-button-next {
+  width: 40px !important;
+  height: 40px !important;
+  background: #fff !important;
+  border-radius: 9999px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12) !important;
+  color: #666 !important;
+  transition: color 0.2s !important;
+  margin-top: -20px !important;
+}
+
 .swiper-button-prev:hover,
 .swiper-button-next:hover {
-  background: rgba(255, 255, 255, 1);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.16);
+  background: #fff !important;
+  color: #e4002b !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.16) !important;
+}
+
+.swiper-button-prev {
+  left: 4px !important;
+}
+
+.swiper-button-next {
+  right: 4px !important;
 }

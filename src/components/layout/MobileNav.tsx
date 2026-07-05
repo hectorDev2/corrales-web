@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useState } from "react";
 
+import { CartButton } from "./CartButton";
+
 const NAV_LINKS = [
   { href: "/", label: "Inicio", icon: "home" },
   { href: "/menu", label: "Menú", icon: "restaurant_menu" },
@@ -22,11 +24,28 @@ export function MobileNav({ isAdmin }: MobileNavProps) {
     <>
       {/* Hamburger button */}
       <button
+        type="button"
         aria-label="Abrir menú"
         onClick={() => setOpen(true)}
-        className="flex items-center p-2 text-white transition-transform active:scale-90 md:hidden"
+        className="flex items-center p-2 text-white transition-transform active:scale-90"
       >
-        <span className="material-symbols-outlined text-3xl">menu</span>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="1em"
+          height="1em"
+          fill="currentColor"
+          viewBox="0 0 32 32"
+          aria-label="menu"
+          role="img"
+          className="text-3xl"
+        >
+          <path
+            fill="currentColor"
+            fillRule="evenodd"
+            d="M4 6h24v2H4zm0 18h24v2H4zm24-12H4v2h24zM4 18h24v2H4z"
+            clipRule="evenodd"
+          />
+        </svg>
       </button>
 
       {/* Backdrop */}
@@ -85,6 +104,13 @@ export function MobileNav({ isAdmin }: MobileNavProps) {
             </Link>
           )}
         </nav>
+
+        <div className="border-t border-[#e5e5e5] px-5 py-4">
+          <span className="mb-2 block text-[11px] font-bold tracking-widest text-[#999] uppercase">
+            Carrito
+          </span>
+          <CartButton />
+        </div>
       </div>
     </>
   );

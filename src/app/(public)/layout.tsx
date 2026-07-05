@@ -10,7 +10,7 @@ export default function PublicLayout({
     <>
       <Header />
       <CartDrawer />
-      <main className="flex-1 pt-[72px]">
+      <main className="flex-1">
         {children}
       </main>
       <Footer />

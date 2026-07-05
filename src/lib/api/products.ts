@@ -464,6 +464,45 @@ export async function getProducts(): Promise<Product[]> {
   }));
 }
 
+export async function searchProducts(query: string): Promise<Product[]> {
+  const q = `%${query}%`;
+  const { data, error } = await supabase
+    .from("products")
+    .select(`
+      id,
+      name,
+      description,
+      image_src,
+      image_alt,
+      tag,
+      categories!inner ( name, is_active ),
+      product_variants ( id, label, price, sort_order )
+    `)
+    .eq("is_active", true)
+    .eq("categories.is_active", true)
+    .or(`name.ilike.${q},description.ilike.${q}`)
+    .order("name");
+
+  if (error) throw error;
+
+  return data.map((row) => ({
+    id: row.id,
+    name: row.name,
+    description: row.description,
+    image: { src: row.image_src, alt: row.image_alt },
+    tag: row.tag,
+    category: (row.categories as { name: string }).name,
+    variants: (
+      row.product_variants as Array<{
+        id: string;
+        label: string | null;
+        price: number;
+        sort_order: number;
+      }>
+    ).sort((a, b) => a.sort_order - b.sort_order),
+  }));
+}
+
 async function fetchOptionGroups(
   productId: string,
 ): Promise<ProductOptionGroup[]> {

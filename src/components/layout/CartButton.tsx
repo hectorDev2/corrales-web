@@ -1,10 +1,15 @@
 "use client";
 
+import { useEffect, useState } from "react";
+
 import { useCartStore } from "@/store/cart";
 
 export function CartButton() {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
   const { openDrawer, totalItems } = useCartStore();
-  const count = totalItems();
+  const count = mounted ? totalItems() : 0;
 
   return (
     <button

@@ -54,7 +54,7 @@ export function CartDrawer() {
           ) : (
             <div className="space-y-6">
               {items.map((item) => (
-                <CartItemRow key={item.product.id} item={item} />
+                <CartItemRow key={item.key} item={item} />
               ))}
             </div>
           )}
@@ -76,7 +76,7 @@ export function CartDrawer() {
                 <span className="text-xl font-black text-primary">S/ {total().toFixed(2)}</span>
               </div>
             </div>
-            <Link href="/menu" onClick={closeDrawer}
+            <Link href="/" onClick={closeDrawer}
               className="w-full h-12 border-2 border-outline-variant text-on-surface-variant font-bold rounded-xl flex items-center justify-center gap-2 active:scale-[0.98] transition-all text-sm hover:border-outline hover:text-on-surface"
             >
               <span className="material-symbols-outlined text-lg">add</span>

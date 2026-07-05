@@ -14,71 +14,32 @@ const DEFAULT_FOOTER: FooterSettings = {
     {
       title: "Contacto",
       links: [
-        { label: "WhatsApp", href: "https://wa.me/51999999999" },
-        { label: "corrales@contacto.pe", href: "mailto:corrales@contacto.pe" },
-        { label: "Av. La Marina 1234, Lima", href: "#" },
+        { label: "Contáctanos", href: "#" },
+        { label: "Encuesta", href: "#" },
+        { label: "505-0505", href: "tel:5050505" },
+        { label: "Servicio al cliente", href: `https://wa.me/51999999999` },
       ],
     },
     {
       title: "Sobre Nosotros",
       links: [
-        { label: "Nuestra Historia", href: "/nosotros" },
-        { label: "Trabaja con Nosotros", href: "/trabaja-con-nosotros" },
-        { label: "Locales", href: "#" },
+        { label: "Historia", href: "/nosotros" },
+        { label: "Trabaja con nosotros", href: "/trabaja-con-nosotros" },
+        { label: "Ventas corporativas", href: "#" },
+        { label: "Libro de Reclamaciones", href: "#" },
       ],
     },
     {
       title: "Políticas",
       links: [
-        { label: "Términos y Condiciones", href: "#" },
-        { label: "Política de Privacidad", href: "#" },
-        { label: "Libro de Reclamaciones", href: "#" },
+        { label: "Términos y condiciones", href: "#" },
+        { label: "Políticas de privacidad", href: "#" },
+        { label: "Control de cookies", href: "#" },
       ],
     },
   ],
   social: { facebook: "#", instagram: "#", tiktok: "#" },
 };
-
-function AccordionSection({
-  title,
-  links,
-  defaultOpen,
-}: {
-  title: string;
-  links: { label: string; href: string }[];
-  defaultOpen?: boolean;
-}) {
-  const [open, setOpen] = useState(defaultOpen ?? false);
-
-  return (
-    <div className="border-b border-white/10 md:border-0">
-      <button
-        onClick={() => setOpen(!open)}
-        className="flex w-full items-center justify-between py-4 md:cursor-default md:py-0"
-        aria-expanded={open}
-      >
-        <h3 className="text-sm font-bold uppercase tracking-widest text-white">{title}</h3>
-        <span className="material-symbols-outlined text-white/50 text-xl md:hidden">
-          {open ? "remove" : "add"}
-        </span>
-      </button>
-      <div className={`pb-4 md:pb-0 md:block ${open ? "block" : "hidden"}`}>
-        <ul className="space-y-2">
-          {links.map((link) => (
-            <li key={link.label}>
-              <Link
-                href={link.href}
-                className="text-sm text-white/60 hover:text-white transition-colors"
-              >
-                {link.label}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </div>
-  );
-}
 
 export function Footer() {
   const [settings, setSettings] = useState<FooterSettings>(DEFAULT_FOOTER);
@@ -91,59 +52,106 @@ export function Footer() {
     );
   }, []);
 
-  const { sections, social } = settings;
-
   return (
-    <footer className="bg-[#111111] text-white">
-      <div className="max-w-7xl mx-auto px-4 py-12 md:py-16">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          {/* Brand column */}
-          <div className="md:col-span-1">
-            <div className="flex items-center gap-2 mb-4">
-              <span
-                className="material-symbols-outlined text-primary text-3xl"
-                style={{ fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}
-              >
-                local_fire_department
-              </span>
-              <span className="text-xl font-black uppercase tracking-tight">
-                Corrales
-              </span>
-            </div>
-            <p className="text-sm text-white/60 leading-relaxed">
-              {settings.aboutText}
-            </p>
+    <footer className="bg-[#111111] text-white py-16">
+      <div className="max-w-7xl mx-auto px-4 md:px-margin-desktop">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+          <div>
+            <h4 className="text-lg font-bold mb-6 uppercase">Contacto</h4>
+            <ul className="space-y-4">
+              <li className="flex items-center gap-2 text-white/60 hover:text-primary transition-colors cursor-pointer">
+                <span className="material-symbols-outlined">support_agent</span>
+                Contáctanos
+              </li>
+              <li className="flex items-center gap-2 text-white/60 hover:text-primary transition-colors cursor-pointer">
+                <span className="material-symbols-outlined">rate_review</span>
+                Encuesta
+              </li>
+              <li className="flex items-center gap-2 text-white/60 hover:text-primary transition-colors cursor-pointer">
+                <span className="material-symbols-outlined">call</span>
+                505-0505
+              </li>
+              <li className="bg-[#25D366]/10 p-3 flex items-center justify-center gap-2 border border-[#25D366] text-[#25D366] font-bold cursor-pointer hover:bg-[#25D366] hover:text-[#111111] transition-all">
+                <span className="material-symbols-outlined">chat</span>
+                Servicio al cliente
+              </li>
+            </ul>
           </div>
-
-          {/* Link columns - desktop grid, mobile accordion */}
-          {sections.map((section) => (
-            <AccordionSection
-              key={section.title}
-              title={section.title}
-              links={section.links}
-            />
-          ))}
+          <div>
+            <h4 className="text-lg font-bold mb-6 uppercase">Sobre Nosotros</h4>
+            <ul className="space-y-4">
+              <li className="text-white/60 hover:text-primary transition-colors cursor-pointer">Historia</li>
+              <li className="text-white/60 hover:text-primary transition-colors cursor-pointer">Trabaja con nosotros</li>
+              <li className="text-white/60 hover:text-primary transition-colors cursor-pointer">Ventas corporativas</li>
+              <li className="text-white/60 hover:text-primary transition-colors cursor-pointer">Libro de Reclamaciones</li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="text-lg font-bold mb-6 uppercase">Políticas</h4>
+            <ul className="space-y-4">
+              <li className="text-white/60 hover:text-primary transition-colors cursor-pointer">Términos y condiciones</li>
+              <li className="text-white/60 hover:text-primary transition-colors cursor-pointer">Políticas de privacidad</li>
+              <li className="text-white/60 hover:text-primary transition-colors cursor-pointer">Control de cookies</li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="text-lg font-bold mb-6 uppercase">Únete al club</h4>
+            <p className="text-white/60 text-sm mb-4">
+              Recibe las mejores ofertas y promociones en tu correo.
+            </p>
+            <form className="space-y-3" onSubmit={(e) => e.preventDefault()}>
+              <input
+                className="w-full bg-transparent border-2 border-white/20 p-3 focus:border-primary focus:ring-0 outline-none text-white text-sm"
+                placeholder="Nombre"
+                type="text"
+              />
+              <input
+                className="w-full bg-transparent border-2 border-white/20 p-3 focus:border-primary focus:ring-0 outline-none text-white text-sm"
+                placeholder="Correo electrónico"
+                type="email"
+              />
+              <button
+                type="submit"
+                className="w-full bg-primary text-white py-4 text-xs font-bold uppercase tracking-widest hover:bg-white hover:text-primary transition-all"
+              >
+                Suscribirme
+              </button>
+            </form>
+          </div>
         </div>
-
-        {/* Bottom bar */}
-        <div className="mt-12 pt-6 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-xs text-white/40">
+        <nav className="border-t border-white/10 pt-8 mb-8" aria-labelledby="footer-social-media-title">
+          <div className="text-center">
+            <h3 id="footer-social-media-title" className="text-sm font-bold text-white/60 mb-4 uppercase tracking-widest">
+              Síguenos en nuestras redes sociales
+            </h3>
+          </div>
+          <div className="flex justify-center gap-6">
+            <a target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="text-white/60 hover:text-primary transition-colors" href={settings.social.instagram}>
+              <svg width="1.5em" height="1.5em" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+                <path fill="currentColor" fillRule="evenodd" d="M10.425 3.116c-.633-.029-.823-.035-2.425-.035s-1.792.006-2.424.035a3.3 3.3 0 0 0-1.115.207A1.99 1.99 0 0 0 3.323 4.46a3.3 3.3 0 0 0-.207 1.115c-.029.632-.035.822-.035 2.424s.006 1.792.035 2.425c.005.38.074.757.207 1.114a1.99 1.99 0 0 0 1.138 1.138 3.3 3.3 0 0 0 1.114.207c.633.029.823.035 2.425.035s1.792-.006 2.425-.035a3.3 3.3 0 0 0 1.114-.207 1.99 1.99 0 0 0 1.138-1.138c.133-.357.202-.734.207-1.114.029-.633.035-.823.035-2.425s-.006-1.792-.035-2.424a3.3 3.3 0 0 0-.207-1.115 1.99 1.99 0 0 0-1.138-1.138 3.3 3.3 0 0 0-1.114-.207m-4.899-1.08C6.166 2.006 6.371 2 8 2s1.834.007 2.473.036c.498.01.99.105 1.457.28a3.07 3.07 0 0 1 1.755 1.754c.175.466.269.959.279 1.456.03.64.036.845.036 2.474s-.007 1.834-.036 2.473c-.01.498-.104.99-.279 1.457a3.07 3.07 0 0 1-1.755 1.755 4.4 4.4 0 0 1-1.456.279C9.834 13.994 9.63 14 8 14s-1.834-.007-2.474-.036a4.4 4.4 0 0 1-1.456-.279 3.07 3.07 0 0 1-1.755-1.755 4.4 4.4 0 0 1-.279-1.456C2.006 9.834 2 9.63 2 8s.007-1.834.036-2.474c.01-.497.104-.99.279-1.456A3.07 3.07 0 0 1 4.07 2.315a4.4 4.4 0 0 1 1.456-.279m5.677 3.481a.72.72 0 1 0 0-1.44.72.72 0 0 0 0 1.44M8 4.92a3.081 3.081 0 1 0 0 6.162A3.081 3.081 0 0 0 8 4.92M8 10a2 2 0 1 1 0-4 2 2 0 0 1 0 4" clipRule="evenodd" />
+              </svg>
+            </a>
+            <a target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="text-white/60 hover:text-primary transition-colors" href={settings.social.facebook}>
+              <svg width="1.5em" height="1.5em" fill="currentColor" viewBox="0 0 11 20" aria-hidden="true">
+                <path d="m10.01 11.25.555-3.62H7.092V5.282c0-.99.485-1.956 2.04-1.956h1.58V.245S9.277 0 7.907 0c-2.86 0-4.73 1.734-4.73 4.872V7.63H0v3.62h3.18V20h3.913v-8.75z" />
+              </svg>
+            </a>
+            <a target="_blank" rel="noopener noreferrer" aria-label="YouTube" className="text-white/60 hover:text-primary transition-colors" href="#">
+              <svg width="1.5em" height="1.5em" preserveAspectRatio="xMidYMid" viewBox="0 -4 32 32" fill="currentColor" aria-hidden="true">
+                <path d="M30.722 20.579c-.585 1.315-2.094 2.506-3.511 2.769-.145.027-3.608.652-11.201.652h-.02c-7.592 0-11.058-.625-11.202-.651-1.417-.264-2.927-1.455-3.513-2.771C1.223 20.461.001 17.647.001 12s1.222-8.462 1.274-8.579C1.861 2.105 3.371.915 4.788.652 4.932.625 8.398 0 15.99 0c7.613 0 11.076.625 11.22.651 1.418.264 2.927 1.454 3.513 2.769C30.775 3.538 32 6.353 32 12s-1.225 8.461-1.278 8.579M28.893 4.23c-.312-.701-1.29-1.471-2.048-1.612C26.813 2.612 23.386 2 16.01 2c-7.395 0-10.825.612-10.858.618-.758.141-1.735.911-2.048 1.616-.01.021-1.102 2.595-1.102 7.766s1.092 7.744 1.104 7.77c.311.701 1.288 1.471 2.047 1.612.032.006 3.462.618 10.837.618h.02c7.376 0 10.803-.612 10.836-.618.758-.141 1.735-.911 2.048-1.616.01-.022 1.104-2.596 1.104-7.766s-1.094-7.745-1.105-7.77M13.541 17.846a1 1 0 0 1-1.016.029 1 1 0 0 1-.517-.875V7a.999.999 0 0 1 1.526-.851l8.019 4.956a1 1 0 0 1 .007 1.696zm.468-9.052v6.395l5.128-3.226z" />
+              </svg>
+            </a>
+            <a target="_blank" rel="noopener noreferrer" aria-label="X" className="text-white/60 hover:text-primary transition-colors" href="#">
+              <svg width="1.5em" height="1.5em" viewBox="0 0 30 30" fill="currentColor" aria-hidden="true">
+                <path d="m26.37 26-8.795-12.822.015.012L25.52 4h-2.65l-6.46 7.48L11.28 4H4.33l8.211 11.971-.001-.001L3.88 26h2.65l7.182-8.322L19.42 26zM10.23 6l12.34 18h-2.1L8.12 6z" />
+              </svg>
+            </a>
+          </div>
+        </nav>
+        <div className="flex flex-col md:flex-row items-center justify-between border-t border-white/10 pt-8 gap-6">
+          <p className="text-white/40 text-xs">
             &copy; {new Date().getFullYear()} Corrales. Todos los derechos reservados.
           </p>
-          <div className="flex items-center gap-4">
-            <span className="text-xs text-white/40">Síguenos</span>
-            <div className="flex gap-3">
-              <a href={social.facebook} aria-label="Facebook" className="text-white/40 hover:text-primary transition-colors">
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-              </a>
-              <a href={social.instagram} aria-label="Instagram" className="text-white/40 hover:text-primary transition-colors">
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
-              </a>
-              <a href={social.tiktok} aria-label="TikTok" className="text-white/40 hover:text-primary transition-colors">
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>
-              </a>
-            </div>
-          </div>
         </div>
       </div>
     </footer>
