@@ -5,4 +5,5 @@ export { FloatingActions } from "./FloatingActions";
 export { Footer } from "./Footer";
 export { Header } from "./Header";
 export { LocationBanner } from "./LocationBanner";
+export { LocationModal } from "./LocationModal";
 export { MobileMenuButton } from "./MobileMenuButton";

@@ -1,5 +1,5 @@
 import { CartDrawer } from "@/components/cart";
-import { FloatingActions, Footer, Header, LocationBanner } from "@/components/layout";
+import { FloatingActions, Footer, Header, LocationBanner, LocationModal } from "@/components/layout";
 
 export default function PublicLayout({
   children,
@@ -15,6 +15,7 @@ export default function PublicLayout({
       </main>
       <Footer />
       <FloatingActions />
+      <LocationModal />
       <LocationBanner />
     </>
   );
