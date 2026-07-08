@@ -49,6 +49,11 @@ export function LocationModal() {
     }
   }
 
+  async function handleMapChange(newLat: number, newLng: number) {
+    const addr = await reverseGeocode(newLat, newLng);
+    setAddress(addr ?? `${newLat.toFixed(4)}, ${newLng.toFixed(4)}`, newLat, newLng);
+  }
+
   return (
     <div className="fixed inset-0 z-[100] flex items-start justify-center bg-black/50 backdrop-blur-sm pt-16 md:pt-24">
       <div className="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden mx-4">
@@ -101,7 +106,7 @@ export function LocationModal() {
           </div>
 
           {/* Map */}
-          <MapView lat={lat} lng={lng} />
+          <MapView lat={lat} lng={lng} onChange={handleMapChange} />
 
           {/* Current location button */}
           <button
