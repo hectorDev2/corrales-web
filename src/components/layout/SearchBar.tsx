@@ -51,7 +51,7 @@ export function SearchBar() {
       const { data } = await supabase
         .from("products")
         .select(`
-          id, name, image_src,
+          id, name, description, image_src,
           product_variants ( id, price )
         `)
         .eq("is_active", true)
@@ -65,7 +65,7 @@ export function SearchBar() {
             return {
               id: r.id,
               name: r.name,
-              description: "",
+              description: r.description ?? "",
               image: { src: r.image_src ?? "", alt: r.name },
               category: "",
               variants: variants.length > 0
@@ -120,6 +120,9 @@ export function SearchBar() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-bold text-[#111] truncate">{product.name}</p>
+                  {product.description && (
+                    <p className="text-xs text-[#666] truncate">{product.description}</p>
+                  )}
                 </div>
                 {v && (
                   <span className="text-sm font-bold text-primary shrink-0">
