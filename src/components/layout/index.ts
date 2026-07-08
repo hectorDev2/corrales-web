@@ -1,6 +1,7 @@
 export { BottomNav } from "./BottomNav";
 export { CartButton } from "./CartButton";
 export { CookieBanner } from "./CookieBanner";
+export { CookieConsent } from "./CookieConsent";
 export { FloatingActions } from "./FloatingActions";
 export { Footer } from "./Footer";
 export { Header } from "./Header";

@@ -9,9 +9,9 @@ export const metadata = {
 export default async function Page({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{ q?: string; categoria?: string }>;
 }) {
-  const { q } = await searchParams;
+  const { q, categoria } = await searchParams;
 
   let products;
   let categories;
@@ -32,7 +32,11 @@ export default async function Page({
     categories = cats;
   }
 
-  const grouped = categories
+  const filteredCategories = categoria
+    ? categories.filter((c) => c.toLowerCase() === categoria.toLowerCase())
+    : categories;
+
+  const grouped = filteredCategories
     .map((cat) => ({
       name: cat,
       items: products.filter((p) => p.category === cat),
@@ -45,6 +49,13 @@ export default async function Page({
         <div className="px-4 md:px-margin-desktop pt-6 pb-2">
           <p className="text-sm text-on-surface-variant">
             Resultados para: <span className="font-bold text-on-surface">{q}</span>
+          </p>
+        </div>
+      )}
+      {categoria && !q?.trim() && (
+        <div className="px-4 md:px-margin-desktop pt-6 pb-2">
+          <p className="text-sm text-on-surface-variant">
+            Categoría: <span className="font-bold text-on-surface">{categoria}</span>
           </p>
         </div>
       )}

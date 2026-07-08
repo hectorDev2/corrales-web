@@ -3,8 +3,6 @@
 import Link from "next/link";
 import { useState } from "react";
 
-import { CartButton } from "./CartButton";
-
 const NAV_LINKS = [
   { href: "/", label: "Inicio", icon: "home" },
   { href: "/menu", label: "Menú", icon: "restaurant_menu" },
@@ -104,13 +102,6 @@ export function MobileNav({ isAdmin }: MobileNavProps) {
             </Link>
           )}
         </nav>
-
-        <div className="border-t border-[#e5e5e5] px-5 py-4">
-          <span className="mb-2 block text-[11px] font-bold tracking-widest text-[#999] uppercase">
-            Carrito
-          </span>
-          <CartButton />
-        </div>
       </div>
     </>
   );

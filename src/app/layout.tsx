@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Toaster } from "sonner";
-import { CookieConsent } from "@/components/layout/CookieConsent";
+import { CookieConsent } from "@/components/layout";
 import "./globals.css";
 
 const inter = Inter({

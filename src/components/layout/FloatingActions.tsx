@@ -26,7 +26,7 @@ export function FloatingActions() {
   }, [count]);
 
   // Ocultar en la página de detalle de producto
-  if (pathname.startsWith("/producto/")) return null;
+  if (pathname === "/" || pathname.startsWith("/producto/")) return null;
 
   return (
     <div className="fixed right-4 bottom-6 z-50 flex flex-col items-end gap-3">
