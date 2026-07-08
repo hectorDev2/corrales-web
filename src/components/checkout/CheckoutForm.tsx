@@ -75,9 +75,16 @@ function openCulqiModal(
   instance.open();
 }
 
+function isStoreOpen() {
+  const now = new Date();
+  const min = now.getHours() * 60 + now.getMinutes();
+  return min >= 660 && min < 1320; // 11:00 - 22:00
+}
+
 export function CheckoutForm() {
   const { items, total, clearCart } = useCartStore();
   const router = useRouter();
+  const [storeOpen] = useState(isStoreOpen);
   const { getStored, requestLocation } = useGeolocation();
   const [location, setLocation] = useState<StoredLocation | null>(() => getStored());
   const [mapboxCoords, setMapboxCoords] = useState<{ lat: number; lng: number } | null>(null);
@@ -126,6 +133,10 @@ export function CheckoutForm() {
   const addressValue = useWatch({ control, name: "address" });
 
   async function onSubmit(data: CheckoutFormData) {
+    if (!storeOpen) {
+      toast.error("La tienda está cerrada. El horario es desde 11:00 AM hasta 10:00 PM.");
+      return;
+    }
     const amountInCents = Math.round(total() * 100);
 
     const coords = mapboxCoords ?? location;
@@ -175,6 +186,10 @@ export function CheckoutForm() {
   }
 
   async function onDemoSubmit(data: CheckoutFormData) {
+    if (!storeOpen) {
+      toast.error("La tienda está cerrada. El horario es desde 11:00 AM hasta 10:00 PM.");
+      return;
+    }
     const coords = mapboxCoords ?? location;
     const locationUrl = coords
       ? `https://www.openstreetmap.org/?mlat=${coords.lat}&mlon=${coords.lng}`
@@ -209,6 +224,25 @@ export function CheckoutForm() {
       <Script src="https://js.culqi.com/checkout-js" strategy="lazyOnload" />
 
       <div className="max-w-6xl mx-auto px-4 py-8">
+        {!storeOpen && (
+          <div className="mb-8 p-5 rounded-3xl bg-error/10 border-2 border-error/30 flex items-start gap-3">
+            <span
+              className="material-symbols-outlined text-error shrink-0 mt-0.5"
+              style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}
+            >
+              schedule
+            </span>
+            <div>
+              <p className="font-black text-sm text-error uppercase tracking-wider">
+                Tienda cerrada
+              </p>
+              <p className="text-sm text-on-surface mt-0.5">
+                La tienda está cerrada, el horario es desde 11:00 AM hasta 10:00 PM.
+              </p>
+            </div>
+          </div>
+        )}
+
         <header className="mb-8">
           <h1 className="text-3xl font-black tracking-tighter text-on-surface mb-2">
             Finalizar Pedido
