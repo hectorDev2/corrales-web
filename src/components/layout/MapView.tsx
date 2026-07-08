@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 
@@ -14,6 +14,8 @@ export function MapView({ lat, lng, onChange }: MapViewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const markerRef = useRef<mapboxgl.Marker | null>(null);
+  const onChangeRef = useRef(onChange);
+  onChangeRef.current = onChange;
 
   const token =
     typeof window !== "undefined"
@@ -39,7 +41,10 @@ export function MapView({ lat, lng, onChange }: MapViewProps) {
     map.addControl(new mapboxgl.NavigationControl(), "bottom-right");
 
     if (hasLocation) {
-      const marker = new mapboxgl.Marker({ color: "#e4002b" })
+      const el = document.createElement("div");
+      el.innerHTML = `<svg display="block" height="41px" width="27px" viewBox="0 0 27 41" style="pointer-events:none"><path fill="#e4002b" d="M27,13.5C27,19.07 20.25,27 14.75,34.5C14.02,35.5 12.98,35.5 12.25,34.5C6.75,27 0,19.22 0,13.5C0,6.04 6.04,0 13.5,0C20.96,0 27,6.04 27,13.5Z"/><path opacity="0.25" d="M13.5,0C6.04,0 0,6.04 0,13.5C0,19.22 6.75,27 12.25,34.5C13,35.52 14.02,35.5 14.75,34.5C20.25,27 27,19.07 27,13.5C27,6.04 20.96,0 13.5,0ZM13.5,1C20.42,1 26,6.58 26,13.5C26,15.9 24.5,19.18 22.22,22.74C19.95,26.3 16.71,30.14 13.94,33.91C13.74,34.18 13.61,34.32 13.5,34.44C13.39,34.32 13.26,34.18 13.06,33.91C10.28,30.13 7.41,26.31 5.02,22.77C2.62,19.23 1,15.95 1,13.5C1,6.58 6.58,1 13.5,1Z"/><circle fill="white" cx="13.5" cy="13.5" r="5.5"/></svg>`;
+
+      const marker = new mapboxgl.Marker({ element: el })
         .setLngLat([lng, lat])
         .addTo(map);
       markerRef.current = marker;
@@ -64,7 +69,9 @@ export function MapView({ lat, lng, onChange }: MapViewProps) {
       if (markerRef.current) {
         markerRef.current.setLngLat([lng, lat]);
       } else {
-        markerRef.current = new mapboxgl.Marker({ color: "#e4002b" })
+        const el = document.createElement("div");
+        el.innerHTML = `<svg display="block" height="41px" width="27px" viewBox="0 0 27 41" style="pointer-events:none"><path fill="#e4002b" d="M27,13.5C27,19.07 20.25,27 14.75,34.5C14.02,35.5 12.98,35.5 12.25,34.5C6.75,27 0,19.22 0,13.5C0,6.04 6.04,0 13.5,0C20.96,0 27,6.04 27,13.5Z"/><path opacity="0.25" d="M13.5,0C6.04,0 0,6.04 0,13.5C0,19.22 6.75,27 12.25,34.5C13,35.52 14.02,35.5 14.75,34.5C20.25,27 27,19.07 27,13.5C27,6.04 20.96,0 13.5,0ZM13.5,1C20.42,1 26,6.58 26,13.5C26,15.9 24.5,19.18 22.22,22.74C19.95,26.3 16.71,30.14 13.94,33.91C13.74,34.18 13.61,34.32 13.5,34.44C13.39,34.32 13.26,34.18 13.06,33.91C10.28,30.13 7.41,26.31 5.02,22.77C2.62,19.23 1,15.95 1,13.5C1,6.58 6.58,1 13.5,1Z"/><circle fill="white" cx="13.5" cy="13.5" r="5.5"/></svg>`;
+        markerRef.current = new mapboxgl.Marker({ element: el })
           .setLngLat([lng, lat])
           .addTo(map);
       }
@@ -75,24 +82,19 @@ export function MapView({ lat, lng, onChange }: MapViewProps) {
     }
   }, [lat, lng]);
 
-  const handleMapClick = useCallback(
-    (e: mapboxgl.MapMouseEvent) => {
-      if (!onChange) return;
-      onChange(e.lngLat.lat, e.lngLat.lng);
-    },
-    [onChange],
-  );
-
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !onChange) return;
+    if (!map || !onChangeRef.current) return;
 
-    map.on("click", handleMapClick);
+    const handler = (e: mapboxgl.MapMouseEvent) => {
+      onChangeRef.current?.(e.lngLat.lat, e.lngLat.lng);
+    };
+    map.on("click", handler);
 
     return () => {
-      map.off("click", handleMapClick);
+      map.off("click", handler);
     };
-  }, [onChange, handleMapClick]);
+  }, []);
 
   if (!token) return null;
 

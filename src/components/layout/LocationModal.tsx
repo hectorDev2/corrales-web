@@ -49,9 +49,11 @@ export function LocationModal() {
     }
   }
 
-  async function handleMapChange(newLat: number, newLng: number) {
-    const addr = await reverseGeocode(newLat, newLng);
-    setAddress(addr ?? `${newLat.toFixed(4)}, ${newLng.toFixed(4)}`, newLat, newLng);
+  function handleMapChange(newLat: number, newLng: number) {
+    setAddress(address, newLat, newLng);
+    reverseGeocode(newLat, newLng).then((addr) => {
+      if (addr) setAddress(addr, newLat, newLng);
+    });
   }
 
   return (
