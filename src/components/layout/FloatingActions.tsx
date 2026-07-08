@@ -17,10 +17,14 @@ function isStoreOpen() {
 export function FloatingActions() {
   const pathname = usePathname();
   const { openDrawer, totalItems } = useCartStore();
-  const [storeOpen] = useState(isStoreOpen);
+  const [storeOpen, setStoreOpen] = useState(false);
   const count = totalItems();
   const prevCount = useRef(count);
   const btnRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    setStoreOpen(isStoreOpen());
+  }, []);
 
   useEffect(() => {
     if (count > prevCount.current && btnRef.current) {

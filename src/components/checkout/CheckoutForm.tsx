@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import Script from "next/script";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -84,7 +84,12 @@ function isStoreOpen() {
 export function CheckoutForm() {
   const { items, total, clearCart } = useCartStore();
   const router = useRouter();
-  const [storeOpen] = useState(isStoreOpen);
+  const [storeOpen, setStoreOpen] = useState(false);
+
+  useEffect(() => {
+    setStoreOpen(isStoreOpen());
+  }, []);
+
   const { getStored, requestLocation } = useGeolocation();
   const [location, setLocation] = useState<StoredLocation | null>(() => getStored());
   const [mapboxCoords, setMapboxCoords] = useState<{ lat: number; lng: number } | null>(null);
