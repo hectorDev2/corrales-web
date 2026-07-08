@@ -7,3 +7,4 @@ export { Header } from "./Header";
 export { LocationBanner } from "./LocationBanner";
 export { LocationModal } from "./LocationModal";
 export { MobileMenuButton } from "./MobileMenuButton";
+export { SubHeader } from "./SubHeader";

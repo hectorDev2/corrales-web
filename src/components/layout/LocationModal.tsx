@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { toast } from "sonner";
 
 import { useGeolocation } from "@/hooks/useGeolocation";
-import { MapboxAutocomplete } from "@/components/checkout/MapboxAutocomplete";
+import { MapboxAutocomplete, reverseGeocode } from "@/components/checkout/MapboxAutocomplete";
 import { useLocationStore } from "@/store/location";
 
 export function LocationModal() {
@@ -37,7 +37,8 @@ export function LocationModal() {
   async function handleUseCurrentLocation() {
     const loc = await requestLocation();
     if (loc) {
-      setAddress("Ubicación actual", loc.lat, loc.lng);
+      const addr = await reverseGeocode(loc.lat, loc.lng);
+      setAddress(addr ?? `${loc.lat.toFixed(4)}, ${loc.lng.toFixed(4)}`, loc.lat, loc.lng);
       toast.success("¡Ubicación guardada!");
       closeModal();
     } else {
