@@ -6,10 +6,13 @@ import { toast } from "sonner";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { MapboxAutocomplete, reverseGeocode } from "@/components/checkout/MapboxAutocomplete";
 import { useLocationStore } from "@/store/location";
+import { MapView } from "./MapView";
 
 export function LocationModal() {
   const {
     address,
+    lat,
+    lng,
     deliveryType,
     modalOpen,
     closeModal,
@@ -96,6 +99,9 @@ export function LocationModal() {
               />
             </div>
           </div>
+
+          {/* Map */}
+          <MapView lat={lat} lng={lng} />
 
           {/* Current location button */}
           <button

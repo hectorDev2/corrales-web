@@ -72,7 +72,7 @@ export function SearchBar() {
 
       let prodQuery = supabase
         .from("products")
-        .select(`id, name, image_src, tag, category_id, product_variants ( id, price )`)
+        .select(`id, name, description, image_src, tag, category_id, product_variants ( id, price )`)
         .eq("is_active", true);
 
       const orParts = [`name.ilike.${q}`, `description.ilike.${q}`];
