@@ -2,15 +2,22 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { useCartStore } from "@/store/cart";
 
 const WHATSAPP_NUMBER = "51999999999";
 
+function isStoreOpen() {
+  const now = new Date();
+  const min = now.getHours() * 60 + now.getMinutes();
+  return min >= 660 && min < 1320; // 11:00 - 22:00
+}
+
 export function FloatingActions() {
   const pathname = usePathname();
   const { openDrawer, totalItems } = useCartStore();
+  const [storeOpen] = useState(isStoreOpen);
   const count = totalItems();
   const prevCount = useRef(count);
   const btnRef = useRef<HTMLButtonElement>(null);
@@ -24,6 +31,9 @@ export function FloatingActions() {
     }
     prevCount.current = count;
   }, [count]);
+
+  // Ocultar fuera del horario de atención
+  if (!storeOpen) return null;
 
   // Ocultar en la página de detalle de producto
   if (pathname === "/" || pathname.startsWith("/producto/")) return null;
