@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+
+<html lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>KFC App Interface</title>
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<style data-purpose="custom-colors">
+    :root {
+      --kfc-red: #e4002b;
+      --kfc-gray-bg: #f8f8f8;
+    }
+    .bg-kfc-red { background-color: var(--kfc-red); }
+    .text-kfc-red { color: var(--kfc-red); }
+    .bg-kfc-gray { background-color: var(--kfc-gray-bg); }
+  </style>
+<style data-purpose="layout-adjustments">
+    /* Custom shadow for cards */
+    .card-shadow {
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    /* Bottom nav spacing to avoid overlap */
+    body { padding-bottom: 80px; }
+  </style>
+</head>
+<body class="bg-white font-sans antialiased text-gray-900">
+<!-- BEGIN: MainHeader -->
+<header class="bg-kfc-red text-white p-4 sticky top-0 z-50">
+<div class="flex items-center justify-between">
+<!-- Hamburger Menu Icon -->
+<button aria-label="Menu" class="p-1">
+<svg class="h-8 w-8" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</button>
+<!-- KFC Logo -->
+<div class="flex-grow flex justify-center ml-4">
+<span class="text-4xl font-black italic tracking-tighter">KFC</span>
+</div>
+<!-- Search and Cart -->
+<div class="flex items-center gap-4">
+<button aria-label="Search">
+<svg class="h-6 w-6" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</button>
+<div class="relative flex items-center gap-2">
+<div class="relative">
+<svg class="h-8 w-8" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path>
+</svg>
+<span class="absolute -top-1 -right-1 bg-white text-kfc-red text-[10px] font-bold h-5 w-5 rounded-full flex items-center justify-center border border-kfc-red">1</span>
+</div>
+<span class="text-sm font-bold">S/ 64.40</span>
+</div>
+</div>
+</div>
+</header>
+<!-- END: MainHeader -->
+<!-- BEGIN: OrderSelector -->
+<section class="bg-white border-b py-3 px-4 shadow-sm">
+<button class="w-full flex items-center justify-center gap-2 text-sm font-medium text-gray-800">
+      ¿Cómo deseas recibir tu pedido?
+      <svg class="h-5 w-5" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" fill-rule="evenodd"></path>
+</svg>
+</button>
+</section>
+<!-- END: OrderSelector -->
+<!-- BEGIN: MainContent -->
+<main class="p-4 bg-white">
+<!-- Section Title -->
+<div class="flex items-center justify-between mb-6">
+<h2 class="text-xl font-black text-gray-900">Ahorrar nunca fue tan rico</h2>
+<a class="text-kfc-red font-bold text-base flex items-center underline decoration-kfc-red underline-offset-4" href="#">
+        Ver todos
+        <svg class="h-5 w-5 ml-1" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M14 5l7 7m0 0l-7 7m7-7H3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</a>
+</div>
+<!-- Product Grid -->
+<div class="grid grid-cols-2 gap-4">
+<!-- Card 1 -->
+<div class="bg-kfc-gray rounded-2xl p-4 flex flex-col items-center card-shadow aspect-[4/5] justify-between" data-purpose="product-card">
+<div class="w-full h-32 flex items-center justify-center relative">
+<img alt="Para Compartir" class="max-w-full max-h-full object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDgI9oXSTO11iRW0fYY_KBnVP50bM2_uG6Cl1AxUXg6cX-904xB1TaCQdk2t7NWQRHqRg56pBPjrlDo7a6Z4o2Rm_r1GPH3Jsq9xTT0Nv1fjVTo0gyipUeLi31qMKFm-itvtzfGDOVPLZw6-C3vNQL6g6J0whiHQIhJfnaSVS0Il7UKZhsNOJdUofZx4DhKBvjwF10KntDDXfWzmkaa3YL7mxyMy7REZIVFWWfjA-g4KwM2vP7uCiFf"/>
+<span class="absolute bottom-0 left-0 text-[8px] text-gray-400">*IMÁGENES REFERENCIALES</span>
+</div>
+<h3 class="text-lg font-black text-gray-800 text-center mt-2 leading-tight">Para Compartir</h3>
+</div>
+<!-- Card 2 -->
+<div class="bg-kfc-gray rounded-2xl p-4 flex flex-col items-center card-shadow aspect-[4/5] justify-between" data-purpose="product-card">
+<div class="w-full h-32 flex items-center justify-center relative">
+<img alt="Para 2" class="max-w-full max-h-full object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDLDDm6Eg2W6ONdjhergHQSAVA0DJpqb4dOTVFsk2RLJ1yJ-kivAMTTsTm_aYWD_GdRm6y6ZPr3htNiE2e1b-rRRsubcRlnLZcyPxb-kv_mv6TUVotCKZQRAxu2QAn-xA3mKNgTAcI51kpWw6lXOMzLbARpdOpxeAYPr4jUlbAubwZeh5YBYzOHpfldlHSFPumETH1GlPxybONDp4ldNl2epAL5O9XXm5mSHXjaTYIfPxUjAN7lsC_E"/>
+<span class="absolute bottom-0 left-0 text-[8px] text-gray-400">*IMÁGENES REFERENCIALES</span>
+</div>
+<h3 class="text-lg font-black text-gray-800 text-center mt-2 leading-tight">Para 2</h3>
+</div>
+<!-- Card 3 -->
+<div class="bg-kfc-gray rounded-2xl p-4 flex flex-col items-center card-shadow aspect-[4/5] justify-between" data-purpose="product-card">
+<div class="w-full h-32 flex items-center justify-center relative">
+<img alt="Para ti" class="max-w-full max-h-full object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBWZ2r7TUlhi-Me7D91rL-rOQggnL5OvR4yMLym1PsHyis42YCsBfLkcUi88U0dTF10Tew2_QZ5Lt1uKyTofwqYyz160V4w6JybenSdMgQNSWiJTabfTtjMHIXEWcFjTiE73zNhC-aA787f6v1VVLTEwCiWGi44dIq2XXK5uHN-5IwNGguA3kEIekjemebP4bfBiXDIOjoYzJ0Ey9jMfN6DKXNbACi2LPe4OWhfR1kVV0L7Svj1kdhe"/>
+<span class="absolute bottom-0 left-0 text-[8px] text-gray-400">*IMÁGENES REFERENCIALES</span>
+</div>
+<h3 class="text-lg font-black text-gray-800 text-center mt-2 leading-tight">Para ti</h3>
+</div>
+<!-- Card 4 -->
+<div class="bg-kfc-gray rounded-2xl p-4 flex flex-col items-center card-shadow aspect-[4/5] justify-between" data-purpose="product-card">
+<div class="w-full h-32 flex items-center justify-center relative">
+<img alt="Twister XL" class="max-w-full max-h-full object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDLjO6zy39hqWKU_BQBDS3UEHdkv7I6zURW5cKoCkLQ8QMeboX8czSdA7m51pIDentfeGBpUr3mItp2CI-U9FGmVnvgYxQ9aqnTpLLag0QCxkKox3pa4_lTOR6QGkfCQCCdk7_ytwWbDJcoOruv6wEyADBhblwWt4VqSPU1spoKwDKqMNVHhXYmRfgyrvIQNdVT76cnAvqrdemAIK64BgDto8Xw0WOa11V9qHz8Koi1XIEEScU3CH0Q"/>
+<span class="absolute bottom-0 left-0 text-[8px] text-gray-400">*IMÁGENES REFERENCIALES</span>
+</div>
+<h3 class="text-lg font-black text-gray-800 text-center mt-2 leading-tight">Twister XL</h3>
+</div>
+</div>
+</main>
+<!-- END: MainContent -->
+<!-- BEGIN: BottomNavigation -->
+<nav class="fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around items-end pb-2 pt-2 px-2 z-50">
+<!-- Home -->
+<a class="flex flex-col items-center text-kfc-red border-t-2 border-kfc-red pt-1 w-1/5" data-purpose="nav-item" href="#">
+<svg class="h-6 w-6" fill="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"></path>
+</svg>
+<span class="text-xs font-bold mt-1">Inicio</span>
+</a>
+<!-- Promos -->
+<a class="flex flex-col items-center text-gray-600 w-1/5" data-purpose="nav-item" href="#">
+<div class="h-6 w-6 flex items-center justify-center font-bold text-lg">%</div>
+<span class="text-xs font-bold mt-1">Promos</span>
+</a>
+<!-- Carta (Central Floating-style Button) -->
+<div class="relative w-1/5 flex justify-center -top-4">
+<a class="bg-kfc-red h-16 w-16 rounded-full flex flex-col items-center justify-center shadow-lg border-4 border-white" data-purpose="main-nav-button" href="#">
+<svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span class="text-white text-[10px] font-bold">Carta</span>
+</a>
+</div>
+<!-- Login -->
+<a class="flex flex-col items-center text-gray-600 w-1/5" data-purpose="nav-item" href="#">
+<svg class="h-6 w-6" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span class="text-xs font-bold mt-1">Login</span>
+</a>
+<!-- Avisos -->
+<a class="flex flex-col items-center text-gray-600 w-1/5" data-purpose="nav-item" href="#">
+<svg class="h-6 w-6" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span class="text-xs font-bold mt-1">Avisos</span>
+</a>
+</nav>
+<!-- END: BottomNavigation -->
+</body></html>
