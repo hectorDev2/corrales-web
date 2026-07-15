@@ -89,7 +89,7 @@
 
   /* ── Typography ────────────────────────────────── */
   --font-sans: "HelveticaNeue", var(--font-inter), "Inter", sans-serif;
-  --font-headline: "HelveticaNeue", var(--font-inter), "Inter", sans-serif;
+  --font-headline: "Barlow Condensed", var(--font-inter), "Inter", sans-serif;
   --font-body: "HelveticaNeue", var(--font-inter), "Inter", sans-serif;
   --font-label: "HelveticaNeue", var(--font-inter), "Inter", sans-serif;
 

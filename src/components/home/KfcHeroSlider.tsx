@@ -30,7 +30,7 @@ export function KfcHeroSlider({ slides }: KfcHeroSliderProps) {
   if (slides.length === 0) return null;
 
   return (
-    <section className="relative w-full overflow-hidden mt-4 px-4 md:px-0">
+    <section className="relative w-full overflow-hidden mt-4">
       <div
         className="flex transition-transform duration-500 ease-in-out"
         style={{ transform: `translateX(-${current * 100}%)` }}
