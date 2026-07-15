@@ -88,10 +88,10 @@
   --color-warning: #ffc107;
 
   /* ── Typography ────────────────────────────────── */
-  --font-sans: var(--font-inter), "Inter", sans-serif;
-  --font-headline: var(--font-inter), "Inter", sans-serif;
-  --font-body: var(--font-inter), "Inter", sans-serif;
-  --font-label: var(--font-inter), "Inter", sans-serif;
+  --font-sans: "HelveticaNeue", var(--font-inter), "Inter", sans-serif;
+  --font-headline: "HelveticaNeue", var(--font-inter), "Inter", sans-serif;
+  --font-body: "HelveticaNeue", var(--font-inter), "Inter", sans-serif;
+  --font-label: "HelveticaNeue", var(--font-inter), "Inter", sans-serif;
 
   /* ── Border Radius ─────────────────────────────── */
   --radius: 0.5rem;
@@ -105,6 +105,22 @@
 
   /* ── Shadows ───────────────────────────────────── */
   --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+@font-face {
+  font-family: "HelveticaNeue";
+  src: local("HelveticaNeue"), local("Helvetica Neue"), url("/fonts/InterVariable.ttf") format("truetype");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "HelveticaNeue";
+  src: local("HelveticaNeue"), local("Helvetica Neue"), url("/fonts/InterVariable-Italic.ttf") format("truetype");
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
 }
 
 /* ── KFC-style spacing & typography tokens ──────── */

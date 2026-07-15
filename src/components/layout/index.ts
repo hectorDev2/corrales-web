@@ -1,3 +1,4 @@
+export { AnnouncementBar } from "./AnnouncementBar";
 export { BottomNav } from "./BottomNav";
 export { CartButton } from "./CartButton";
 export { CookieBanner } from "./CookieBanner";

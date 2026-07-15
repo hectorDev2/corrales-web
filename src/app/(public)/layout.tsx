@@ -1,5 +1,13 @@
 import { CartDrawer } from "@/components/cart";
-import { Footer, Header, LocationBanner, LocationModal, SubHeader } from "@/components/layout";
+import {
+  AnnouncementBar,
+  BottomNav,
+  Footer,
+  Header,
+  LocationBanner,
+  LocationModal,
+  SubHeader,
+} from "@/components/layout";
 
 export default function PublicLayout({
   children,
@@ -8,13 +16,15 @@ export default function PublicLayout({
 }) {
   return (
     <>
+      <AnnouncementBar />
       <Header />
       <SubHeader />
       <CartDrawer />
-      <main className="flex-1">
+      <main className="flex-1 pb-[72px] md:pb-0">
         {children}
       </main>
       <Footer />
+      <BottomNav />
       <LocationModal />
       <LocationBanner />
     </>

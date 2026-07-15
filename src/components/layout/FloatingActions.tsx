@@ -43,7 +43,7 @@ export function FloatingActions() {
   if (pathname === "/" || pathname.startsWith("/producto/")) return null;
 
   return (
-    <div className="fixed right-4 bottom-6 z-50 flex flex-col items-end gap-3">
+    <div className="fixed right-4 bottom-6 max-md:bottom-[88px] z-50 flex flex-col items-end gap-3">
       {/* WhatsApp */}
       <a
         href={`https://wa.me/${WHATSAPP_NUMBER}`}

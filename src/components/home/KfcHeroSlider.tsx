@@ -38,11 +38,19 @@ export function KfcHeroSlider({ slides }: KfcHeroSliderProps) {
         {slides.map((slide) => (
           <div key={slide.id} className="min-w-full">
             {slide.image_url && (
-              <img
-                src={slide.image_url}
-                alt={slide.title ?? "Promoción"}
-                className="w-full aspect-[4.56] object-cover"
-              />
+              <picture>
+                {slide.image_url_mobile && (
+                  <source
+                    media="(max-width: 767px)"
+                    srcSet={slide.image_url_mobile}
+                  />
+                )}
+                <img
+                  src={slide.image_url}
+                  alt={slide.title ?? "Promoción"}
+                  className="w-full aspect-[4.56] object-cover"
+                />
+              </picture>
             )}
           </div>
         ))}
