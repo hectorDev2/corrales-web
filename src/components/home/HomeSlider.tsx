@@ -139,7 +139,7 @@ export function HomeSlider({ slides }: HomeSliderProps) {
                     )}
 
                     {slide.subtitle && (
-                      <p className="mb-4 max-w-xs whitespace-pre-line text-sm leading-snug text-white/70 md:text-base">
+                      <p className="mb-4 max-w-xs whitespace-pre-line text-sm leading-snug text-white/70 md:text-base font-bold">
                         {slide.subtitle}
                       </p>
                     )}
