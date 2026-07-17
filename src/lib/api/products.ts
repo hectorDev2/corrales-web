@@ -249,8 +249,8 @@ export async function saveOptionGroups(
     max_select: number | null;
     is_required: boolean;
     sort_order: number;
-    newOptions: Array<{ name: string; price_delta: number; sort_order: number }>;
-    updatedOptions: Array<{ id: string; name: string; price_delta: number; sort_order: number }>;
+    newOptions: Array<{ name: string; price_delta: number; image_url: string; sort_order: number }>;
+    updatedOptions: Array<{ id: string; name: string; price_delta: number; image_url: string; sort_order: number }>;
     deletedOptionIds: string[];
   }>,
   deletedGroupIds: string[],
@@ -310,6 +310,7 @@ export async function saveOptionGroups(
         .update({
           name: opt.name,
           price_delta: opt.price_delta,
+          image_url: opt.image_url || null,
           sort_order: opt.sort_order,
         })
         .eq("id", opt.id);
@@ -322,6 +323,7 @@ export async function saveOptionGroups(
           group_id: group.id,
           name: o.name,
           price_delta: o.price_delta,
+          image_url: o.image_url || null,
           sort_order: o.sort_order,
         })),
       );

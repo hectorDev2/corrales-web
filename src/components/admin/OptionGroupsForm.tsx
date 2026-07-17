@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
-import { getAdminOptionGroups, saveOptionGroups } from "@/lib/api/products";
+import { getAdminOptionGroups, saveOptionGroups, uploadProductImage } from "@/lib/api/products";
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
@@ -11,6 +11,7 @@ interface OptionForm {
   _id?: string;
   name: string;
   price_delta: number;
+  image_url: string;
 }
 
 interface GroupForm {
@@ -49,7 +50,7 @@ function emptyGroup(): GroupForm {
 }
 
 function emptyOption(): OptionForm {
-  return { _key: nextKey(), name: "", price_delta: 0 };
+  return { _key: nextKey(), name: "", price_delta: 0, image_url: "" };
 }
 
 // ─── Component ─────────────────────────────────────────────────────────────────
@@ -80,6 +81,7 @@ export function OptionGroupsForm({ productId, onSaved }: Props) {
               _id: o.id,
               name: o.name,
               price_delta: o.price_delta,
+              image_url: o.image_url ?? "",
             })),
           })),
         );
@@ -146,15 +148,15 @@ export function OptionGroupsForm({ productId, onSaved }: Props) {
         if (g._id && !groups.find((gg) => gg._id === g._id)) {
           deletedGroupIds.push(g._id);
         }
-        const newOptions: Array<{ name: string; price_delta: number; sort_order: number }> = [];
-        const updatedOptions: Array<{ id: string; name: string; price_delta: number; sort_order: number }> = [];
+        const newOptions: Array<{ name: string; price_delta: number; image_url: string; sort_order: number }> = [];
+        const updatedOptions: Array<{ id: string; name: string; price_delta: number; image_url: string; sort_order: number }> = [];
         const deletedOptionIds: string[] = [];
 
         g.options.forEach((o, oi) => {
           if (o._id) {
-            updatedOptions.push({ id: o._id, name: o.name, price_delta: o.price_delta, sort_order: oi });
+            updatedOptions.push({ id: o._id, name: o.name, price_delta: o.price_delta, image_url: o.image_url, sort_order: oi });
           } else {
-            newOptions.push({ name: o.name, price_delta: o.price_delta, sort_order: oi });
+            newOptions.push({ name: o.name, price_delta: o.price_delta, image_url: o.image_url, sort_order: oi });
           }
         });
 
@@ -323,41 +325,14 @@ export function OptionGroupsForm({ productId, onSaved }: Props) {
 
                 {/* Options */}
                 <div className="divide-y divide-outline-variant/20">
-                  {group.options.map((opt, oi) => (
-                    <div key={opt._key} className="flex items-center gap-2 px-3 py-2">
-                      <div className="flex-1">
-                        <input
-                          value={opt.name}
-                          onChange={(e) =>
-                            updateOption(group._key, opt._key, { name: e.target.value })
-                          }
-                          placeholder="Opción"
-                          className="w-full bg-transparent text-sm text-on-surface focus:outline-none"
-                        />
-                      </div>
-                      <div className="w-20">
-                        <input
-                          type="number"
-                          step="0.01"
-                          min={0}
-                          value={opt.price_delta}
-                          onChange={(e) =>
-                            updateOption(group._key, opt._key, {
-                              price_delta: Number(e.target.value),
-                            })
-                          }
-                          placeholder="+S/ 0.00"
-                          className="w-full bg-surface-container-high rounded-lg px-2 py-1.5 text-xs text-on-surface text-right focus:outline-none focus:ring-2 focus:ring-primary/20"
-                        />
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => removeOption(group._key, opt._key)}
-                        className="w-6 h-6 flex items-center justify-center rounded-full text-error hover:bg-error-container transition shrink-0"
-                      >
-                        <span className="material-symbols-outlined text-sm">close</span>
-                      </button>
-                    </div>
+                  {group.options.map((opt) => (
+                    <OptionImageRow
+                      key={opt._key}
+                      groupKey={group._key}
+                      opt={opt}
+                      updateOption={updateOption}
+                      removeOption={removeOption}
+                    />
                   ))}
                 </div>
 
@@ -407,6 +382,122 @@ export function OptionGroupsForm({ productId, onSaved }: Props) {
           </button>
         </div>
       )}
+    </div>
+  );
+}
+
+// ─── Option Row with Image Upload ─────────────────────────────────────
+
+function OptionImageRow({
+  groupKey,
+  opt,
+  updateOption,
+  removeOption,
+}: {
+  groupKey: string;
+  opt: OptionForm;
+  updateOption: (groupKey: string, optionKey: string, patch: Partial<OptionForm>) => void;
+  removeOption: (groupKey: string, optionKey: string) => void;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+
+  async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const url = await uploadProductImage(file, `opt-${opt.name || "option"}`);
+      updateOption(groupKey, opt._key, { image_url: url });
+    } catch {
+      // ignore
+    } finally {
+      setUploading(false);
+      if (inputRef.current) inputRef.current.value = "";
+    }
+  }
+
+  function handleRemoveImage() {
+    updateOption(groupKey, opt._key, { image_url: "" });
+  }
+
+  return (
+    <div className="flex items-center gap-2 px-3 py-2">
+      <div className="relative shrink-0">
+        <button
+          type="button"
+          onClick={() => inputRef.current?.click()}
+          disabled={uploading}
+          className="w-10 h-10 rounded-lg overflow-hidden bg-surface-container-high border border-outline-variant/40 hover:border-primary transition disabled:opacity-50"
+        >
+          {opt.image_url ? (
+            <img
+              src={opt.image_url}
+              alt={opt.name || "icono"}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="flex items-center justify-center w-full h-full text-on-surface-variant">
+              <span className="material-symbols-outlined text-lg">image</span>
+            </div>
+          )}
+          {uploading && (
+            <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+              <span className="material-symbols-outlined text-white text-lg animate-spin">
+                progress_activity
+              </span>
+            </div>
+          )}
+          <input
+            ref={inputRef}
+            type="file"
+            accept="image/jpeg,image/jpg,image/png,image/webp"
+            className="hidden"
+            onChange={handleFile}
+          />
+        </button>
+        {opt.image_url && (
+          <button
+            type="button"
+            onClick={handleRemoveImage}
+            className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-error text-white flex items-center justify-center shadow"
+          >
+            <span className="material-symbols-outlined text-[10px]">close</span>
+          </button>
+        )}
+      </div>
+      <div className="flex-1 min-w-0">
+        <input
+          value={opt.name}
+          onChange={(e) =>
+            updateOption(groupKey, opt._key, { name: e.target.value })
+          }
+          placeholder="Opción"
+          className="w-full bg-transparent text-sm text-on-surface focus:outline-none"
+        />
+      </div>
+      <div className="w-20">
+        <input
+          type="number"
+          step="0.01"
+          min={0}
+          value={opt.price_delta}
+          onChange={(e) =>
+            updateOption(groupKey, opt._key, {
+              price_delta: Number(e.target.value),
+            })
+          }
+          placeholder="+S/ 0.00"
+          className="w-full bg-surface-container-high rounded-lg px-2 py-1.5 text-xs text-on-surface text-right focus:outline-none focus:ring-2 focus:ring-primary/20"
+        />
+      </div>
+      <button
+        type="button"
+        onClick={() => removeOption(groupKey, opt._key)}
+        className="w-6 h-6 flex items-center justify-center rounded-full text-error hover:bg-error-container transition shrink-0"
+      >
+        <span className="material-symbols-outlined text-sm">close</span>
+      </button>
     </div>
   );
 }
