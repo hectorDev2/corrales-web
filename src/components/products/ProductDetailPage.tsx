@@ -11,14 +11,36 @@ interface Props {
   product: Product;
 }
 
+function ChevronDown() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 24 24" aria-label="chevron down" role="img">
+      <path fill="currentColor" d="M12 16.5 4.5 9l1.05-1.05L12 14.4l6.45-6.45L19.5 9z" />
+    </svg>
+  );
+}
+
+function MinusIcon() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" aria-label="minus" role="img">
+      <path fill="currentColor" d="M14 8a.5.5 0 0 1-.5.5h-11a.5.5 0 1 1 0-1h11a.5.5 0 0 1 .5.5" />
+    </svg>
+  );
+}
+
+function PlusIcon() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" aria-label="plus" role="img">
+      <path fill="currentColor" d="M14 8a.5.5 0 0 1-.5.5h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 1 1 0-1h5v-5a.5.5 0 1 1 1 0v5h5a.5.5 0 0 1 .5.5" />
+    </svg>
+  );
+}
+
 export function ProductDetailPage({ product }: Props) {
   const { addItem, openDrawer } = useCartStore();
 
-  // ── State ──────────────────────────────────────────────────────────
   const variant: ProductVariant = product.variants[0];
   const groups = product.optionGroups ?? [];
 
-  // selectedOptions: Record<groupId, Record<optionId, quantity>>
   const [selections, setSelections] = useState<Record<string, Record<string, number>>>(() => {
     const init: Record<string, Record<string, number>> = {};
     for (const g of groups) {
@@ -30,18 +52,14 @@ export function ProductDetailPage({ product }: Props) {
     return init;
   });
 
-  // Which groups are expanded
   const [expanded, setExpanded] = useState<Record<string, boolean>>(() => {
     const init: Record<string, boolean> = {};
     for (const g of groups) {
-      init[g.id] = true; // todos abiertos por defecto
+      init[g.id] = true;
     }
     return init;
   });
 
-  // ── Derived ────────────────────────────────────────────────────────
-
-  /** Convierte el estado selections al formato SelectedOptionsMap del carrito */
   const selectedOptionsMap: SelectedOptionsMap = useMemo(() => {
     const map: SelectedOptionsMap = {};
     for (const g of groups) {
@@ -62,12 +80,7 @@ export function ProductDetailPage({ product }: Props) {
   );
 
   const unitPrice = (variant?.price ?? 0) + optionsExtra;
-  const totalQty = Object.values(selections).reduce(
-    (sum, group) => sum + Object.values(group).reduce((s, q) => s + q, 0),
-    0,
-  );
 
-  /** ¿Están completos todos los grupos requeridos? */
   const isComplete = useMemo(() => {
     for (const g of groups) {
       if (!g.isRequired) continue;
@@ -77,8 +90,6 @@ export function ProductDetailPage({ product }: Props) {
     }
     return true;
   }, [groups, selections]);
-
-  // ── Handlers ───────────────────────────────────────────────────────
 
   function updateOption(groupId: string, optionId: string, delta: number) {
     setSelections((prev) => {
@@ -111,15 +122,13 @@ export function ProductDetailPage({ product }: Props) {
     openDrawer();
   }
 
-  // ── Helpers ────────────────────────────────────────────────────────
-
-  function groupStatus(g: ProductOptionGroup): { label: string; color: "green" | "gray" } {
+  function groupStatus(g: ProductOptionGroup): { label: string; color: "success" | "neutral" } {
     const groupSel = selections[g.id] ?? {};
     const total = Object.values(groupSel).reduce((s, q) => s + q, 0);
     if (g.isRequired && total < g.minSelect) {
-      return { label: "Requerido", color: "gray" };
+      return { label: "Requerido", color: "neutral" };
     }
-    return { label: "Completado", color: "green" };
+    return { label: "Completado", color: "success" };
   }
 
   function groupSummary(g: ProductOptionGroup): string {
@@ -138,27 +147,21 @@ export function ProductDetailPage({ product }: Props) {
       return selected
         .map(([optId, qty]) => {
           const opt = g.options.find((o) => o.id === optId);
-          return `${opt?.name ?? ""} x ${qty}`;
+          return `${opt?.name ?? ""} x ${qty} un`;
         })
         .join(", ");
     }
     return "";
   }
 
-  // Badge colors
-  const badgeGreen = { backgroundColor: "#dcfce7", color: "#15803d" };
-  const badgeGray = { backgroundColor: "#f3f4f6", color: "#374151" };
-  const textGray = { color: "#6b7280" };
-  const textDark = { color: "#111" };
-  const textMuted = { color: "#9ca3af" };
-  const borderColor = { borderColor: "#e0e0e0" };
+  const labelMap: Record<string, string> = {};
 
   return (
     <div className="pb-24" style={{ backgroundColor: "#ffffff" }}>
       <main className="mx-auto max-w-7xl py-8 grid grid-cols-1 lg:grid-cols-2 gap-12">
         {/* ── Left Panel ──────────────────────────────────────────── */}
         <section>
-          <h1 className="text-3xl font-black mb-6" style={textDark}>
+          <h1 className="text-3xl font-black mb-6">
             {product.name}
           </h1>
           <div
@@ -174,7 +177,7 @@ export function ProductDetailPage({ product }: Props) {
 
           <div className="mb-6">
             <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-black leading-none" style={textDark}>
+              <span className="text-3xl font-black leading-none">
                 S/ {unitPrice.toFixed(2)}
               </span>
             </div>
@@ -189,130 +192,85 @@ export function ProductDetailPage({ product }: Props) {
 
           <p
             className="pb-6 border-b font-medium"
-            style={{ ...textGray, borderColor: "#f0f0f0" }}
+            style={{ color: "#6b7280", borderColor: "#f0f0f0" }}
           >
             {product.description}
           </p>
-
-          {/* Summary Checklist */}
-          {groups.length > 0 && (
-            <div className="mt-8 space-y-4">
-              <h3 className="font-black text-lg" style={textDark}>
-                Personaliza tu pedido
-              </h3>
-              <div className="space-y-3">
-                {groups.map((g) => {
-                  const status = groupStatus(g);
-                  const badge = status.color === "green" ? badgeGreen : badgeGray;
-                  return (
-                    <div
-                      key={g.id}
-                      className="flex justify-between items-center p-3 rounded-lg border cursor-pointer"
-                      style={{
-                        backgroundColor: status.color === "green" ? "#f8f8f8" : "#ffffff",
-                        ...borderColor,
-                      }}
-                      onClick={() => toggleGroup(g.id)}
-                    >
-                      <div>
-                        <p className="text-sm font-black" style={textDark}>
-                          {g.name}
-                        </p>
-                        <p className="text-xs" style={textGray}>
-                          {groupSummary(g)}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span
-                          className="text-[10px] px-2 py-0.5 rounded font-bold uppercase"
-                          style={badge}
-                        >
-                          {status.label}
-                        </span>
-                        <span style={textMuted}>
-                          {expanded[g.id] ? (
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path d="M5 15l7-7 7 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
-                            </svg>
-                          ) : (
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path d="M19 9l-7 7-7-7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
-                            </svg>
-                          )}
-                        </span>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
         </section>
 
-        {/* ── Right Panel: Option Groups ────────────────────────────── */}
-        <section className="space-y-6">
+        {/* ── Right Panel: Option Groups (KFC-style accordion) ──────── */}
+        <section className="space-y-4">
           {groups.map((g) => {
             const groupSel = selections[g.id] ?? {};
             const status = groupStatus(g);
-            const badge = status.color === "green" ? badgeGreen : badgeGray;
             const totalInGroup = Object.values(groupSel).reduce((s, q) => s + q, 0);
 
             return (
               <div
                 key={g.id}
                 className="border rounded-xl overflow-hidden shadow-sm"
-                style={borderColor}
+                style={{ borderColor: "#e0e0e0" }}
+                aria-label={`Accordion item ${groups.indexOf(g)}`}
               >
-                <div
-                  className="p-4 flex justify-between items-center cursor-pointer"
-                  onClick={() => toggleGroup(g.id)}
-                >
-                  <h2 className="font-black text-lg" style={textDark}>
-                    {g.name}
-                  </h2>
-                  {expanded[g.id] ? (
-                    <svg className="w-5 h-5" style={textMuted} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path d="M5 15l7-7 7 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
-                    </svg>
-                  ) : (
-                    <svg className="w-5 h-5" style={textMuted} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path d="M19 9l-7 7-7-7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
-                    </svg>
-                  )}
-                </div>
-
-                <div className="px-4 pb-2 flex items-center justify-between">
-                  {g.selectionType === "quantity" ? (
-                    <span className="text-xs italic" style={textMuted}>
-                      {totalInGroup} seleccionadas
-                    </span>
-                  ) : (
-                    <span className="text-xs italic" style={textMuted}>
-                      {g.isRequired ? `Elige ${g.minSelect} opción` : "Opcional"}
-                    </span>
-                  )}
-                  <span
-                    className="text-[10px] px-2 py-0.5 rounded font-bold uppercase"
-                    style={badge}
+                {/* ── Accordion Header ─────────────────────────────── */}
+                <div>
+                  <button
+                    className="w-full p-4 flex flex-col gap-1 cursor-pointer hover:bg-gray-50 transition-colors"
+                    onClick={() => toggleGroup(g.id)}
+                    type="button"
                   >
-                    {status.label}
-                  </span>
-                </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-base font-black">{g.name}</span>
+                      </div>
+                      <span
+                        className="text-lg"
+                        style={{
+                          color: "#9ca3af",
+                          transform: expanded[g.id] ? "rotate(180deg)" : "rotate(0deg)",
+                          transition: "transform 0.2s",
+                        }}
+                      >
+                        <ChevronDown />
+                      </span>
+                    </div>
 
-                {expanded[g.id] && (
-                  <div className="divide-y" style={borderColor}>
-                    {g.options.map((opt) => (
-                      <OptionRow
-                        key={opt.id}
-                        option={opt}
-                        group={g}
-                        selectedQty={groupSel[opt.id] ?? 0}
-                        onUpdate={(delta) => updateOption(g.id, opt.id, delta)}
-                        onSelect={() => selectSingle(g.id, opt.id)}
-                      />
-                    ))}
-                  </div>
-                )}
+                    {/* ── Subheader ────────────────────────────────── */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-xs" style={{ color: "#6b7280" }}>
+                        {groupSummary(g)}
+                      </div>
+                      <span
+                        className="text-[10px] px-2 py-0.5 rounded font-bold uppercase leading-normal"
+                        style={
+                          status.color === "success"
+                            ? { backgroundColor: "#dcfce7", color: "#15803d" }
+                            : { backgroundColor: "#f3f4f6", color: "#374151" }
+                        }
+                      >
+                        {status.label}
+                      </span>
+                    </div>
+                  </button>
+
+                  {/* ── Accordion Content ──────────────────────────── */}
+                  {expanded[g.id] && (
+                    <div>
+                      <div className="divide-y" style={{ borderColor: "#e0e0e0" }}>
+                        {g.options.map((opt) => (
+                          <OptionRow
+                            key={opt.id}
+                            option={opt}
+                            group={g}
+                            selectedQty={groupSel[opt.id] ?? 0}
+                            onUpdate={(delta) => updateOption(g.id, opt.id, delta)}
+                            onSelect={() => selectSingle(g.id, opt.id)}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             );
           })}
@@ -332,9 +290,7 @@ export function ProductDetailPage({ product }: Props) {
             onClick={handleAdd}
             disabled={!isComplete}
             className={`flex-1 text-white font-black py-3 md:py-4 rounded-xl shadow-lg active:scale-[0.98] transition-all text-sm md:text-lg tracking-wide uppercase whitespace-nowrap ${
-              isComplete
-                ? ""
-                : "opacity-50 cursor-not-allowed"
+              isComplete ? "" : "opacity-50 cursor-not-allowed"
             }`}
             style={{
               backgroundColor: "#e4002b",
@@ -354,7 +310,7 @@ export function ProductDetailPage({ product }: Props) {
   );
 }
 
-// ── Option Row Component ──────────────────────────────────────────────
+// ── Option Row Component (KFC-style) ──────────────────────────────────
 
 function OptionRow({
   option,
@@ -370,112 +326,158 @@ function OptionRow({
   onSelect: () => void;
 }) {
   const isActive = selectedQty > 0;
-  const textColor = isActive ? "#111" : "#9ca3af";
-  const borderStyle = { borderColor: "#d1d5db" };
+  const showDivider = true;
 
   if (group.selectionType === "single") {
     return (
-      <label
-        className="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 group"
-        style={borderStyle}
-      >
-        <div className="flex items-center gap-4">
-          {option.imageUrl && (
-            <img
-              alt={option.name}
-              className="w-12 h-12 rounded shadow-sm border"
-              style={borderStyle}
-              src={option.imageUrl}
-            />
-          )}
-          <span className="font-bold" style={{ color: "#111" }}>
-            {option.name}
+      <div>
+        <button
+          className="w-full flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 transition-colors"
+          onClick={onSelect}
+          type="button"
+        >
+          <div className="flex items-center gap-3">
+            {option.imageUrl && (
+              <picture>
+                <img
+                  alt={option.name}
+                  width={48}
+                  height={48}
+                  className="w-12 h-12 rounded shadow-sm border object-cover"
+                  style={{ borderColor: "#d1d5db" }}
+                  src={option.imageUrl}
+                />
+              </picture>
+            )}
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-bold">{option.name}</span>
+              {option.priceDelta > 0 && (
+                <span className="text-xs font-bold" style={{ color: "#6b7280" }}>
+                  + S/ {option.priceDelta.toFixed(2)}
+                </span>
+              )}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
             {option.priceDelta > 0 && (
-              <span className="font-medium ml-1 text-sm" style={{ color: "#9ca3af" }}>
+              <span className="text-xs font-bold" style={{ color: "#6b7280" }}>
                 + S/ {option.priceDelta.toFixed(2)}
               </span>
             )}
-          </span>
-        </div>
-        <input
-          className="w-5 h-5 border-gray-300"
-          style={{ accentColor: "#e4002b" }}
-          type="radio"
-          name={group.id}
-          checked={isActive}
-          onChange={onSelect}
-        />
-      </label>
+            <label
+              className="flex items-center cursor-pointer"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div
+                className="w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all"
+                style={{
+                  borderColor: isActive ? "#e4002b" : "#d1d5db",
+                }}
+              >
+                {isActive && (
+                  <div
+                    className="w-2.5 h-2.5 rounded-full"
+                    style={{ backgroundColor: "#e4002b" }}
+                  />
+                )}
+              </div>
+              <input
+                className="sr-only"
+                type="radio"
+                name={group.id}
+                checked={isActive}
+                onChange={onSelect}
+              />
+            </label>
+          </div>
+        </button>
+        <div style={{ borderTop: "1px solid #e0e0e0", marginLeft: 0 }} />
+      </div>
     );
   }
 
-  // selectionType === "quantity"
+  // selectionType === "quantity" — KFC-style counter
   return (
-    <div
-      className="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors"
-      style={borderStyle}
-    >
-      <div className="flex items-center gap-4" style={{ color: textColor }}>
-        {option.imageUrl && (
-          <img
-            alt={option.name}
-            className={`w-12 h-12 rounded shadow-sm border ${
-              isActive ? "" : "grayscale opacity-50"
-            }`}
-            style={borderStyle}
-            src={option.imageUrl}
-          />
-        )}
-        <span className="font-bold">{option.name}</span>
-        {option.priceDelta > 0 && (
-          <span className="text-xs font-bold" style={{ color: "#6b7280" }}>
-            + S/ {option.priceDelta.toFixed(2)}
-          </span>
-        )}
-      </div>
-
-      <div className="flex items-center gap-4">
-        {isActive ? (
-          <div
-            className="flex items-center border rounded-lg p-1 bg-white"
-            style={borderStyle}
-          >
-            <button
-              onClick={() => onUpdate(-1)}
-              className="w-7 h-7 flex items-center justify-center font-bold hover:bg-gray-50 rounded-md transition-colors"
-              style={{ color: "#e4002b" }}
+    <div>
+      <div className="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors">
+        <div className="flex items-center gap-3">
+          {option.imageUrl && (
+            <picture>
+              <img
+                alt={option.name}
+                width={48}
+                height={48}
+                className={`w-12 h-12 rounded shadow-sm border object-cover ${
+                  isActive ? "" : "grayscale opacity-50"
+                }`}
+                style={{ borderColor: "#d1d5db" }}
+                src={option.imageUrl}
+              />
+            </picture>
+          )}
+          <div>
+            <span
+              className="text-sm font-bold"
+              style={{ color: isActive ? "#111" : "#9ca3af" }}
             >
-              {selectedQty === 1 ? (
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
-                </svg>
-              ) : (
-                "-"
-              )}
-            </button>
-            <span className="w-8 text-center font-bold text-sm">
-              {selectedQty}
+              {option.name}
             </span>
+            {option.priceDelta > 0 && (
+              <div className="text-xs font-bold" style={{ color: "#6b7280" }}>
+                + S/ {option.priceDelta.toFixed(2)}
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="flex items-center">
+          {isActive ? (
+            <fieldset
+              className="flex items-center border rounded-lg overflow-hidden bg-white"
+              style={{ borderColor: "#d1d5db" }}
+              aria-label={`Contador de ${option.name}`}
+            >
+              <button
+                onClick={() => onUpdate(-1)}
+                className="w-8 h-8 flex items-center justify-center hover:bg-gray-100 transition-colors"
+                style={{ color: "#e4002b" }}
+                type="button"
+                aria-label={`Disminuir cantidad de ${option.name}`}
+              >
+                <MinusIcon />
+              </button>
+              <div
+                className="w-10 text-center text-sm font-bold"
+                style={{ color: "#111" }}
+              >
+                {selectedQty}
+              </div>
+              <button
+                onClick={() => onUpdate(1)}
+                className="w-8 h-8 flex items-center justify-center hover:bg-gray-100 transition-colors"
+                style={{ color: "#e4002b" }}
+                type="button"
+                aria-label={`Incrementar cantidad de ${option.name}`}
+                disabled={false}
+              >
+                <PlusIcon />
+              </button>
+            </fieldset>
+          ) : (
             <button
               onClick={() => onUpdate(1)}
-              className="w-7 h-7 flex items-center justify-center font-bold hover:bg-gray-50 rounded-md transition-colors"
-              style={{ color: "#e4002b" }}
+              className="w-8 h-8 flex items-center justify-center rounded-lg text-white shadow-md hover:opacity-90 active:scale-95 transition-all"
+              style={{ backgroundColor: "#e4002b" }}
+              type="button"
+              aria-label={`Incrementar cantidad de ${option.name}`}
             >
-              +
+              <PlusIcon />
             </button>
-          </div>
-        ) : (
-          <button
-            onClick={() => onUpdate(1)}
-            className="w-8 h-8 rounded-lg flex items-center justify-center text-white shadow-md hover:opacity-90 active:scale-95 transition-all"
-            style={{ backgroundColor: "#e4002b" }}
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path d="M12 6v6m0 0v6m0-6h6m-6 0H6" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
-            </svg>
-          </button>
-        )}
+          )}
+        </div>
       </div>
+      <div style={{ borderTop: "1px solid #e0e0e0", marginLeft: 0 }} />
     </div>
   );
 }
