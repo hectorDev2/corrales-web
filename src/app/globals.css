@@ -274,3 +274,35 @@
 .swiper-button-next {
   right: 4px !important;
 }
+
+@keyframes home-skeleton-cascade {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.home-skeleton-cascade {
+  animation: home-skeleton-cascade 1.2s ease-in-out infinite;
+  animation-delay: var(--skeleton-delay, 0ms);
+  background: var(--color-surface-container-highest);
+  border-radius: var(--radius-sm);
+}
+
+.menu-skeleton-cascade {
+  animation: home-skeleton-cascade 1.2s ease-in-out infinite;
+  animation-delay: var(--skeleton-delay, 0ms);
+  background: var(--color-surface-container-highest);
+  border-radius: var(--radius-sm);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-skeleton-cascade,
+  .menu-skeleton-cascade {
+    animation: none;
+    opacity: 0.75;
+  }
+}

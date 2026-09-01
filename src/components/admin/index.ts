@@ -10,4 +10,5 @@ export { AdminOrderHistoryPage } from "./AdminOrderHistoryPage";
 export { FacturacionPage } from "./FacturacionPage";
 export { PushNotificationBanner } from "./PushNotificationBanner";
 export { AdminFooterPage } from "./AdminFooterPage";
+export { AdminHomeSavingsPage } from "./AdminHomeSavingsPage";
 export { AdminContentPage } from "./AdminContentPage";

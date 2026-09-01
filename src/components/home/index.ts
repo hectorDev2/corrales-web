@@ -4,3 +4,5 @@ export { KfcHeroSlider } from "./KfcHeroSlider";
 export { KfcProductCarousel } from "./KfcProductCarousel";
 export { LocationModal } from "./LocationModal";
 export { QuickAddButton } from "./QuickAddButton";
+export { SavingsCategories } from "./SavingsCategories";
+export { HomeLoadingSkeleton } from "./HomeLoadingSkeleton";
