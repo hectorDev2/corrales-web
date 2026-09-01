@@ -41,23 +41,9 @@ export function HeaderClient({ isAdmin, mobileOnly }: HeaderClientProps) {
     );
   }
 
-  // Desktop: account + cart + notifications + admin
+  // Desktop: cart + notifications + admin
   return (
     <div className="flex items-center gap-3 text-white ml-auto">
-      {/* Account */}
-      <div className="flex flex-col leading-none">
-        <span className="text-[11px] text-white/60">Hola, identifícate</span>
-        <button
-          type="button"
-          className="flex items-center gap-0.5 text-xs font-bold tracking-wide text-white/80 hover:text-white transition-colors"
-        >
-          Inicia sesión
-          <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M12 16.5 4.5 9l1.05-1.05L12 14.4l6.45-6.45L19.5 9z" />
-          </svg>
-        </button>
-      </div>
-
       {/* Cart */}
       <button
         type="button"
