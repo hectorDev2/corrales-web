@@ -5,6 +5,7 @@ import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { HeaderClient } from "./HeaderClient";
 import { LocationButton } from "./LocationButton";
 import { MobileNav } from "./MobileNav";
+import { PublicHeaderHeightSync } from "./PublicHeaderHeightSync";
 import { SearchBar } from "./SearchBar";
 
 export async function Header() {
@@ -24,7 +25,8 @@ export async function Header() {
   }
 
   return (
-    <header className="bg-primary sticky top-0 z-50 shadow-md">
+    <header data-public-header className="bg-primary sticky top-0 z-50 shadow-md">
+      <PublicHeaderHeightSync />
       <div className="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-2.5 md:flex-row md:items-center md:gap-3">
         {/* Row 1: hamburger + logo + mobile actions */}
         <div className="flex items-center justify-between md:w-auto">
