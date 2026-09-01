@@ -13,7 +13,15 @@ interface Props {
 
 function ChevronDown() {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 24 24" aria-label="chevron down" role="img">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="1em"
+      height="1em"
+      fill="currentColor"
+      viewBox="0 0 24 24"
+      aria-label="chevron down"
+      role="img"
+    >
       <path fill="currentColor" d="M12 16.5 4.5 9l1.05-1.05L12 14.4l6.45-6.45L19.5 9z" />
     </svg>
   );
@@ -21,7 +29,15 @@ function ChevronDown() {
 
 function MinusIcon() {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" aria-label="minus" role="img">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="1em"
+      height="1em"
+      fill="currentColor"
+      viewBox="0 0 16 16"
+      aria-label="minus"
+      role="img"
+    >
       <path fill="currentColor" d="M14 8a.5.5 0 0 1-.5.5h-11a.5.5 0 1 1 0-1h11a.5.5 0 0 1 .5.5" />
     </svg>
   );
@@ -29,8 +45,19 @@ function MinusIcon() {
 
 function PlusIcon() {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" aria-label="plus" role="img">
-      <path fill="currentColor" d="M14 8a.5.5 0 0 1-.5.5h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 1 1 0-1h5v-5a.5.5 0 1 1 1 0v5h5a.5.5 0 0 1 .5.5" />
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="1em"
+      height="1em"
+      fill="currentColor"
+      viewBox="0 0 16 16"
+      aria-label="plus"
+      role="img"
+    >
+      <path
+        fill="currentColor"
+        d="M14 8a.5.5 0 0 1-.5.5h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 1 1 0-1h5v-5a.5.5 0 1 1 1 0v5h5a.5.5 0 0 1 .5.5"
+      />
     </svg>
   );
 }
@@ -39,7 +66,7 @@ export function ProductDetailPage({ product }: Props) {
   const { addItem, openDrawer } = useCartStore();
 
   const variant: ProductVariant = product.variants[0];
-  const groups = product.optionGroups ?? [];
+  const groups = useMemo(() => product.optionGroups ?? [], [product.optionGroups]);
 
   const [selections, setSelections] = useState<Record<string, Record<string, number>>>(() => {
     const init: Record<string, Record<string, number>> = {};
@@ -154,48 +181,48 @@ export function ProductDetailPage({ product }: Props) {
     return "";
   }
 
-  const labelMap: Record<string, string> = {};
-
   return (
     <div className="pb-24" style={{ backgroundColor: "#ffffff" }}>
-      <main className="mx-auto max-w-7xl py-8 grid grid-cols-1 lg:grid-cols-2 gap-12">
+      <main className="mx-auto grid max-w-7xl grid-cols-1 gap-12 py-8 lg:grid-cols-2 lg:items-stretch">
         {/* ── Left Panel ──────────────────────────────────────────── */}
         <section>
-          <h1 className="text-3xl font-black mb-6">
-            {product.name}
-          </h1>
           <div
-            className="mb-6 rounded-lg overflow-hidden"
-            style={{ backgroundColor: "#e4002b", aspectRatio: "16/10" }}
+            data-testid="product-detail-sticky-panel"
+            className="mb-6 lg:sticky lg:top-[121px] lg:max-h-[calc(100dvh-137px)] lg:overflow-y-auto"
           >
-            <img
-              alt={product.image.alt}
-              className="w-full h-full object-cover"
-              src={product.image.src}
-            />
-          </div>
-
-          <div className="mb-6">
-            <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-black leading-none">
-                S/ {unitPrice.toFixed(2)}
-              </span>
+            <h1 className="mb-6 text-3xl font-black">{product.name}</h1>
+            <div
+              data-testid="product-detail-image-panel"
+              className="mb-6 overflow-hidden rounded-lg"
+              style={{ backgroundColor: "#e4002b", aspectRatio: "16/10" }}
+            >
+              <img
+                alt={product.image.alt}
+                className="h-full w-full object-cover"
+                src={product.image.src}
+              />
             </div>
-            {product.tag && (
-              <div className="flex items-center gap-2 mt-1">
-                <span className="text-sm font-bold" style={{ color: "#16a34a" }}>
-                  {product.tag}
-                </span>
-              </div>
-            )}
-          </div>
 
-          <p
-            className="pb-6 border-b font-medium"
-            style={{ color: "#6b7280", borderColor: "#f0f0f0" }}
-          >
-            {product.description}
-          </p>
+            <div className="mb-6">
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl leading-none font-black">S/ {unitPrice.toFixed(2)}</span>
+              </div>
+              {product.tag && (
+                <div className="mt-1 flex items-center gap-2">
+                  <span className="text-sm font-bold" style={{ color: "#16a34a" }}>
+                    {product.tag}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            <p
+              className="border-b pb-6 font-medium"
+              style={{ color: "#6b7280", borderColor: "#f0f0f0" }}
+            >
+              {product.description}
+            </p>
+          </div>
         </section>
 
         {/* ── Right Panel: Option Groups (KFC-style accordion) ──────── */}
@@ -203,19 +230,17 @@ export function ProductDetailPage({ product }: Props) {
           {groups.map((g) => {
             const groupSel = selections[g.id] ?? {};
             const status = groupStatus(g);
-            const totalInGroup = Object.values(groupSel).reduce((s, q) => s + q, 0);
-
             return (
               <div
                 key={g.id}
-                className="border rounded-xl overflow-hidden shadow-sm"
+                className="overflow-hidden rounded-xl border shadow-sm"
                 style={{ borderColor: "#e0e0e0" }}
                 aria-label={`Accordion item ${groups.indexOf(g)}`}
               >
                 {/* ── Accordion Header ─────────────────────────────── */}
                 <div>
                   <button
-                    className="w-full p-4 flex flex-col gap-1 cursor-pointer hover:bg-gray-50 transition-colors"
+                    className="flex w-full cursor-pointer flex-col gap-1 p-4 transition-colors hover:bg-gray-50"
                     onClick={() => toggleGroup(g.id)}
                     type="button"
                   >
@@ -241,7 +266,7 @@ export function ProductDetailPage({ product }: Props) {
                         {groupSummary(g)}
                       </div>
                       <span
-                        className="text-[10px] px-2 py-0.5 rounded font-bold uppercase leading-normal"
+                        className="rounded px-2 py-0.5 text-[10px] leading-normal font-bold uppercase"
                         style={
                           status.color === "success"
                             ? { backgroundColor: "#dcfce7", color: "#15803d" }
@@ -279,30 +304,25 @@ export function ProductDetailPage({ product }: Props) {
 
       {/* ── Sticky Bottom Bar ──────────────────────────────────────── */}
       <footer
-        className="fixed bottom-0 left-0 right-0 bg-white border-t p-3 md:p-4 z-50"
+        className="fixed right-0 bottom-0 left-0 z-50 border-t bg-white p-3 md:p-4"
         style={{
           borderColor: "#e0e0e0",
           boxShadow: "0 -4px 10px rgba(0, 0, 0, 0.05)",
         }}
       >
-        <div className="mx-auto max-w-7xl flex items-center gap-2 md:gap-4">
+        <div className="mx-auto flex max-w-7xl items-center gap-2 md:gap-4">
           <button
             onClick={handleAdd}
             disabled={!isComplete}
-            className={`flex-1 text-white font-black py-3 md:py-4 rounded-xl shadow-lg active:scale-[0.98] transition-all text-sm md:text-lg tracking-wide uppercase whitespace-nowrap ${
-              isComplete ? "" : "opacity-50 cursor-not-allowed"
+            className={`flex-1 rounded-xl py-3 text-sm font-black tracking-wide whitespace-nowrap text-white uppercase shadow-lg transition-all active:scale-[0.98] md:py-4 md:text-lg ${
+              isComplete ? "" : "cursor-not-allowed opacity-50"
             }`}
             style={{
               backgroundColor: "#e4002b",
-              boxShadow: isComplete
-                ? "0 10px 15px -3px rgba(228, 0, 43, 0.3)"
-                : "none",
+              boxShadow: isComplete ? "0 10px 15px -3px rgba(228, 0, 43, 0.3)" : "none",
             }}
           >
-            Agregar{" "}
-            <span className="hidden md:inline">
-              (S/ {unitPrice.toFixed(2)})
-            </span>
+            Agregar <span className="hidden md:inline">(S/ {unitPrice.toFixed(2)})</span>
           </button>
         </div>
       </footer>
@@ -326,13 +346,11 @@ function OptionRow({
   onSelect: () => void;
 }) {
   const isActive = selectedQty > 0;
-  const showDivider = true;
-
   if (group.selectionType === "single") {
     return (
       <div>
         <button
-          className="w-full flex items-center justify-between p-4 cursor-pointer hover:bg-gray-50 transition-colors"
+          className="flex w-full cursor-pointer items-center justify-between p-4 transition-colors hover:bg-gray-50"
           onClick={onSelect}
           type="button"
         >
@@ -343,7 +361,7 @@ function OptionRow({
                   alt={option.name}
                   width={48}
                   height={48}
-                  className="w-12 h-12 rounded shadow-sm border object-cover"
+                  className="h-12 w-12 rounded border object-cover shadow-sm"
                   style={{ borderColor: "#d1d5db" }}
                   src={option.imageUrl}
                 />
@@ -366,18 +384,18 @@ function OptionRow({
               </span>
             )}
             <label
-              className="flex items-center cursor-pointer"
+              className="flex cursor-pointer items-center"
               onClick={(e) => e.stopPropagation()}
             >
               <div
-                className="w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all"
+                className="flex h-5 w-5 items-center justify-center rounded-full border-2 transition-all"
                 style={{
                   borderColor: isActive ? "#e4002b" : "#d1d5db",
                 }}
               >
                 {isActive && (
                   <div
-                    className="w-2.5 h-2.5 rounded-full"
+                    className="h-2.5 w-2.5 rounded-full"
                     style={{ backgroundColor: "#e4002b" }}
                   />
                 )}
@@ -400,7 +418,7 @@ function OptionRow({
   // selectionType === "quantity" — KFC-style counter
   return (
     <div>
-      <div className="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors">
+      <div className="flex items-center justify-between p-4 transition-colors hover:bg-gray-50">
         <div className="flex items-center gap-3">
           {option.imageUrl && (
             <picture>
@@ -408,8 +426,8 @@ function OptionRow({
                 alt={option.name}
                 width={48}
                 height={48}
-                className={`w-12 h-12 rounded shadow-sm border object-cover ${
-                  isActive ? "" : "grayscale opacity-50"
+                className={`h-12 w-12 rounded border object-cover shadow-sm ${
+                  isActive ? "" : "opacity-50 grayscale"
                 }`}
                 style={{ borderColor: "#d1d5db" }}
                 src={option.imageUrl}
@@ -417,10 +435,7 @@ function OptionRow({
             </picture>
           )}
           <div>
-            <span
-              className="text-sm font-bold"
-              style={{ color: isActive ? "#111" : "#9ca3af" }}
-            >
+            <span className="text-sm font-bold" style={{ color: isActive ? "#111" : "#9ca3af" }}>
               {option.name}
             </span>
             {option.priceDelta > 0 && (
@@ -434,28 +449,25 @@ function OptionRow({
         <div className="flex items-center">
           {isActive ? (
             <fieldset
-              className="flex items-center border rounded-lg overflow-hidden bg-white"
+              className="flex items-center overflow-hidden rounded-lg border bg-white"
               style={{ borderColor: "#d1d5db" }}
               aria-label={`Contador de ${option.name}`}
             >
               <button
                 onClick={() => onUpdate(-1)}
-                className="w-8 h-8 flex items-center justify-center hover:bg-gray-100 transition-colors"
+                className="flex h-8 w-8 items-center justify-center transition-colors hover:bg-gray-100"
                 style={{ color: "#e4002b" }}
                 type="button"
                 aria-label={`Disminuir cantidad de ${option.name}`}
               >
                 <MinusIcon />
               </button>
-              <div
-                className="w-10 text-center text-sm font-bold"
-                style={{ color: "#111" }}
-              >
+              <div className="w-10 text-center text-sm font-bold" style={{ color: "#111" }}>
                 {selectedQty}
               </div>
               <button
                 onClick={() => onUpdate(1)}
-                className="w-8 h-8 flex items-center justify-center hover:bg-gray-100 transition-colors"
+                className="flex h-8 w-8 items-center justify-center transition-colors hover:bg-gray-100"
                 style={{ color: "#e4002b" }}
                 type="button"
                 aria-label={`Incrementar cantidad de ${option.name}`}
@@ -467,7 +479,7 @@ function OptionRow({
           ) : (
             <button
               onClick={() => onUpdate(1)}
-              className="w-8 h-8 flex items-center justify-center rounded-lg text-white shadow-md hover:opacity-90 active:scale-95 transition-all"
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-white shadow-md transition-all hover:opacity-90 active:scale-95"
               style={{ backgroundColor: "#e4002b" }}
               type="button"
               aria-label={`Incrementar cantidad de ${option.name}`}
