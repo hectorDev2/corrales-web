@@ -2,13 +2,24 @@
 
 import { useRef } from "react";
 
-import { QuickAddButton } from "./QuickAddButton";
 import type { Product } from "@/types/product";
+
+import { QuickAddButton } from "./QuickAddButton";
 
 interface KfcProductCarouselProps {
   title: string;
   products: Product[];
   href?: string;
+}
+
+function getClosestCardIndex(cards: HTMLElement[], scrollLeft: number) {
+  return cards.reduce(
+    (closestIndex, card, index) =>
+      Math.abs(card.offsetLeft - scrollLeft) < Math.abs(cards[closestIndex].offsetLeft - scrollLeft)
+        ? index
+        : closestIndex,
+    0,
+  );
 }
 
 export function KfcProductCarousel({ title, products, href }: KfcProductCarouselProps) {
@@ -17,20 +28,31 @@ export function KfcProductCarousel({ title, products, href }: KfcProductCarousel
   function scroll(direction: "left" | "right") {
     const el = carouselRef.current;
     if (!el) return;
-    const scrollAmount = el.clientWidth * 0.8;
-    el.scrollBy({ left: direction === "right" ? scrollAmount : -scrollAmount, behavior: "smooth" });
+
+    const cards = Array.from(el.querySelectorAll<HTMLElement>("[data-product-carousel-card]"));
+    if (cards.length < 2) return;
+
+    const currentIndex = getClosestCardIndex(cards, el.scrollLeft);
+    const nextIndex = Math.min(
+      Math.max(currentIndex + (direction === "right" ? 1 : -1), 0),
+      cards.length - 1,
+    );
+
+    if (nextIndex === currentIndex) return;
+
+    el.scrollTo({ left: cards[nextIndex].offsetLeft, behavior: "smooth" });
   }
 
   if (products.length === 0) return null;
 
   return (
-    <section className="relative py-12">
-      <div className="flex items-center justify-between mb-8">
-        <h2 className="text-2xl font-bold uppercase tracking-tight">{title}</h2>
+    <section className="relative py-7 md:py-10">
+      <div className="mb-4 flex items-center justify-between md:mb-6">
+        <h2 className="text-base font-extrabold tracking-tight md:text-xl">{title}</h2>
         {href && (
           <a
             href={href}
-            className="flex items-center gap-2 text-primary font-bold text-sm hover:underline underline-offset-4 shrink-0"
+            className="text-primary hover:text-primary-container flex shrink-0 items-center gap-1 text-xs font-bold underline-offset-4 hover:underline md:text-sm"
           >
             Ver todos
             <span className="material-symbols-outlined text-[20px]">arrow_forward</span>
@@ -38,95 +60,114 @@ export function KfcProductCarousel({ title, products, href }: KfcProductCarousel
         )}
       </div>
 
-      {/* Navigation Arrows */}
-      <button
-        onClick={() => scroll("left")}
-        className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-10 h-14 bg-primary text-white flex items-center justify-center hover:brightness-110 transition-all hidden md:flex"
-        aria-label="Anterior"
-      >
-        <span className="material-symbols-outlined">chevron_left</span>
-      </button>
-      <button
-        onClick={() => scroll("right")}
-        className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-10 h-14 bg-primary text-white flex items-center justify-center hover:brightness-110 transition-all hidden md:flex"
-        aria-label="Siguiente"
-      >
-        <span className="material-symbols-outlined">chevron_right</span>
-      </button>
+      <div className="relative">
+        {/* The viewport owns clipping; the track is only moved through the arrows. */}
+        <div data-product-carousel-viewport className="min-w-0 overflow-hidden py-4">
+          <div
+            ref={carouselRef}
+            data-product-carousel
+            className="hide-scrollbar flex min-w-0 touch-pan-y snap-x snap-mandatory items-stretch gap-3 overflow-x-hidden md:gap-4"
+          >
+            {products.map((product) => {
+              const variant = product.variants[0];
+              const lastVariant = product.variants[product.variants.length - 1];
+              const hasRange = lastVariant && lastVariant.price > (variant?.price ?? 0);
 
-      {/* Carousel */}
-      <div
-        ref={carouselRef}
-        className="flex overflow-x-auto gap-3 md:gap-6 pb-4 hide-scrollbar snap-x snap-mandatory"
-      >
-        {products.map((product) => {
-          const variant = product.variants[0];
-          const lastVariant = product.variants[product.variants.length - 1];
-          const hasRange = lastVariant && lastVariant.price > (variant?.price ?? 0);
-
-          return (
-            <div
-              key={product.id}
-              className="flex-[0_0_calc(50%-6px)] md:flex-[0_0_calc(33.333%-16px)] lg:flex-[0_0_calc(20%-1.2rem)] snap-start bg-white border border-[#F2F2F2] relative group"
-              style={{ transition: "transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out" }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = "translateY(-4px)";
-                e.currentTarget.style.boxShadow = "0 10px 20px rgba(0,0,0,0.05)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = "translateY(0)";
-                e.currentTarget.style.boxShadow = "none";
-              }}
-            >
-              <a href={`/producto/${product.id}`} className="block">
-                <img
-                  src={product.image.src}
-                  alt={product.image.alt}
-                  className="w-full h-auto"
-                />
-              </a>
-
-              <div className="p-2 md:p-5 flex flex-col h-auto md:min-h-[200px]">
-                <h3 className="text-[14px] md:text-[18px] font-bold mb-1 md:mb-2 leading-tight">
-                  <a href={`/producto/${product.id}`} className="hover:text-primary transition-colors">
-                    {product.name}
-                  </a>
-                </h3>
-                <p className="text-secondary text-[12px] md:text-[14px] leading-relaxed line-clamp-3 mb-auto">
-                  {product.description}
-                </p>
-
-                <div className="mt-1 md:mt-4 flex items-center justify-between gap-2">
-                  <div className="min-w-0">
-                    {(hasRange || product.tag) && (
-                      <div className="flex items-center gap-2 mb-1">
-                        {product.tag && (
-                          <span className="bg-[#e6f4ea] text-[#1e8e3e] text-[12px] font-bold px-2 py-0.5">
-                            {product.tag}
-                          </span>
-                        )}
-                        {hasRange && (
-                          <span className="text-secondary line-through text-[14px]">
-                            S/ {lastVariant.price.toFixed(2)}
-                          </span>
-                        )}
-                      </div>
-                    )}
-                    <span className="font-bold text-[16px] md:text-[20px]">
-                      S/ {(variant?.price ?? 0).toFixed(2)}
-                    </span>
-                  </div>
-                  <QuickAddButton
-                    product={product}
-                    className="shrink-0 w-7 h-7 md:w-10 md:h-10 bg-primary text-white flex items-center justify-center transition-transform active:scale-90 hover:brightness-110"
+              return (
+                <div
+                  key={product.id}
+                  data-product-carousel-card
+                  className="group relative flex min-w-0 flex-[0_0_calc((100%_-_0.75rem)_/_2)] snap-start flex-col self-stretch overflow-hidden rounded-lg border border-[#ededed] bg-white shadow-[0_1px_2px_rgb(0_0_0_/_0.03)] md:flex-[0_0_calc((100%_-_3rem)_/_4)] lg:flex-[0_0_calc((100%_-_4rem)_/_5)]"
+                  style={{ transition: "transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out" }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = "translateY(-4px)";
+                    e.currentTarget.style.boxShadow = "0 10px 20px rgba(0,0,0,0.05)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = "translateY(0)";
+                    e.currentTarget.style.boxShadow = "none";
+                  }}
+                >
+                  <a
+                    href={`/producto/${product.id}`}
+                    className="block aspect-square shrink-0 bg-[#fafafa] p-1"
                   >
-                    <span className="material-symbols-outlined text-[16px] md:text-[24px]">add</span>
-                  </QuickAddButton>
+                    <img
+                      src={product.image.src}
+                      alt={product.image.alt}
+                      className="aspect-square h-full w-full object-contain"
+                    />
+                  </a>
+
+                  <div
+                    data-product-carousel-card-content
+                    className="flex h-[152px] shrink-0 flex-col p-2.5 md:h-[168px] md:p-3"
+                  >
+                    <h3 className="mb-1 line-clamp-2 h-9 text-sm leading-tight font-extrabold md:h-10 md:text-base">
+                      <a
+                        href={`/producto/${product.id}`}
+                        className="hover:text-primary transition-colors"
+                      >
+                        {product.name}
+                      </a>
+                    </h3>
+                    <p className="text-secondary line-clamp-2 h-8 text-[11px] leading-[1.2] md:h-10 md:text-xs">
+                      {product.description}
+                    </p>
+
+                    <div className="mt-2 flex items-end justify-between gap-2">
+                      <div className="min-w-0">
+                        <div
+                          data-product-carousel-price-meta
+                          className="mb-1 flex h-5 items-center gap-2 overflow-hidden"
+                        >
+                          {(hasRange || product.tag) && (
+                            <>
+                              {product.tag && (
+                                <span className="max-w-[7rem] truncate bg-[#e6f4ea] px-1.5 py-0.5 text-[10px] font-bold text-[#1e8e3e]">
+                                  {product.tag}
+                                </span>
+                              )}
+                              {hasRange && (
+                                <span className="text-secondary shrink-0 text-[11px] line-through">
+                                  S/ {lastVariant.price.toFixed(2)}
+                                </span>
+                              )}
+                            </>
+                          )}
+                        </div>
+                        <span className="text-base font-extrabold md:text-lg">
+                          S/ {(variant?.price ?? 0).toFixed(2)}
+                        </span>
+                      </div>
+                      <QuickAddButton
+                        product={product}
+                        className="text-primary hover:bg-primary flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-[#e5e5e5] bg-white transition-all hover:text-white active:scale-90 md:h-8 md:w-8"
+                      >
+                        <span className="material-symbols-outlined text-[18px]">add</span>
+                      </QuickAddButton>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-          );
-        })}
+              );
+            })}
+          </div>
+        </div>
+
+        <button
+          onClick={() => scroll("left")}
+          className="bg-primary hover:bg-primary-container absolute top-1/2 left-0 z-10 flex h-11 w-7 -translate-y-1/2 items-center justify-center rounded-r-lg text-white shadow-md transition-colors md:h-12 md:w-8"
+          aria-label="Anterior"
+        >
+          <span className="material-symbols-outlined">chevron_left</span>
+        </button>
+        <button
+          onClick={() => scroll("right")}
+          className="bg-primary hover:bg-primary-container absolute top-1/2 right-0 z-10 flex h-11 w-7 -translate-y-1/2 items-center justify-center rounded-l-lg text-white shadow-md transition-colors md:h-12 md:w-8"
+          aria-label="Siguiente"
+        >
+          <span className="material-symbols-outlined">chevron_right</span>
+        </button>
       </div>
     </section>
   );
