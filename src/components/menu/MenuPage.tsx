@@ -1,359 +1,351 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { useMemo, useState } from "react";
 
-import { ProductCardMini } from "@/components/products";
 import { useCartStore } from "@/store/cart";
-import type { Product, ProductVariant } from "@/types/product";
+import type { Product } from "@/types/product";
 
-function AutoScrollCarousel({ children }: { children: React.ReactNode }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [canScrollPrev, setCanScrollPrev] = useState(false);
-  const [canScrollNext, setCanScrollNext] = useState(true);
+const PRODUCTS_PER_PAGE = 12;
 
-  function updateButtons(el: HTMLDivElement) {
-    setCanScrollPrev(el.scrollLeft > 4);
-    setCanScrollNext(el.scrollLeft + el.clientWidth < el.scrollWidth - 4);
-  }
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-
-    function handleScroll() {
-      if (el) updateButtons(el);
-    }
-
-    if (el) updateButtons(el);
-
-    const interval = setInterval(() => {
-      const cardWidth = el.children[0]?.getBoundingClientRect().width ?? 188;
-      const gap = 12;
-      const step = cardWidth + gap;
-
-      if (el.scrollLeft + el.clientWidth >= el.scrollWidth - 10) {
-        el.scrollTo({ left: 0, behavior: "smooth" });
-      } else {
-        el.scrollBy({ left: step, behavior: "smooth" });
-      }
-    }, 30000);
-
-    el.addEventListener("scroll", handleScroll, { passive: true });
-    return () => {
-      clearInterval(interval);
-      el.removeEventListener("scroll", handleScroll);
-    };
-  }, []);
-
-  function scroll(direction: "prev" | "next") {
-    const el = ref.current;
-    if (!el) return;
-    const cardWidth = el.children[0]?.getBoundingClientRect().width ?? 188;
-    const gap = 12;
-    const step = cardWidth + gap;
-    el.scrollBy({ left: direction === "next" ? step : -step, behavior: "smooth" });
-  }
-
-  return (
-    <div className="relative">
-      <div
-        ref={ref}
-        className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-      >
-        {children}
-      </div>
-
-      {canScrollPrev && (
-        <button
-          onClick={() => scroll("prev")}
-          className="absolute left-0 top-1/2 z-10 flex -translate-y-1/2 items-center justify-center rounded-r-xl !bg-primary/60 px-1.5 py-5 !h-auto !w-auto !text-white backdrop-blur-xs transition-all active:scale-95 md:!bg-primary/80 md:px-2 md:py-7"
-          aria-label="Anterior"
-        >
-          <svg className="rotate-180" width="8" height="14" viewBox="0 0 11 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M0.38296 20.0762C0.111788 19.805 0.111788 19.3654 0.38296 19.0942L9.19758 10.2796L0.38296 1.46497C0.111788 1.19379 0.111788 0.754138 0.38296 0.482966C0.654131 0.211794 1.09379 0.211794 1.36496 0.482966L10.4341 9.55214C10.8359 9.9539 10.8359 10.6053 10.4341 11.007L1.36496 20.0762C1.09379 20.3474 0.654131 20.3474 0.38296 20.0762Z" fill="currentColor" />
-          </svg>
-        </button>
-      )}
-
-      {canScrollNext && (
-        <button
-          onClick={() => scroll("next")}
-          className="absolute right-0 top-1/2 z-10 flex -translate-y-1/2 items-center justify-center rounded-l-xl !bg-primary/60 px-1.5 py-5 !h-auto !w-auto !text-white backdrop-blur-xs transition-all active:scale-95 md:!bg-primary/80 md:px-2 md:py-7"
-          aria-label="Siguiente"
-        >
-          <svg width="8" height="14" viewBox="0 0 11 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M0.38296 20.0762C0.111788 19.805 0.111788 19.3654 0.38296 19.0942L9.19758 10.2796L0.38296 1.46497C0.111788 1.19379 0.111788 0.754138 0.38296 0.482966C0.654131 0.211794 1.09379 0.211794 1.36496 0.482966L10.4341 9.55214C10.8359 9.9539 10.8359 10.6053 10.4341 11.007L1.36496 20.0762C1.09379 20.3474 0.654131 20.3474 0.38296 20.0762Z" fill="currentColor" />
-          </svg>
-        </button>
-      )}
-    </div>
-  );
-}
-
-const CATEGORY_ICONS: Record<string, string> = {
-  "Pollo a la Brasa": "outdoor_grill",
-  Parrillas: "kebab_dining",
-  Acompañamiento: "yakitori",
-  Bebidas: "local_bar",
-  Broaster: "outdoor_grill",
-  Burger: "lunch_dining",
-  Cóctails: "nightlife",
-  Extras: "add_circle",
-  Postres: "icecream",
-  Salchipapas: "fastfood",
-  Tragos: "wine_bar",
-};
+type SortOrder = "featured" | "price-asc" | "price-desc";
+export type ViewMode = "vertical" | "horizontal";
 
 interface MenuPageProps {
   products: Product[];
   categories: string[];
-  initialQuery?: string;
+  activeCategory?: string;
+  query?: string;
+  tag?: string;
 }
 
-export function MenuPage({ products, categories, initialQuery }: MenuPageProps) {
-  const [search, setSearch] = useState(initialQuery ?? "");
-  const [activeCategory, setActiveCategory] = useState<string | null>(null);
-  const [catCanScrollPrev, setCatCanScrollPrev] = useState(false);
-  const [catCanScrollNext, setCatCanScrollNext] = useState(true);
+function getProductPrice(product: Product) {
+  return product.variants[0]?.price ?? 0;
+}
+
+export function ProductCatalogCard({
+  product,
+  viewMode,
+}: {
+  product: Product;
+  viewMode: ViewMode;
+}) {
   const { addItem } = useCartStore();
+  const price = getProductPrice(product);
+  const isHorizontal = viewMode === "horizontal";
 
-  const sectionRefs = useRef<Map<string, HTMLElement>>(new Map());
-  const navRef = useRef<HTMLDivElement>(null);
-
-  function updateCatButtons(el: HTMLDivElement) {
-    setCatCanScrollPrev(el.scrollLeft > 4);
-    setCatCanScrollNext(el.scrollLeft + el.clientWidth < el.scrollWidth - 4);
+  function addToCart() {
+    const variant = product.variants[0];
+    if (variant) addItem(product, variant);
   }
-
-  function scrollCat(direction: "prev" | "next") {
-    const el = navRef.current;
-    if (!el) return;
-    const btnWidth = el.querySelector("button")?.getBoundingClientRect().width ?? 100;
-    const gap = 8;
-    const step = btnWidth + gap;
-    el.scrollBy({ left: direction === "next" ? step : -step, behavior: "smooth" });
-  }
-
-  const filteredBySearch = useMemo(() => {
-    if (!search.trim()) return products;
-    const q = search.toLowerCase();
-    return products.filter(
-      (p) => p.name.toLowerCase().includes(q) || p.description.toLowerCase().includes(q),
-    );
-  }, [products, search]);
-
-  const categorySections = useMemo(() => {
-    return categories
-      .map((cat) => ({
-        name: cat,
-        icon: CATEGORY_ICONS[cat] ?? "label",
-        items: filteredBySearch.filter((p) => p.category === cat),
-      }))
-      .filter((s) => s.items.length > 0);
-  }, [categories, filteredBySearch]);
-
-  function handleAdd(product: Product, variant: ProductVariant) {
-    addItem(product, variant);
-  }
-
-  function scrollToCategory(name: string) {
-    const el = sectionRefs.current.get(name);
-    if (el) {
-      const top = el.getBoundingClientRect().top + window.scrollY - 180;
-      window.scrollTo({ top, behavior: "smooth" });
-    }
-    const activeButton = navRef.current?.querySelector<HTMLButtonElement>(
-      `[data-category="${name}"]`,
-    );
-    activeButton?.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
-  }
-
-  function setSectionRef(name: string, el: HTMLElement | null) {
-    if (el) {
-      sectionRefs.current.set(name, el);
-    } else {
-      sectionRefs.current.delete(name);
-    }
-  }
-
-  useEffect(() => {
-    let ticking = false;
-
-    function handleScroll() {
-      if (ticking) return;
-      window.requestAnimationFrame(() => {
-        const stickyBottom = 180;
-        let active: string | null = null;
-
-        for (const [name, el] of sectionRefs.current.entries()) {
-          if (!el) continue;
-          const rect = el.getBoundingClientRect();
-          if (rect.top <= stickyBottom) {
-            active = name;
-          }
-        }
-
-        if (!active && categorySections.length > 0) {
-          active = categorySections[0].name;
-        }
-
-        setActiveCategory(active);
-        ticking = false;
-      });
-      ticking = true;
-    }
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll();
-
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [categorySections]);
-
-  useEffect(() => {
-    if (!activeCategory || !navRef.current) return;
-    const button = navRef.current.querySelector<HTMLButtonElement>(
-      `[data-category="${activeCategory}"]`,
-    );
-    if (!button) return;
-
-    const container = navRef.current;
-    const cr = container.getBoundingClientRect();
-    const br = button.getBoundingClientRect();
-
-    const isFullyVisible = br.left >= cr.left && br.right <= cr.right;
-    if (isFullyVisible) return;
-
-    container.scrollBy({
-      left: br.left - cr.left - cr.width / 2 + br.width / 2,
-      behavior: "smooth",
-    });
-  }, [activeCategory]);
-
-  useEffect(() => {
-    const el = navRef.current;
-    if (!el) return;
-    function handleScroll() { if (el) updateCatButtons(el); }
-    updateCatButtons(el);
-    el.addEventListener("scroll", handleScroll, { passive: true });
-    return () => el.removeEventListener("scroll", handleScroll);
-  }, [categorySections]);
 
   return (
-    <div className="mx-auto max-w-2xl px-4 pb-8">
-      {/* Sticky search bar */}
-      <div className="bg-background sticky top-[72px] z-40 py-3">
-        <div className="relative">
-          <span
-            className="material-symbols-outlined text-on-surface-variant absolute top-1/2 left-4 -translate-y-1/2"
-            style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}
-          >
-            search
-          </span>
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Busca tu antojo..."
-            className="text-on-surface placeholder:text-on-surface-variant/60 focus:border-primary focus:ring-primary/20 h-10 w-full rounded-full border border-[#dddddd] bg-white pr-4 pl-10 text-sm transition-all focus:ring-2 focus:outline-none"
+    <article
+      className={`group hover:shadow-card min-w-0 overflow-hidden rounded-md border border-[#ececec] bg-white transition-shadow duration-200 ${
+        isHorizontal ? "flex min-h-35 sm:min-h-40" : "flex flex-col"
+      }`}
+    >
+      <Link
+        href={`/producto/${product.id}`}
+        aria-label={product.name}
+        className={`focus-visible:ring-primary outline-none focus-visible:ring-2 focus-visible:ring-inset ${
+          isHorizontal ? "flex min-w-0 flex-1 items-stretch" : "flex flex-1 flex-col"
+        }`}
+      >
+        <div
+          className={`relative shrink-0 overflow-hidden bg-[#fafafa] ${
+            isHorizontal ? "w-28 sm:w-36" : "aspect-square"
+          }`}
+        >
+          <Image
+            src={product.image.src || "/images/404-image.png"}
+            alt={product.image.alt}
+            fill
+            sizes={
+              isHorizontal
+                ? "(min-width: 640px) 144px, 112px"
+                : "(min-width: 1280px) 280px, (min-width: 768px) 33vw, 50vw"
+            }
+            className="object-contain p-2 transition-transform duration-300 group-hover:scale-[1.03]"
           />
+          {product.tag && (
+            <span className="bg-primary absolute top-2 left-2 rounded-sm px-2 py-1 text-[10px] font-extrabold tracking-wide text-white uppercase">
+              {product.tag}
+            </span>
+          )}
         </div>
+        <div
+          className={`min-w-0 ${isHorizontal ? "flex flex-1 flex-col justify-center px-3 py-3 sm:px-4" : "px-3 pt-3 sm:px-4"}`}
+        >
+          <h2 className="text-on-surface line-clamp-1 text-[15px] leading-tight font-black sm:text-base">
+            {product.name}
+          </h2>
+          <p
+            className={`text-on-surface-variant mt-1 text-xs leading-[1.2] ${
+              isHorizontal ? "line-clamp-2" : "line-clamp-2 min-h-9"
+            }`}
+          >
+            {product.description}
+          </p>
+        </div>
+      </Link>
+
+      <div
+        className={`flex shrink-0 gap-2 ${
+          isHorizontal
+            ? "flex-col items-end justify-center border-l border-[#f0f0f0] px-3 py-3 sm:px-4"
+            : "mt-auto items-end justify-between px-3 pt-3 pb-2.5 sm:px-4"
+        }`}
+      >
+        <span className="text-on-surface text-lg leading-none font-black">
+          S/ {price.toFixed(2)}
+        </span>
+        <button
+          type="button"
+          onClick={addToCart}
+          disabled={!product.variants[0]}
+          aria-label={`Agregar ${product.name} al carrito`}
+          className="text-on-surface hover:border-primary hover:bg-primary focus-visible:ring-primary flex size-8 shrink-0 items-center justify-center rounded-md border border-[#e5e5e5] bg-white shadow-sm transition-colors hover:text-white focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+        >
+          <span className="material-symbols-outlined text-xl" aria-hidden="true">
+            add
+          </span>
+        </button>
       </div>
+    </article>
+  );
+}
 
-      {/* Category nav */}
-      {categorySections.length > 1 && (
-        <div className="bg-background sticky top-[135px] z-30 pb-2">
-          <div className="relative">
-            <div
-              ref={navRef}
-              className="-mx-4 flex snap-x snap-mandatory scroll-pl-4 gap-2 overflow-x-auto overflow-y-hidden pr-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+export function ViewModeToggle({
+  viewMode,
+  onChange,
+}: {
+  viewMode: ViewMode;
+  onChange: (mode: ViewMode) => void;
+}) {
+  return (
+    <div className="text-on-surface-variant flex items-center gap-1.5 text-xs font-semibold">
+      <span>Vista:</span>
+      <button
+        type="button"
+        aria-label="Ver productos en modo vertical"
+        aria-pressed={viewMode === "vertical"}
+        onClick={() => onChange("vertical")}
+        className={`focus-visible:ring-primary flex size-7 items-center justify-center rounded border transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 ${
+          viewMode === "vertical"
+            ? "border-primary bg-primary text-white"
+            : "text-on-surface-variant hover:border-primary hover:text-primary border-[#dedede] bg-white"
+        }`}
+      >
+        <span className="flex gap-0.5" aria-hidden="true">
+          <span className="h-3 w-1.5 rounded-[1px] bg-current" />
+          <span className="h-3 w-1.5 rounded-[1px] bg-current" />
+        </span>
+      </button>
+      <button
+        type="button"
+        aria-label="Ver productos en modo horizontal"
+        aria-pressed={viewMode === "horizontal"}
+        onClick={() => onChange("horizontal")}
+        className={`focus-visible:ring-primary flex size-7 items-center justify-center rounded border transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 ${
+          viewMode === "horizontal"
+            ? "border-primary bg-primary text-white"
+            : "text-on-surface-variant hover:border-primary hover:text-primary border-[#dedede] bg-white"
+        }`}
+      >
+        <span className="h-1.5 w-3 rounded-[1px] bg-current" aria-hidden="true" />
+      </button>
+    </div>
+  );
+}
+
+function CategoryStrip({
+  categories,
+  activeCategory,
+}: Pick<MenuPageProps, "categories" | "activeCategory">) {
+  return (
+    <nav aria-label="Categorías de la carta" className="border-b border-[#e9e9e9]">
+      <div className="mx-auto flex max-w-7xl scrollbar-none gap-7 overflow-x-auto px-4 md:px-8">
+        <Link
+          href="/menu"
+          className={`shrink-0 border-b-2 px-0 py-4 text-sm font-extrabold transition-colors ${!activeCategory ? "border-primary text-primary" : "text-on-surface hover:border-primary hover:text-primary border-transparent"}`}
+        >
+          Ver todo
+        </Link>
+        {categories.map((category) => {
+          const isActive = activeCategory?.toLocaleLowerCase() === category.toLocaleLowerCase();
+          return (
+            <Link
+              key={category}
+              href={`/menu?categoria=${encodeURIComponent(category)}`}
+              className={`shrink-0 border-b-2 px-0 py-4 text-sm font-bold transition-colors ${isActive ? "border-primary text-primary" : "text-on-surface hover:border-primary hover:text-primary border-transparent"}`}
             >
-              {categorySections.map((section) => (
-                <button
-                  key={section.name}
-                  data-category={section.name}
-                  onClick={() => scrollToCategory(section.name)}
-                  className={`flex shrink-0 snap-start items-center gap-1.5 rounded-full border px-4 py-2 text-xs font-semibold transition-all active:scale-95 ${
-                    activeCategory === section.name
-                      ? "bg-primary border-primary text-white"
-                      : "text-on-surface-variant border-[#dddddd] bg-white"
-                  }`}
-                >
-                  <span
-                    className="material-symbols-outlined text-base !leading-none"
-                    style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20" }}
-                  >
-                    {section.icon}
-                  </span>
-                  {section.name}
-                </button>
-              ))}
-            </div>
+              {category}
+            </Link>
+          );
+        })}
+      </div>
+    </nav>
+  );
+}
 
-            {catCanScrollPrev && (
-              <button
-                onClick={() => scrollCat("prev")}
-                className="absolute left-0 top-1/2 z-10 flex -translate-y-1/2 items-center justify-center rounded-r-xl !bg-primary/60 px-1.5 py-5 !h-auto !w-auto !text-white backdrop-blur-xs transition-all active:scale-95 md:-left-10 md:!bg-primary/80 md:px-2 md:py-7"
-                aria-label="Anterior"
-              >
-                <svg className="rotate-180" width="8" height="14" viewBox="0 0 11 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M0.38296 20.0762C0.111788 19.805 0.111788 19.3654 0.38296 19.0942L9.19758 10.2796L0.38296 1.46497C0.111788 1.19379 0.111788 0.754138 0.38296 0.482966C0.654131 0.211794 1.09379 0.211794 1.36496 0.482966L10.4341 9.55214C10.8359 9.9539 10.8359 10.6053 10.4341 11.007L1.36496 20.0762C1.09379 20.3474 0.654131 20.3474 0.38296 20.0762Z" fill="currentColor" />
-                </svg>
-              </button>
-            )}
+function Pagination({
+  page,
+  pageCount,
+  onChange,
+}: {
+  page: number;
+  pageCount: number;
+  onChange: (page: number) => void;
+}) {
+  if (pageCount <= 1) return null;
 
-            {catCanScrollNext && (
-              <button
-                onClick={() => scrollCat("next")}
-                className="absolute right-0 top-1/2 z-10 flex -translate-y-1/2 items-center justify-center rounded-l-xl !bg-primary/60 px-1.5 py-5 !h-auto !w-auto !text-white backdrop-blur-xs transition-all active:scale-95 md:-right-10 md:!bg-primary/80 md:px-2 md:py-7"
-                aria-label="Siguiente"
+  return (
+    <nav
+      aria-label="Paginación de productos"
+      className="mt-10 flex items-center justify-center gap-1.5"
+    >
+      <button
+        type="button"
+        aria-label="Página anterior"
+        onClick={() => onChange(page - 1)}
+        disabled={page === 1}
+        className="text-on-surface hover:bg-surface-container flex size-9 items-center justify-center rounded-md transition-colors disabled:pointer-events-none disabled:opacity-35"
+      >
+        <span className="material-symbols-outlined text-lg" aria-hidden="true">
+          chevron_left
+        </span>
+      </button>
+      {Array.from({ length: pageCount }, (_, index) => index + 1).map((pageNumber) => (
+        <button
+          key={pageNumber}
+          type="button"
+          aria-label={`Página ${pageNumber}`}
+          aria-current={pageNumber === page ? "page" : undefined}
+          onClick={() => onChange(pageNumber)}
+          className={`flex size-9 items-center justify-center rounded-md text-sm font-bold transition-colors ${pageNumber === page ? "bg-primary text-white" : "text-on-surface hover:bg-surface-container"}`}
+        >
+          {pageNumber}
+        </button>
+      ))}
+      <button
+        type="button"
+        aria-label="Página siguiente"
+        onClick={() => onChange(page + 1)}
+        disabled={page === pageCount}
+        className="text-on-surface hover:bg-surface-container flex size-9 items-center justify-center rounded-md transition-colors disabled:pointer-events-none disabled:opacity-35"
+      >
+        <span className="material-symbols-outlined text-lg" aria-hidden="true">
+          chevron_right
+        </span>
+      </button>
+    </nav>
+  );
+}
+
+export function MenuPage({ products, categories, activeCategory, query, tag }: MenuPageProps) {
+  const [page, setPage] = useState(1);
+  const [sortOrder, setSortOrder] = useState<SortOrder>("featured");
+  const [viewMode, setViewMode] = useState<ViewMode>("vertical");
+
+  const sortedProducts = useMemo(() => {
+    if (sortOrder === "featured") return products;
+    return [...products].sort((a, b) => {
+      const priceDifference = getProductPrice(a) - getProductPrice(b);
+      return sortOrder === "price-asc" ? priceDifference : -priceDifference;
+    });
+  }, [products, sortOrder]);
+
+  const pageCount = Math.ceil(sortedProducts.length / PRODUCTS_PER_PAGE);
+  const visibleProducts = sortedProducts.slice(
+    (page - 1) * PRODUCTS_PER_PAGE,
+    page * PRODUCTS_PER_PAGE,
+  );
+  const filterLabel = query
+    ? `Resultados para: ${query}`
+    : tag
+      ? `Promociones: ${tag}`
+      : activeCategory
+        ? `Categoría: ${activeCategory}`
+        : null;
+
+  function changeSort(order: SortOrder) {
+    setSortOrder(order);
+    setPage(1);
+  }
+
+  function changePage(nextPage: number) {
+    setPage(Math.min(Math.max(nextPage, 1), pageCount));
+  }
+
+  return (
+    <div className="bg-white">
+      <CategoryStrip categories={categories} activeCategory={activeCategory} />
+
+      <main className="mx-auto max-w-7xl px-4 pt-8 pb-14 md:px-8 lg:px-10">
+        {filterLabel && <p className="text-on-surface-variant mb-4 text-sm">{filterLabel}</p>}
+
+        <div className="mb-7 flex flex-col gap-4 border-b border-[#f0f0f0] pb-5 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-on-surface text-base font-black">
+            {products.length} {products.length === 1 ? "resultado" : "resultados"}
+          </p>
+          <div className="flex items-center justify-between gap-4 sm:justify-end">
+            <ViewModeToggle viewMode={viewMode} onChange={setViewMode} />
+            <label className="text-on-surface-variant flex items-center gap-2 text-xs font-semibold">
+              <span className="material-symbols-outlined text-base" aria-hidden="true">
+                swap_vert
+              </span>
+              <span className="sr-only">Ordenar productos</span>
+              <select
+                value={sortOrder}
+                onChange={(event) => changeSort(event.target.value as SortOrder)}
+                className="text-on-surface cursor-pointer bg-transparent text-sm font-bold outline-none"
+                aria-label="Ordenar productos"
               >
-                <svg width="8" height="14" viewBox="0 0 11 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M0.38296 20.0762C0.111788 19.805 0.111788 19.3654 0.38296 19.0942L9.19758 10.2796L0.38296 1.46497C0.111788 1.19379 0.111788 0.754138 0.38296 0.482966C0.654131 0.211794 1.09379 0.211794 1.36496 0.482966L10.4341 9.55214C10.8359 9.9539 10.8359 10.6053 10.4341 11.007L1.36496 20.0762C1.09379 20.3474 0.654131 20.3474 0.38296 20.0762Z" fill="currentColor" />
-                </svg>
-              </button>
-            )}
+                <option value="featured">Ordenar</option>
+                <option value="price-asc">Menor precio</option>
+                <option value="price-desc">Mayor precio</option>
+              </select>
+            </label>
           </div>
         </div>
-      )}
 
-      {/* Category carousels */}
-      {categorySections.length > 0 ? (
-        <div className="space-y-8">
-          {categorySections.map((section) => (
-            <section key={section.name} ref={(el) => setSectionRef(section.name, el)}>
-              <h2 className="mb-3 flex items-center gap-2">
-                <span
-                  className="material-symbols-outlined text-primary"
-                  style={{ fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}
-                >
-                  {section.icon}
-                </span>
-                <span className="text-on-surface text-lg font-black tracking-tight">
-                  {section.name}
-                </span>
-              </h2>
-              <AutoScrollCarousel>
-                {section.items.map((product) => (
-                  <div key={product.id} className="w-44 shrink-0 snap-start">
-                    <ProductCardMini product={product} onAdd={handleAdd} />
-                  </div>
-                ))}
-              </AutoScrollCarousel>
+        {visibleProducts.length > 0 ? (
+          <>
+            <section
+              data-testid={viewMode === "vertical" ? "menu-product-grid" : "menu-product-list"}
+              aria-label="Productos de la carta"
+              className={
+                viewMode === "vertical"
+                  ? "grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-4"
+                  : "flex flex-col gap-3 sm:gap-4"
+              }
+            >
+              {visibleProducts.map((product) => (
+                <ProductCatalogCard key={product.id} product={product} viewMode={viewMode} />
+              ))}
             </section>
-          ))}
-        </div>
-      ) : (
-        <div className="flex flex-col items-center justify-center py-16 text-center">
-          <span
-            className="material-symbols-outlined mb-4 text-6xl text-[#e5e5e5]"
-            style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}
-          >
-            restaurant_menu
-          </span>
-          <p className="text-on-surface-variant font-medium">Sin resultados</p>
-          <p className="text-on-surface-variant/60 mt-1 text-xs">Prueba con otra palabra clave</p>
-        </div>
-      )}
+            <Pagination page={page} pageCount={pageCount} onChange={changePage} />
+          </>
+        ) : (
+          <div className="flex flex-col items-center justify-center py-24 text-center">
+            <span className="material-symbols-outlined text-primary/30 text-5xl" aria-hidden="true">
+              restaurant_menu
+            </span>
+            <h1 className="text-on-surface mt-4 text-2xl font-black">No encontramos productos</h1>
+            <p className="text-on-surface-variant mt-2 max-w-md text-sm">
+              Probá otra búsqueda o explorá la carta completa.
+            </p>
+            <Link
+              href="/menu"
+              className="bg-primary hover:bg-primary/90 mt-6 rounded-md px-5 py-3 text-sm font-bold text-white transition-colors"
+            >
+              Ver carta completa
+            </Link>
+          </div>
+        )}
+      </main>
     </div>
   );
 }
