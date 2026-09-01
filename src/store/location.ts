@@ -3,7 +3,7 @@ import { persist } from "zustand/middleware";
 
 export type DeliveryType = "delivery" | "pickup";
 
-interface LocationState {
+export interface LocationState {
   address: string;
   lat: number | null;
   lng: number | null;
@@ -15,6 +15,52 @@ interface LocationState {
   closeModal: () => void;
 }
 
+function hasSavedLocation(state: Partial<LocationState>) {
+  return (
+    typeof state.address === "string" &&
+    state.address.trim().length > 0 &&
+    typeof state.lat === "number" &&
+    Number.isFinite(state.lat) &&
+    typeof state.lng === "number" &&
+    Number.isFinite(state.lng)
+  );
+}
+
+/**
+ * Zustand puede rehidratar instalaciones anteriores que guardaron una ubicación vacía.
+ * El store no inventa una dirección: el mapa resuelve la vista general de Cusco sin marker.
+ */
+export function mergePersistedLocationState(
+  persistedState: unknown,
+  currentState: LocationState,
+): LocationState {
+  const persisted =
+    persistedState && typeof persistedState === "object"
+      ? (persistedState as Partial<LocationState>)
+      : {};
+
+  const deliveryType: DeliveryType =
+    persisted.deliveryType === "pickup" || persisted.deliveryType === "delivery"
+      ? persisted.deliveryType
+      : currentState.deliveryType;
+
+  if (!hasSavedLocation(persisted)) {
+    return {
+      ...currentState,
+      address: typeof persisted.address === "string" ? persisted.address : currentState.address,
+      deliveryType,
+    };
+  }
+
+  return {
+    ...currentState,
+    address: persisted.address,
+    lat: persisted.lat,
+    lng: persisted.lng,
+    deliveryType,
+  };
+}
+
 export const useLocationStore = create<LocationState>()(
   persist(
     (set) => ({
@@ -24,8 +70,7 @@ export const useLocationStore = create<LocationState>()(
       deliveryType: "delivery",
       modalOpen: false,
 
-      setAddress: (address, lat, lng) =>
-        set({ address, lat: lat ?? null, lng: lng ?? null }),
+      setAddress: (address, lat, lng) => set({ address, lat: lat ?? null, lng: lng ?? null }),
 
       setDeliveryType: (deliveryType) => set({ deliveryType }),
 
@@ -34,6 +79,7 @@ export const useLocationStore = create<LocationState>()(
     }),
     {
       name: "corrales-location",
+      merge: mergePersistedLocationState,
       partialize: (state) => ({
         address: state.address,
         lat: state.lat,
