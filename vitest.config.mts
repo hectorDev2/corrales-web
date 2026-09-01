@@ -1,8 +1,9 @@
-import { config } from "dotenv";
+import { existsSync } from "node:fs";
+
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vitest/config";
 
-config({ path: ".env.local" });
+if (existsSync(".env.local")) process.loadEnvFile?.(".env.local");
 
 export default defineConfig({
   plugins: [react()],
