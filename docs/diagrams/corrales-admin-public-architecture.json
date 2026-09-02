@@ -1,0 +1,539 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Corrales · visibilidad, roles y superficies sensibles",
+    "subtitle": "Qué ve cada actor y dónde están las fronteras de autorización",
+    "visual_preset": "signal-flow",
+    "quality_profile": "showcase",
+    "viewBox": [
+      1360,
+      820
+    ],
+    "views": [
+      {
+        "id": "who-sees-what",
+        "label": "Quién ve qué",
+        "focus": [
+          "public-user",
+          "delivery-user",
+          "admin-user",
+          "public-app",
+          "delivery-app",
+          "admin-app"
+        ],
+        "note": "Las tres superficies de usuario y el acceso que las habilita."
+      },
+      {
+        "id": "trusted-data-paths",
+        "label": "Datos y operación",
+        "focus": [
+          "public-api",
+          "admin-app",
+          "delivery-app",
+          "supabase",
+          "storage"
+        ],
+        "note": "Catálogo, pedidos, reservas, contenido y archivos persistidos."
+      },
+      {
+        "id": "security-gaps",
+        "label": "Riesgos a corregir",
+        "focus": [
+          "public-api",
+          "sensitive-api",
+          "supabase",
+          "public-user"
+        ],
+        "note": "Los endpoints service_role y los totales enviados por el cliente requieren defensa adicional."
+      }
+    ],
+    "legend": {
+      "mode": "all",
+      "entries": {
+        "frontend": {
+          "label": "Superficie de usuario"
+        },
+        "backend": {
+          "label": "API / RPC"
+        },
+        "database": {
+          "label": "Datos"
+        },
+        "cloud": {
+          "label": "Archivos / infraestructura"
+        },
+        "security": {
+          "label": "Autorización o riesgo"
+        },
+        "external": {
+          "label": "Servicio externo"
+        }
+      }
+    },
+    "repository": {
+      "url": "https://github.com/hectorDev2/corrales-web",
+      "revision": "96681fdf3e5da1aed41f64943a1991d01a3323da"
+    }
+  },
+  "components": [
+    {
+      "id": "public-user",
+      "type": "external",
+      "label": "Usuario público",
+      "sublabel": "compra · reserva",
+      "pos": [
+        40,
+        160
+      ],
+      "size": [
+        160,
+        72
+      ],
+      "sources": [
+        {
+          "path": "src/app/(public)/page.tsx",
+          "label": "rutas públicas"
+        }
+      ]
+    },
+    {
+      "id": "delivery-user",
+      "type": "external",
+      "label": "Repartidor",
+      "sublabel": "pedidos · mapa · entrega",
+      "pos": [
+        40,
+        354
+      ],
+      "size": [
+        160,
+        72
+      ],
+      "sources": [
+        {
+          "path": "src/app/(delivery)/delivery/page.tsx",
+          "label": "rutas delivery"
+        }
+      ]
+    },
+    {
+      "id": "admin-user",
+      "type": "external",
+      "label": "Administrador",
+      "sublabel": "operación · usuarios",
+      "pos": [
+        40,
+        548
+      ],
+      "size": [
+        160,
+        72
+      ],
+      "sources": [
+        {
+          "path": "src/app/(admin)/admin/page.tsx",
+          "label": "rutas admin"
+        }
+      ]
+    },
+    {
+      "id": "proxy-auth",
+      "type": "security",
+      "label": "Proxy de acceso",
+      "sublabel": "sesión + rol para UI",
+      "tag": "frontera UI",
+      "pos": [
+        270,
+        354
+      ],
+      "size": [
+        160,
+        72
+      ],
+      "sources": [
+        {
+          "path": "src/proxy.ts",
+          "label": "gate de navegación"
+        }
+      ]
+    },
+    {
+      "id": "public-app",
+      "type": "frontend",
+      "label": "App pública",
+      "sublabel": "catálogo · checkout",
+      "pos": [
+        500,
+        160
+      ],
+      "size": [
+        175,
+        72
+      ],
+      "sources": [
+        {
+          "path": "src/app/(public)/page.tsx",
+          "label": "UI pública"
+        }
+      ]
+    },
+    {
+      "id": "delivery-app",
+      "type": "frontend",
+      "label": "Panel Delivery",
+      "sublabel": "pedidos · estados",
+      "pos": [
+        500,
+        354
+      ],
+      "size": [
+        175,
+        72
+      ],
+      "sources": [
+        {
+          "path": "src/app/(delivery)/delivery/page.tsx",
+          "label": "UI delivery"
+        }
+      ]
+    },
+    {
+      "id": "admin-app",
+      "type": "frontend",
+      "label": "Panel Admin",
+      "sublabel": "operación · catálogo · usuarios",
+      "pos": [
+        500,
+        548
+      ],
+      "size": [
+        175,
+        72
+      ],
+      "sources": [
+        {
+          "path": "src/app/(admin)/admin/page.tsx",
+          "label": "UI admin"
+        }
+      ]
+    },
+    {
+      "id": "public-api",
+      "type": "backend",
+      "label": "APIs y RPC públicas",
+      "sublabel": "create_order · reservas · payment",
+      "tag": "entrada pública",
+      "pos": [
+        745,
+        160
+      ],
+      "size": [
+        190,
+        72
+      ],
+      "sources": [
+        {
+          "path": "supabase/migrations/20260404214259_fn_create_order.sql",
+          "label": "RPC y políticas"
+        },
+        {
+          "path": "src/app/api/payment/charge/route.ts",
+          "label": "cobro"
+        }
+      ]
+    },
+    {
+      "id": "sensitive-api",
+      "type": "security",
+      "label": "APIs sensibles",
+      "sublabel": "admin/users · invoice/send",
+      "tag": "revisar guardia",
+      "pos": [
+        745,
+        670
+      ],
+      "size": [
+        190,
+        72
+      ],
+      "sources": [
+        {
+          "path": "src/app/api/admin/users/route.ts",
+          "label": "usuarios"
+        },
+        {
+          "path": "src/app/api/invoice/send/route.ts",
+          "label": "facturación"
+        }
+      ]
+    },
+    {
+      "id": "supabase",
+      "type": "database",
+      "label": "Supabase + RLS",
+      "sublabel": "datos con RLS",
+      "pos": [
+        1000,
+        354
+      ],
+      "size": [
+        190,
+        72
+      ],
+      "sources": [
+        {
+          "path": "supabase/migrations/20260404214259_fn_create_order.sql",
+          "label": "schema y políticas"
+        },
+        {
+          "path": "src/lib/supabase.ts",
+          "label": "clientes Supabase"
+        }
+      ]
+    },
+    {
+      "id": "storage",
+      "type": "cloud",
+      "label": "Supabase Storage",
+      "sublabel": "productos · slides",
+      "pos": [
+        1000,
+        548
+      ],
+      "size": [
+        190,
+        72
+      ],
+      "sources": [
+        {
+          "path": "src/components/admin/ImageUploadField.tsx",
+          "label": "carga de multimedia"
+        }
+      ]
+    },
+    {
+      "id": "external-payments",
+      "type": "external",
+      "label": "Culqi / Nubefact",
+      "sublabel": "pago y comprobantes",
+      "pos": [
+        1205,
+        160
+      ],
+      "size": [
+        150,
+        72
+      ],
+      "sources": [
+        {
+          "path": "src/app/api/payment/charge/route.ts",
+          "label": "integraciones"
+        }
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Next.js · superficies visibles",
+      "wraps": [
+        "proxy-auth",
+        "public-app",
+        "delivery-app",
+        "admin-app"
+      ],
+      "pad": 24
+    },
+    {
+      "kind": "security-group",
+      "label": "Datos y privilegios elevados",
+      "wraps": [
+        "public-api",
+        "sensitive-api",
+        "supabase",
+        "storage"
+      ],
+      "pad": 24
+    }
+  ],
+  "connections": [
+    {
+      "id": "public-browse",
+      "from": "public-user",
+      "to": "public-app",
+      "label": "navega · compra · reserva",
+      "variant": "emphasis",
+      "route": "straight",
+      "labelDy": -52
+    },
+    {
+      "id": "delivery-gate",
+      "from": "delivery-user",
+      "to": "proxy-auth",
+      "label": "sesión + rol delivery",
+      "variant": "security",
+      "route": "straight",
+      "labelAt": [
+        235,
+        330
+      ]
+    },
+    {
+      "id": "admin-gate",
+      "from": "admin-user",
+      "to": "proxy-auth",
+      "label": "sesión + rol admin",
+      "variant": "security",
+      "route": "straight",
+      "labelAt": [
+        235,
+        650
+      ],
+      "fromSide": "right",
+      "toSide": "left",
+      "via": [
+        [
+          235,
+          584
+        ],
+        [
+          235,
+          390
+        ]
+      ]
+    },
+    {
+      "id": "public-allowed",
+      "from": "proxy-auth",
+      "to": "public-app",
+      "route": "orthogonal-h"
+    },
+    {
+      "id": "delivery-allowed",
+      "from": "proxy-auth",
+      "to": "delivery-app",
+      "label": "permite /delivery",
+      "route": "straight",
+      "labelAt": [
+        405,
+        445
+      ]
+    },
+    {
+      "id": "admin-allowed",
+      "from": "proxy-auth",
+      "to": "admin-app",
+      "label": "permite /admin",
+      "route": "orthogonal-h",
+      "labelAt": [
+        465,
+        640
+      ]
+    },
+    {
+      "id": "public-calls",
+      "from": "public-app",
+      "to": "public-api",
+      "label": "pedido · reserva",
+      "variant": "emphasis",
+      "route": "straight",
+      "labelDy": -52
+    },
+    {
+      "id": "delivery-data",
+      "from": "delivery-app",
+      "to": "supabase",
+      "route": "orthogonal-h"
+    },
+    {
+      "id": "admin-data",
+      "from": "admin-app",
+      "to": "supabase",
+      "route": "orthogonal-h"
+    },
+    {
+      "id": "order-write",
+      "from": "public-api",
+      "to": "supabase",
+      "route": "orthogonal-v"
+    },
+    {
+      "id": "sensitive-data",
+      "from": "sensitive-api",
+      "to": "supabase",
+      "label": "service_role · bypass RLS",
+      "variant": "security",
+      "route": "orthogonal-v",
+      "labelAt": [
+        965,
+        640
+      ],
+      "fromSide": "right",
+      "toSide": "right",
+      "via": [
+        [
+          970,
+          706
+        ],
+        [
+          1230,
+          706
+        ],
+        [
+          1230,
+          390
+        ]
+      ]
+    },
+    {
+      "id": "media-data",
+      "from": "admin-app",
+      "to": "storage",
+      "label": "sube multimedia",
+      "variant": "dashed",
+      "route": "orthogonal-h",
+      "labelAt": [
+        840,
+        640
+      ]
+    },
+    {
+      "id": "payment-call",
+      "from": "public-api",
+      "to": "external-payments",
+      "label": "cobra / emite",
+      "route": "straight",
+      "labelDy": -52
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Visible al público",
+      "items": [
+        "Catálogo y contenido activos",
+        "Checkout y creación de pedidos",
+        "Reservas; no hay historial administrativo"
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "Privado por UI",
+      "items": [
+        "Admin gestiona operación, catálogo, contenido y facturación",
+        "Delivery ve datos de cliente y estados de entrega",
+        "El proxy controla navegación, no reemplaza autorización de API"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Prioridad de seguridad",
+      "items": [
+        "Agregar requireAdmin / requireRole a APIs service_role",
+        "Recalcular total y precios en servidor",
+        "Revisar RLS y políticas de Storage por rol"
+      ]
+    }
+  ]
+}
