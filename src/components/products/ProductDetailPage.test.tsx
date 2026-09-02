@@ -35,6 +35,12 @@ const product: Product = {
 };
 
 describe("ProductDetailPage", () => {
+  it("keeps the product detail content separated from the viewport edges", () => {
+    render(<ProductDetailPage product={product} />);
+
+    expect(screen.getByRole("main")).toHaveClass("px-4", "md:px-6", "lg:px-8");
+  });
+
   it("keeps product context sticky only on desktop below the stacked public navigation", () => {
     render(<ProductDetailPage product={product} />);
 

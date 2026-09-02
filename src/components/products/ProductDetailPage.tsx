@@ -183,7 +183,7 @@ export function ProductDetailPage({ product }: Props) {
 
   return (
     <div className="pb-24" style={{ backgroundColor: "#ffffff" }}>
-      <main className="mx-auto grid max-w-7xl grid-cols-1 gap-12 py-8 lg:grid-cols-2 lg:items-stretch">
+      <main className="mx-auto grid max-w-7xl grid-cols-1 gap-12 px-4 py-8 md:px-6 lg:grid-cols-2 lg:items-stretch lg:px-8">
         {/* ── Left Panel ──────────────────────────────────────────── */}
         <section>
           <div
