@@ -1,8 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 
-import { getAdminOptionGroups, saveOptionGroups, uploadProductImage } from "@/lib/api/products";
+import {
+  deleteProductImage,
+  getAdminOptionGroups,
+  saveOptionGroups,
+  uploadProductImage,
+} from "@/lib/api/products";
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
@@ -407,10 +413,12 @@ function OptionImageRow({
     if (!file) return;
     setUploading(true);
     try {
-      const url = await uploadProductImage(file, `opt-${opt.name || "option"}`);
+      const previousUrl = opt.image_url;
+      const url = await uploadProductImage(file);
+      if (previousUrl) await deleteProductImage(previousUrl);
       updateOption(groupKey, opt._key, { image_url: url });
     } catch {
-      // ignore
+      toast.error("No se pudo subir la imagen de la opción.");
     } finally {
       setUploading(false);
       if (inputRef.current) inputRef.current.value = "";
@@ -424,11 +432,11 @@ function OptionImageRow({
   return (
     <div className="flex items-center gap-2 px-3 py-2">
       <div className="relative shrink-0">
-        <button
-          type="button"
-          onClick={() => inputRef.current?.click()}
-          disabled={uploading}
-          className="w-10 h-10 rounded-lg overflow-hidden bg-surface-container-high border border-outline-variant/40 hover:border-primary transition disabled:opacity-50"
+        <label
+          aria-label={`Subir imagen para ${opt.name || "opción"}`}
+          className={`relative flex w-10 h-10 cursor-pointer items-center justify-center overflow-hidden rounded-lg border border-outline-variant/40 bg-surface-container-high transition hover:border-primary ${
+            uploading ? "cursor-wait opacity-50" : ""
+          }`}
         >
           {opt.image_url ? (
             <img
@@ -453,13 +461,15 @@ function OptionImageRow({
             type="file"
             accept="image/jpeg,image/jpg,image/png,image/webp"
             className="hidden"
+            disabled={uploading}
             onChange={handleFile}
           />
-        </button>
+        </label>
         {opt.image_url && (
           <button
             type="button"
             onClick={handleRemoveImage}
+            aria-label={`Quitar imagen de ${opt.name || "opción"}`}
             className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-error text-white flex items-center justify-center shadow"
           >
             <span className="material-symbols-outlined text-[10px]">close</span>
