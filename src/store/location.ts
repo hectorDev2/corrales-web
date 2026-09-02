@@ -15,7 +15,9 @@ export interface LocationState {
   closeModal: () => void;
 }
 
-function hasSavedLocation(state: Partial<LocationState>) {
+function hasSavedLocation(
+  state: Partial<LocationState>,
+): state is Pick<LocationState, "address" | "lat" | "lng"> {
   return (
     typeof state.address === "string" &&
     state.address.trim().length > 0 &&

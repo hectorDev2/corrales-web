@@ -113,9 +113,10 @@ describe("KfcProductCarousel", () => {
       Object.defineProperty(cards[index], "offsetLeft", { configurable: true, value: offsetLeft });
     });
 
-    const scrollTo = vi.fn(({ left }: ScrollToOptions) => {
-      carousel!.scrollLeft = left ?? 0;
-    });
+    const scrollTo = vi.fn((optionsOrX: ScrollToOptions | number) => {
+      carousel!.scrollLeft =
+        typeof optionsOrX === "number" ? optionsOrX : (optionsOrX.left ?? 0);
+    }) as unknown as HTMLElement["scrollTo"];
     carousel!.scrollTo = scrollTo;
 
     fireEvent.click(screen.getByRole("button", { name: "Siguiente" }));
