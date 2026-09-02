@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import type { Product } from "@/types/product";
@@ -35,6 +35,39 @@ const product: Product = {
 };
 
 describe("ProductDetailPage", () => {
+  it("shows a trash icon when an optional quantity reaches its minimum", () => {
+    const quantityProduct: Product = {
+      ...product,
+      optionGroups: [
+        {
+          id: "extras",
+          name: "Agrega un Extra",
+          selectionType: "quantity",
+          minSelect: 0,
+          maxSelect: null,
+          isRequired: false,
+          sortOrder: 0,
+          options: [
+            {
+              id: "extra-pollo",
+              name: "Extra Pollo",
+              imageUrl: null,
+              priceDelta: 6,
+              sortOrder: 0,
+            },
+          ],
+        },
+      ],
+    };
+
+    render(<ProductDetailPage product={quantityProduct} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Incrementar cantidad de Extra Pollo" }));
+
+    expect(screen.getByRole("img", { name: "trash" })).toBeInTheDocument();
+    expect(screen.queryByRole("img", { name: "minus" })).not.toBeInTheDocument();
+  });
+
   it("keeps the product detail content separated from the viewport edges", () => {
     render(<ProductDetailPage product={product} />);
 

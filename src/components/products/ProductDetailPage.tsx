@@ -62,6 +62,29 @@ function PlusIcon() {
   );
 }
 
+function TrashIcon() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="1em"
+      height="1em"
+      fill="currentColor"
+      viewBox="0 0 16 16"
+      aria-label="trash"
+      role="img"
+    >
+      <path
+        fill="currentColor"
+        d="M5.5 5.5a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"
+      />
+      <path
+        fill="currentColor"
+        d="M14.5 3a1 1 0 0 1-1 1H13v9.5a1.5 1.5 0 0 1-1.5 1.5h-7A1.5 1.5 0 0 1 3 13.5V4h-.5a1 1 0 1 1 0-2h3.25A1.5 1.5 0 0 1 7.25.5h1.5A1.5 1.5 0 0 1 10.25 2h3.25a1 1 0 0 1 1 1M6.75 2h2.5a.5.5 0 0 0-.5-.5h-1.5a.5.5 0 0 0-.5.5M4 4v9.5a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5V4z"
+      />
+    </svg>
+  );
+}
+
 export function ProductDetailPage({ product }: Props) {
   const { addItem, openDrawer } = useCartStore();
 
@@ -457,7 +480,7 @@ function OptionRow({
                 type="button"
                 aria-label={`Disminuir cantidad de ${option.name}`}
               >
-                <MinusIcon />
+                {selectedQty === 1 ? <TrashIcon /> : <MinusIcon />}
               </button>
               <div className="w-10 text-center text-sm font-bold" style={{ color: "#111" }}>
                 {selectedQty}
