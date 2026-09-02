@@ -157,7 +157,27 @@ export function CheckoutForm() {
           const res = await fetch("/api/payment/charge", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ token: tokenId, amount: amountInCents, email }),
+            body: JSON.stringify({
+              token: tokenId,
+              email,
+              deliveryType: data.deliveryType,
+              customerName: data.name,
+              customerPhone: data.phone,
+              customerAddress: data.address,
+              customerNotes: data.notes,
+              customerLocationUrl: locationUrl,
+              items: items.map((item) => ({
+                product_id: item.product.id,
+                variant_id: item.variant.id,
+                quantity: item.quantity,
+                selected_options: Object.values(item.selectedOptions).flatMap((options) =>
+                  options.map((option) => ({
+                    option_id: option.optionId,
+                    quantity: option.quantity,
+                  })),
+                ),
+              })),
+            }),
           });
 
           if (!res.ok) {
@@ -165,17 +185,7 @@ export function CheckoutForm() {
             throw new Error(err.error ?? "Pago rechazado.");
           }
 
-          const orderNumber = await createOrder({
-            customerName: data.name,
-            customerPhone: data.phone,
-            deliveryType: data.deliveryType,
-            customerAddress: data.address,
-            customerNotes: data.notes,
-            customerLocationUrl: locationUrl,
-            paymentMethod: "culqi",
-            items,
-            total: total(),
-          });
+          const { orderNumber } = (await res.json()) as { orderNumber: number };
 
           toast.success(`¡Pedido #${orderNumber} confirmado! Te contactaremos pronto.`);
           clearCart();

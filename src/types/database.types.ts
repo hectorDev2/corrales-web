@@ -535,6 +535,13 @@ export type Database = {
         }
         Returns: number
       }
+      calculate_order_total: {
+        Args: {
+          p_delivery_type: string
+          p_items: Json
+        }
+        Returns: number
+      }
       current_user_role: {
         Args: never
         Returns: Database["public"]["Enums"]["user_role"]
