@@ -186,10 +186,7 @@ export function ProductDetailPage({ product }: Props) {
       <main className="mx-auto grid max-w-7xl grid-cols-1 gap-12 px-4 py-8 md:px-6 lg:grid-cols-2 lg:items-stretch lg:px-8">
         {/* ── Left Panel ──────────────────────────────────────────── */}
         <section>
-          <div
-            data-testid="product-detail-sticky-panel"
-            className="mb-6 lg:sticky lg:top-[121px] lg:max-h-[calc(100dvh-137px)] lg:overflow-y-auto"
-          >
+          <div data-testid="product-detail-sticky-panel" className="mb-6 lg:sticky lg:top-[121px]">
             <h1 className="mb-6 text-3xl font-black">{product.name}</h1>
             <div
               data-testid="product-detail-image-panel"

@@ -48,7 +48,10 @@ describe("ProductDetailPage", () => {
 
     expect(productContextPanel).toHaveClass("lg:sticky", "lg:top-[121px]");
     expect(productContextPanel).not.toHaveClass("sticky");
-    expect(productContextPanel).toHaveClass("lg:max-h-[calc(100dvh-137px)]", "lg:overflow-y-auto");
+    expect(productContextPanel).not.toHaveClass(
+      "lg:max-h-[calc(100dvh-137px)]",
+      "lg:overflow-y-auto",
+    );
     expect(productContextPanel.querySelector("img")).toHaveAttribute("src", "/pollo.jpg");
     expect(productContextPanel).toHaveTextContent("S/ 80.00");
     expect(productContextPanel).toHaveTextContent(product.description);
