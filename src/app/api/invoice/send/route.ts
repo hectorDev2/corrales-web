@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { sendToNubefact, type NubefactResult } from "@/lib/nubefact";
+import { requireAdmin } from "@/lib/auth/require-admin";
+import { sendToNubefact } from "@/lib/nubefact";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 
 export async function POST(req: NextRequest) {
   try {
+    const authorization = await requireAdmin();
+    if (authorization.response) return authorization.response;
+
     const body = await req.json();
     const { orderId, invoiceType, docType, docNumber, businessName, address } = body;
 

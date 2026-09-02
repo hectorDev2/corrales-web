@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import { requireAdmin } from "@/lib/auth/require-admin";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 
 export async function POST(req: NextRequest) {
+  const authorization = await requireAdmin();
+  if (authorization.response) return authorization.response;
+
   const { full_name, email, password, phone } = await req.json();
 
   if (!full_name?.trim() || !email?.trim() || !password?.trim()) {

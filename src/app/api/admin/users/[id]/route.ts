@@ -1,11 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import { requireAdmin } from "@/lib/auth/require-admin";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 
 export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const authorization = await requireAdmin();
+  if (authorization.response) return authorization.response;
+
   const { id } = await params;
   const { is_active } = await req.json();
 
