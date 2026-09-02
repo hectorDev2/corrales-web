@@ -24,6 +24,16 @@ const products: Product[] = Array.from({ length: 13 }, (_, index) => ({
 }));
 
 describe("MenuPage", () => {
+  it("keeps the category strip sticky below the public subheader", () => {
+    render(<MenuPage products={products} categories={["Pollo a la Brasa", "Parrillas"]} />);
+
+    expect(screen.getByRole("navigation", { name: "Categorías de la carta" })).toHaveClass(
+      "sticky",
+      "top-[calc(var(--public-mobile-header-height)+var(--public-subheader-height))]",
+      "md:top-[106px]",
+    );
+  });
+
   it("renders a catalog strip, desktop product grid, and accessible pagination", async () => {
     const user = userEvent.setup();
     render(<MenuPage products={products} categories={["Pollo a la Brasa", "Parrillas"]} />);

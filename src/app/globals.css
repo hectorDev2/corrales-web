@@ -150,6 +150,7 @@
     /* SSR fallback; the public Header measures itself after hydration so the
        mobile SubHeader stays flush when it becomes sticky. */
     --public-mobile-header-height: 7rem;
+    --public-subheader-height: 41px;
   }
 
   * {

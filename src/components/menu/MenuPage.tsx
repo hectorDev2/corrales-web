@@ -165,7 +165,10 @@ function CategoryStrip({
   activeCategory,
 }: Pick<MenuPageProps, "categories" | "activeCategory">) {
   return (
-    <nav aria-label="Categorías de la carta" className="border-b border-[#e9e9e9]">
+    <nav
+      aria-label="Categorías de la carta"
+      className="sticky top-[calc(var(--public-mobile-header-height)+var(--public-subheader-height))] z-30 border-b border-[#e9e9e9] bg-white shadow-sm md:top-[106px]"
+    >
       <div className="mx-auto flex max-w-7xl scrollbar-none gap-7 overflow-x-auto px-4 md:px-8">
         <Link
           href="/menu"
