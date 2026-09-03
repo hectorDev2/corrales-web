@@ -1,9 +1,16 @@
 #!/bin/bash
 # Seed option groups and options for combo products
-# Uses Supabase Service Role Key for admin access
+# Requires Supabase credentials through environment variables.
 
-API="https://ueufxzbsczpndblfykar.supabase.co/rest/v1"
-KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVldWZ4emJzY3pwbmRibGZ5a2FyIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTMwMzA1MCwiZXhwIjoyMDkwODc5MDUwfQ.cAI0xnJUTvVI4A-LAQ_YdUOLhVOzW7kL8cyJ5U8uqmk"
+set -euo pipefail
+
+if [[ -z "${SUPABASE_URL:-}" || -z "${SUPABASE_SERVICE_ROLE_KEY:-}" ]]; then
+  echo "Error: definí SUPABASE_URL y SUPABASE_SERVICE_ROLE_KEY antes de ejecutar este seed." >&2
+  exit 1
+fi
+
+API="${SUPABASE_URL%/}/rest/v1"
+KEY="$SUPABASE_SERVICE_ROLE_KEY"
 
 # Product UUIDs
 P1="e64505b9-0a89-4c04-9529-1f17d93aef95"  # 1/4 de Pollo a la Brasa
@@ -13,7 +20,7 @@ P4="062fcfc3-7119-477d-8fab-b6db32c8cc71"  # Mix Personal
 
 # ---------- Helper functions ----------
 post() {
-  curl -s "$API/$1" \
+  curl -fsS "$API/$1" \
     -H "apikey: $KEY" \
     -H "Authorization: Bearer $KEY" \
     -H "Content-Type: application/json" \
