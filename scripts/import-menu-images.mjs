@@ -16,6 +16,37 @@ const mimeTypes = {
   ".webp": "image/webp",
 };
 
+const DEFAULT_HOME_SAVINGS = {
+  title: "Ahorrar nunca fue tan rico",
+  allHref: "/menu",
+  tiles: [
+    {
+      label: "Para Compartir",
+      href: "/menu?categoria=Pollo%20a%20la%20Brasa",
+      sortOrder: 0,
+      isActive: true,
+    },
+    {
+      label: "Para 2",
+      href: "/menu?categoria=Parrillas",
+      sortOrder: 1,
+      isActive: true,
+    },
+    {
+      label: "Para ti",
+      href: "/menu?categoria=Acompa%C3%B1amiento",
+      sortOrder: 2,
+      isActive: true,
+    },
+    {
+      label: "Twister XL",
+      href: "/menu?categoria=Bebidas",
+      sortOrder: 3,
+      isActive: true,
+    },
+  ],
+};
+
 function parseArgs(argv) {
   return {
     apply: argv.includes("--apply"),
@@ -85,11 +116,12 @@ async function getTargets(supabase, groups) {
     if (!optionMap.has(item.key)) fail(`Opción no encontrada: ${item.key}`);
 
   const footer = settings.footer ?? {};
-  const homeTiles = footer.homeSavings?.tiles ?? [];
+  const homeSavings = footer.homeSavings ?? DEFAULT_HOME_SAVINGS;
+  const homeTiles = homeSavings.tiles ?? DEFAULT_HOME_SAVINGS.tiles;
   for (const item of groups.home)
     if (!homeTiles.some((tile) => tile.label === item.key))
       fail(`Tile de home no encontrado: ${item.key}`);
-  return { productMap, optionMap, settings, homeTiles };
+  return { productMap, optionMap, settings, homeSavings, homeTiles };
 }
 
 async function upload(supabase, source, bucket, file) {
@@ -167,7 +199,7 @@ async function main() {
     .update({
       footer: {
         ...targets.settings.footer,
-        homeSavings: { ...targets.settings.footer.homeSavings, tiles: nextTiles },
+        homeSavings: { ...targets.homeSavings, tiles: nextTiles },
       },
       updated_at: new Date().toISOString(),
     })
