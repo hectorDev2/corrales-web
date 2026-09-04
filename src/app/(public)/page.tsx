@@ -53,6 +53,8 @@ async function HomeContent() {
             src="/banner-descargaapp_desktop.webp"
             alt="Descarga la app Corrales"
             className="h-auto w-full object-cover"
+            loading="lazy"
+            decoding="async"
           />
         </div>
 

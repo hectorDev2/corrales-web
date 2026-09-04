@@ -41,7 +41,7 @@ export function KfcHeroSlider({ slides }: KfcHeroSliderProps) {
         className="flex transition-transform duration-500 ease-in-out"
         style={{ transform: `translateX(-${current * 100}%)` }}
       >
-        {slides.map((slide) => (
+        {slides.map((slide, index) => (
           <div key={slide.id} className="min-w-full">
             {slide.image_url && (
               <picture>
@@ -52,6 +52,9 @@ export function KfcHeroSlider({ slides }: KfcHeroSliderProps) {
                   src={slide.image_url}
                   alt={slide.title ?? "Promoción"}
                   className="aspect-[4.56] w-full object-cover"
+                  loading={index === 0 ? "eager" : "lazy"}
+                  fetchPriority={index === 0 ? "high" : "auto"}
+                  decoding="async"
                 />
               </picture>
             )}

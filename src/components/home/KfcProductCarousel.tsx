@@ -96,6 +96,8 @@ export function KfcProductCarousel({ title, products, href }: KfcProductCarousel
                       src={product.image.src}
                       alt={product.image.alt}
                       className="aspect-square h-full w-full object-contain"
+                      loading="lazy"
+                      decoding="async"
                     />
                   </a>
 

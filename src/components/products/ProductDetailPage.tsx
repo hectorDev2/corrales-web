@@ -384,6 +384,8 @@ function OptionRow({
                   className="h-12 w-12 rounded border object-cover shadow-sm"
                   style={{ borderColor: "#d1d5db" }}
                   src={option.imageUrl}
+                  loading="lazy"
+                  decoding="async"
                 />
               </picture>
             )}
@@ -451,6 +453,8 @@ function OptionRow({
                 }`}
                 style={{ borderColor: "#d1d5db" }}
                 src={option.imageUrl}
+                loading="lazy"
+                decoding="async"
               />
             </picture>
           )}
