@@ -41,6 +41,7 @@ export function SavingsCategories({ settings = DEFAULT_HOME_SAVINGS_SETTINGS }: 
               width={72}
               height={48}
               className="h-12 w-auto shrink-0 object-contain"
+              style={{ width: "auto", height: "48px" }}
               sizes="72px"
             />
             <span className="min-w-0 flex-1 text-sm font-bold">{label}</span>
