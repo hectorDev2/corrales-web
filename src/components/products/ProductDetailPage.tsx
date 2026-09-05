@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { useCartStore } from "@/store/cart";
 import type { SelectedOptionsMap } from "@/types/cart";
@@ -366,6 +366,28 @@ function OptionRow({
   onSelect: () => void;
 }) {
   const isActive = selectedQty > 0;
+  const [isRemoving, setIsRemoving] = useState(false);
+  const removalTimeoutRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (removalTimeoutRef.current !== null) window.clearTimeout(removalTimeoutRef.current);
+    };
+  }, []);
+
+  function handleDecrement() {
+    if (selectedQty !== 1) {
+      onUpdate(-1);
+      return;
+    }
+
+    setIsRemoving(true);
+    removalTimeoutRef.current = window.setTimeout(() => {
+      onUpdate(-1);
+      removalTimeoutRef.current = null;
+    }, 180);
+  }
+
   if (group.selectionType === "single") {
     return (
       <div>
@@ -478,11 +500,18 @@ function OptionRow({
               aria-label={`Contador de ${option.name}`}
             >
               <button
-                onClick={() => onUpdate(-1)}
-                className="flex h-8 w-8 items-center justify-center transition-colors hover:bg-gray-100"
+                onClick={handleDecrement}
+                className={`flex h-8 w-8 items-center justify-center transition-all duration-150 hover:bg-gray-100 active:scale-75 ${
+                  isRemoving ? "scale-75" : ""
+                }`}
                 style={{ color: "#e4002b" }}
                 type="button"
-                aria-label={`Disminuir cantidad de ${option.name}`}
+                aria-label={
+                  selectedQty === 1
+                    ? `Eliminar ${option.name}`
+                    : `Disminuir cantidad de ${option.name}`
+                }
+                disabled={isRemoving}
               >
                 {selectedQty === 1 ? <TrashIcon /> : <MinusIcon />}
               </button>
@@ -491,7 +520,7 @@ function OptionRow({
               </div>
               <button
                 onClick={() => onUpdate(1)}
-                className="flex h-8 w-8 items-center justify-center transition-colors hover:bg-gray-100"
+                className="flex h-8 w-8 items-center justify-center transition-all duration-150 hover:bg-gray-100 active:scale-75"
                 style={{ color: "#e4002b" }}
                 type="button"
                 aria-label={`Incrementar cantidad de ${option.name}`}
@@ -503,7 +532,7 @@ function OptionRow({
           ) : (
             <button
               onClick={() => onUpdate(1)}
-              className="flex h-8 w-8 items-center justify-center rounded-lg text-white shadow-md transition-all hover:opacity-90 active:scale-95"
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-white shadow-md transition-all duration-150 hover:opacity-90 active:scale-90"
               style={{ backgroundColor: "#e4002b" }}
               type="button"
               aria-label={`Incrementar cantidad de ${option.name}`}

@@ -1,5 +1,5 @@
-import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { act, fireEvent, render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
 
 import type { Product } from "@/types/product";
 
@@ -66,6 +66,53 @@ describe("ProductDetailPage", () => {
 
     expect(screen.getByRole("img", { name: "trash" })).toBeInTheDocument();
     expect(screen.queryByRole("img", { name: "minus" })).not.toBeInTheDocument();
+  });
+
+  it("animates quantity actions and delays removal until the feedback finishes", () => {
+    vi.useFakeTimers();
+
+    try {
+      const quantityProduct: Product = {
+        ...product,
+        optionGroups: [
+          {
+            id: "extras",
+            name: "Agrega un Extra",
+            selectionType: "quantity",
+            minSelect: 0,
+            maxSelect: null,
+            isRequired: false,
+            sortOrder: 0,
+            options: [
+              {
+                id: "extra-pollo",
+                name: "Extra Pollo",
+                imageUrl: null,
+                priceDelta: 6,
+                sortOrder: 0,
+              },
+            ],
+          },
+        ],
+      };
+
+      render(<ProductDetailPage product={quantityProduct} />);
+      fireEvent.click(screen.getByRole("button", { name: "Incrementar cantidad de Extra Pollo" }));
+
+      const removeButton = screen.getByRole("button", { name: "Eliminar Extra Pollo" });
+      expect(removeButton).toHaveClass("active:scale-75");
+
+      fireEvent.click(removeButton);
+
+      expect(removeButton).toHaveClass("scale-75");
+      expect(screen.getByRole("img", { name: "trash" })).toBeInTheDocument();
+
+      act(() => vi.advanceTimersByTime(180));
+
+      expect(screen.queryByRole("img", { name: "trash" })).not.toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it("keeps the product detail content separated from the viewport edges", () => {
