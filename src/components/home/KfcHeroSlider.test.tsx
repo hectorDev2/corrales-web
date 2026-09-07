@@ -32,4 +32,15 @@ describe("KfcHeroSlider", () => {
     expect(screen.getByRole("button", { name: "Siguiente" })).toHaveClass("rounded-l-lg");
     expect(screen.getByRole("button", { name: "Ir a slide 1" })).toBeInTheDocument();
   });
+
+  it("uses a taller aspect ratio when a mobile creative is available", () => {
+    const mobileSlide = { ...slides[0], image_url_mobile: "/hero-1-mobile.jpg" };
+
+    render(<KfcHeroSlider slides={[mobileSlide]} />);
+
+    expect(screen.getByRole("img", { name: "Promoción Corrales" })).toHaveClass(
+      "aspect-[1.3]",
+      "md:aspect-[4.56]",
+    );
+  });
 });

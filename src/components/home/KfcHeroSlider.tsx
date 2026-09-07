@@ -51,7 +51,9 @@ export function KfcHeroSlider({ slides }: KfcHeroSliderProps) {
                 <img
                   src={slide.image_url}
                   alt={slide.title ?? "Promoción"}
-                  className="aspect-[4.56] w-full object-cover"
+                  className={`w-full object-cover ${
+                    slide.image_url_mobile ? "aspect-[1.3] md:aspect-[4.56]" : "aspect-[4.56]"
+                  }`}
                   loading={index === 0 ? "eager" : "lazy"}
                   fetchPriority={index === 0 ? "high" : "auto"}
                   decoding="async"
