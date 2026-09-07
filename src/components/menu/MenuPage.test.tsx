@@ -77,4 +77,21 @@ describe("MenuPage", () => {
     expect(screen.getByTestId("menu-product-list")).toBeInTheDocument();
     expect(screen.queryByTestId("menu-product-grid")).not.toBeInTheDocument();
   });
+
+  it("allows a third description line on narrow vertical cards", () => {
+    const longDescriptionProduct = {
+      ...products[0],
+      description: "Papas fritas, ensalada, cremas + 1 litro de chicha",
+    };
+
+    render(<MenuPage products={[longDescriptionProduct]} categories={["Pollo a la Brasa"]} />);
+
+    expect(screen.getByRole("link", { name: "Producto 1" }).querySelector("p")).toHaveClass(
+      "line-clamp-3",
+      "min-h-9",
+      "overflow-hidden",
+      "break-words",
+      "sm:line-clamp-2",
+    );
+  });
 });

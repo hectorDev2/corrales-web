@@ -83,7 +83,9 @@ export function ProductCatalogCard({
           </h2>
           <p
             className={`text-on-surface-variant mt-1 text-xs leading-[1.2] ${
-              isHorizontal ? "line-clamp-2" : "line-clamp-2 min-h-9"
+              isHorizontal
+                ? "line-clamp-2 overflow-hidden break-words"
+                : "line-clamp-3 min-h-9 overflow-hidden break-words sm:line-clamp-2"
             }`}
           >
             {product.description}
