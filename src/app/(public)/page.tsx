@@ -26,11 +26,11 @@ async function HomeContent() {
     getHomeSavingsSettings(),
   ]);
 
-  const imageSlides = slides.filter((s) => s.type === "image" && s.image_url);
+  const visibleSlides = slides.filter((slide) => slide.type === "custom" || slide.image_url);
 
   return (
     <>
-      <KfcHeroSlider slides={imageSlides} />
+      <KfcHeroSlider slides={visibleSlides} />
       <div className="md:px-margin-desktop mx-auto max-w-[1280px] overflow-hidden px-4">
         {/* Hero Slider */}
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import Link from "next/link";
 
 import type { SliderSlide } from "@/lib/api/slider";
 
@@ -43,7 +44,7 @@ export function KfcHeroSlider({ slides }: KfcHeroSliderProps) {
       >
         {slides.map((slide, index) => (
           <div key={slide.id} className="min-w-full">
-            {slide.image_url && (
+            {slide.type === "image" && slide.image_url ? (
               <picture>
                 {slide.image_url_mobile && (
                   <source media="(max-width: 767px)" srcSet={slide.image_url_mobile} />
@@ -59,43 +60,84 @@ export function KfcHeroSlider({ slides }: KfcHeroSliderProps) {
                   decoding="async"
                 />
               </picture>
+            ) : (
+              <div className="relative aspect-[1.3] overflow-hidden md:aspect-[4.56]">
+                <div
+                  className={`absolute inset-0 bg-gradient-to-br ${slide.bg_gradient ?? "from-[#e4002b] via-[#b30022] to-[#800018]"}`}
+                />
+                <div className="relative flex h-full flex-col justify-end px-6 pb-6 md:px-12 md:pb-8">
+                  {slide.eyebrow && (
+                    <span
+                      className="mb-2 text-xs font-bold tracking-widest uppercase"
+                      style={{ color: slide.accent_color ?? "#ffffff" }}
+                    >
+                      {slide.eyebrow}
+                    </span>
+                  )}
+                  {slide.title && (
+                    <h2 className="mb-2 text-3xl leading-[0.9] font-black tracking-tight whitespace-pre-line text-white md:text-5xl">
+                      {slide.title}
+                    </h2>
+                  )}
+                  {slide.subtitle && (
+                    <p className="mb-4 max-w-xs text-sm leading-snug font-bold whitespace-pre-line text-white/70 md:text-base">
+                      {slide.subtitle}
+                    </p>
+                  )}
+                  {slide.cta_label && slide.cta_href && (
+                    <Link
+                      href={slide.cta_href}
+                      className="text-primary flex items-center gap-2 self-start rounded-xl bg-white px-5 py-2.5 text-sm font-bold transition-transform active:scale-95"
+                    >
+                      {slide.cta_label}
+                      <span className="material-symbols-outlined text-base" aria-hidden="true">
+                        arrow_forward
+                      </span>
+                    </Link>
+                  )}
+                </div>
+              </div>
             )}
           </div>
         ))}
       </div>
-      <button
-        onClick={prev}
-        className="bg-primary hover:bg-primary-container absolute top-1/2 left-0 z-10 flex h-12 w-8 -translate-y-1/2 items-center justify-center rounded-r-lg text-white shadow-sm transition-colors md:h-14 md:w-10"
-        aria-label="Anterior"
-      >
-        <span className="material-symbols-outlined">chevron_left</span>
-      </button>
-      <button
-        onClick={next}
-        className="bg-primary hover:bg-primary-container absolute top-1/2 right-0 z-10 flex h-12 w-8 -translate-y-1/2 items-center justify-center rounded-l-lg text-white shadow-sm transition-colors md:h-14 md:w-10"
-        aria-label="Siguiente"
-      >
-        <span className="material-symbols-outlined">chevron_right</span>
-      </button>
-      <div className="absolute bottom-2.5 left-1/2 flex -translate-x-1/2 gap-1.5 md:bottom-4">
-        {slides.map((_, i) => (
+      {slides.length > 1 && (
+        <>
           <button
-            key={i}
-            onClick={() => goTo(i)}
-            className={`flex h-5 w-5 items-center justify-center rounded-full transition-transform focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white ${
-              i === current ? "scale-110" : "hover:scale-110"
-            }`}
-            aria-label={`Ir a slide ${i + 1}`}
+            onClick={prev}
+            className="bg-primary hover:bg-primary-container absolute top-1/2 left-0 z-10 flex h-12 w-8 -translate-y-1/2 items-center justify-center rounded-r-lg text-white transition-all active:scale-90 md:h-14 md:w-10"
+            aria-label="Anterior"
           >
-            <span
-              aria-hidden="true"
-              className={`h-1.5 rounded-full shadow-sm transition-all ${
-                i === current ? "bg-primary w-4" : "w-1.5 bg-white/90"
-              }`}
-            />
+            <span className="material-symbols-outlined">chevron_left</span>
           </button>
-        ))}
-      </div>
+          <button
+            onClick={next}
+            className="bg-primary hover:bg-primary-container absolute top-1/2 right-0 z-10 flex h-12 w-8 -translate-y-1/2 items-center justify-center rounded-l-lg text-white transition-all active:scale-90 md:h-14 md:w-10"
+            aria-label="Siguiente"
+          >
+            <span className="material-symbols-outlined">chevron_right</span>
+          </button>
+          <div className="absolute bottom-2.5 left-1/2 flex -translate-x-1/2 gap-1.5 md:bottom-4">
+            {slides.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => goTo(i)}
+                className={`flex h-5 w-5 items-center justify-center rounded-full transition-transform focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white ${
+                  i === current ? "scale-110" : "hover:scale-110"
+                }`}
+                aria-label={`Ir a slide ${i + 1}`}
+              >
+                <span
+                  aria-hidden="true"
+                  className={`h-1.5 rounded-full shadow-sm transition-all ${
+                    i === current ? "bg-primary w-4" : "w-1.5 bg-white/90"
+                  }`}
+                />
+              </button>
+            ))}
+          </div>
+        </>
+      )}
     </section>
   );
 }

@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { KfcHeroSlider } from "./KfcHeroSlider";
@@ -23,14 +23,34 @@ const slides = [
 ];
 
 describe("KfcHeroSlider", () => {
-  it("renders a rounded compact banner and accessible side navigation", () => {
+  it("renders a rounded banner and accessible side navigation for multiple slides", () => {
     const { container } = render(<KfcHeroSlider slides={slides} />);
 
     expect(container.querySelector("section")).toHaveClass("rounded-xl");
     expect(container.querySelector("section")).not.toHaveClass("mt-4");
+    expect(screen.queryByRole("button", { name: "Anterior" })).not.toBeInTheDocument();
+  });
+
+  it("moves between image and custom slides", () => {
+    const customSlide = {
+      ...slides[0],
+      id: "custom-1",
+      type: "custom" as const,
+      image_url: null,
+      title: "Promoción especial",
+    };
+    const { container } = render(<KfcHeroSlider slides={[slides[0], customSlide]} />);
+
     expect(screen.getByRole("button", { name: "Anterior" })).toHaveClass("rounded-r-lg");
     expect(screen.getByRole("button", { name: "Siguiente" })).toHaveClass("rounded-l-lg");
-    expect(screen.getByRole("button", { name: "Ir a slide 1" })).toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: /Ir a slide/ })).toHaveLength(2);
+
+    fireEvent.click(screen.getByRole("button", { name: "Siguiente" }));
+
+    expect(container.querySelector("[style*='translateX']")).toHaveStyle(
+      "transform: translateX(-100%)",
+    );
+    expect(screen.getByRole("heading", { name: "Promoción especial" })).toBeInTheDocument();
   });
 
   it("uses a taller aspect ratio when a mobile creative is available", () => {
