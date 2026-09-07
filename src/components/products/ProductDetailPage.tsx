@@ -27,7 +27,7 @@ function ChevronDown() {
   );
 }
 
-function MinusIcon() {
+function MinusIcon({ decorative = false }: { decorative?: boolean } = {}) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -35,8 +35,9 @@ function MinusIcon() {
       height="1em"
       fill="currentColor"
       viewBox="0 0 16 16"
-      aria-label="minus"
-      role="img"
+      aria-label={decorative ? undefined : "minus"}
+      role={decorative ? undefined : "img"}
+      aria-hidden={decorative ? "true" : undefined}
     >
       <path fill="currentColor" d="M14 8a.5.5 0 0 1-.5.5h-11a.5.5 0 1 1 0-1h11a.5.5 0 0 1 .5.5" />
     </svg>
@@ -130,6 +131,7 @@ export function ProductDetailPage({ product }: Props) {
   );
 
   const unitPrice = (variant?.price ?? 0) + optionsExtra;
+  const [quantity, setQuantity] = useState(1);
 
   const isComplete = useMemo(() => {
     for (const g of groups) {
@@ -168,8 +170,13 @@ export function ProductDetailPage({ product }: Props) {
 
   function handleAdd() {
     if (!variant || !isComplete) return;
-    addItem(product, variant, selectedOptionsMap, 1);
+    addItem(product, variant, selectedOptionsMap, quantity);
     openDrawer();
+  }
+
+  function handleBuyNow() {
+    if (!variant || !isComplete) return;
+    addItem(product, variant, selectedOptionsMap, quantity);
   }
 
   function groupStatus(g: ProductOptionGroup): { label: string; color: "success" | "neutral" } {
@@ -205,7 +212,7 @@ export function ProductDetailPage({ product }: Props) {
   }
 
   return (
-    <div className="pb-24" style={{ backgroundColor: "#ffffff" }}>
+    <div className="pb-48 md:pb-24" style={{ backgroundColor: "#ffffff" }}>
       <main className="mx-auto grid max-w-7xl grid-cols-1 gap-12 px-4 py-8 md:px-6 lg:grid-cols-2 lg:items-stretch lg:px-8">
         {/* ── Left Panel ──────────────────────────────────────────── */}
         <section>
@@ -324,26 +331,74 @@ export function ProductDetailPage({ product }: Props) {
 
       {/* ── Sticky Bottom Bar ──────────────────────────────────────── */}
       <footer
-        className="fixed right-0 bottom-0 left-0 z-50 border-t bg-white p-3 md:p-4"
+        className="fixed right-0 bottom-0 left-0 z-[110] border-t bg-white p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] md:p-4"
         style={{
           borderColor: "#e0e0e0",
           boxShadow: "0 -4px 10px rgba(0, 0, 0, 0.05)",
         }}
       >
-        <div className="mx-auto flex max-w-7xl items-center gap-2 md:gap-4">
+        <div className="mx-auto grid max-w-7xl grid-cols-2 gap-3 md:flex md:items-center md:gap-4">
+          <fieldset
+            className="flex h-16 items-center justify-between rounded-xl border border-[#8a8a8a] bg-white px-3 md:hidden"
+            aria-label="Cantidad del producto"
+          >
+            <button
+              type="button"
+              onClick={() => setQuantity((current) => Math.max(1, current - 1))}
+              disabled={quantity === 1}
+              aria-label="Disminuir cantidad del producto"
+              className="flex size-12 items-center justify-center rounded-xl bg-[#dedede] text-[#666] transition-transform active:scale-90 disabled:cursor-not-allowed disabled:opacity-70"
+            >
+              <MinusIcon decorative />
+            </button>
+            <output className="text-2xl font-bold" aria-live="polite">
+              {quantity}
+            </output>
+            <button
+              type="button"
+              onClick={() => setQuantity((current) => current + 1)}
+              aria-label="Incrementar cantidad del producto"
+              className="bg-primary flex size-12 items-center justify-center rounded-xl text-white transition-transform active:scale-90"
+            >
+              <PlusIcon />
+            </button>
+          </fieldset>
+
           <button
             onClick={handleAdd}
             disabled={!isComplete}
-            className={`flex-1 rounded-xl py-3 text-sm font-black tracking-wide whitespace-nowrap text-white uppercase shadow-lg transition-all active:scale-[0.98] md:py-4 md:text-lg ${
-              isComplete ? "" : "cursor-not-allowed opacity-50"
+            className={`flex min-h-16 flex-1 items-center justify-center rounded-xl border px-3 py-3 text-center text-sm leading-tight font-black tracking-wide uppercase shadow-lg transition-all active:scale-[0.98] md:py-4 md:text-lg ${
+              isComplete
+                ? "border-primary bg-primary text-white"
+                : "cursor-not-allowed border-[#8a8a8a] bg-white text-[#737373]"
             }`}
             style={{
-              backgroundColor: "#e4002b",
               boxShadow: isComplete ? "0 10px 15px -3px rgba(228, 0, 43, 0.3)" : "none",
             }}
           >
-            Agregar <span className="hidden md:inline">(S/ {unitPrice.toFixed(2)})</span>
+            <span className="md:hidden">Agregar al carrito</span>
+            <span className="hidden md:inline">
+              Agregar (S/ {(unitPrice * quantity).toFixed(2)})
+            </span>
           </button>
+
+          <a
+            href="/checkout"
+            onClick={(event) => {
+              if (!isComplete) {
+                event.preventDefault();
+                return;
+              }
+              handleBuyNow();
+            }}
+            aria-disabled={!isComplete}
+            tabIndex={isComplete ? undefined : -1}
+            className={`col-span-2 flex min-h-16 items-center justify-center rounded-xl px-3 py-3 text-center text-lg leading-tight font-black transition-all active:scale-[0.98] md:hidden ${
+              isComplete ? "bg-primary text-white" : "bg-[#dedede] text-[#737373]"
+            }`}
+          >
+            Comprar ahora (S/ {(unitPrice * quantity).toFixed(2)})
+          </a>
         </div>
       </footer>
     </div>

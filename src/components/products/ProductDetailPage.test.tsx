@@ -35,6 +35,16 @@ const product: Product = {
 };
 
 describe("ProductDetailPage", () => {
+  it("renders the fixed mobile purchase bar with quantity controls", () => {
+    render(<ProductDetailPage product={product} />);
+
+    expect(screen.getByRole("group", { name: "Cantidad del producto" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Disminuir cantidad del producto" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Incrementar cantidad del producto" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: /Agregar al carrito/ })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Comprar ahora (S/ 80.00)" })).toBeInTheDocument();
+  });
+
   it("shows a trash icon when an optional quantity reaches its minimum", () => {
     const quantityProduct: Product = {
       ...product,
