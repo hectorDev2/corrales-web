@@ -32,19 +32,20 @@ export function SavingsCategories({ settings = DEFAULT_HOME_SAVINGS_SETTINGS }: 
           <Link
             key={`${sortOrder}-${label}`}
             href={href}
-            className="group hover:border-primary focus-visible:outline-primary flex h-[70px] items-center gap-2 rounded-md border border-transparent bg-white p-3 transition-all focus-visible:outline-2 focus-visible:outline-offset-2"
+            className="group hover:border-primary focus-visible:outline-primary flex min-h-[112px] items-center gap-3 rounded-xl border border-transparent bg-white p-3 transition-all focus-visible:outline-2 focus-visible:outline-offset-2 sm:min-h-[140px] md:h-[70px] md:min-h-0 md:gap-2 md:rounded-md"
           >
             <Image
               src={imageSrc}
               alt=""
               aria-hidden="true"
-              width={72}
-              height={48}
-              className="h-12 w-auto shrink-0 object-contain"
-              style={{ width: "auto", height: "48px" }}
-              sizes="72px"
+              width={96}
+              height={96}
+              className="size-20 shrink-0 object-contain sm:size-24 md:size-12"
+              sizes="(min-width: 768px) 48px, (min-width: 640px) 96px, 80px"
             />
-            <span className="min-w-0 flex-1 text-sm font-bold">{label}</span>
+            <span className="min-w-0 flex-1 text-sm leading-tight font-bold sm:text-base md:text-sm">
+              {label}
+            </span>
             <span
               className="material-symbols-outlined text-secondary group-hover:text-primary shrink-0 transition-colors"
               aria-hidden="true"

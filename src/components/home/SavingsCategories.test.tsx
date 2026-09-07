@@ -38,7 +38,7 @@ describe("SavingsCategories", () => {
 
     expect(images).toHaveLength(4);
     images.forEach((image) => {
-      expect(image).toHaveClass("h-12", "w-auto", "object-contain");
+      expect(image).toHaveClass("size-20", "sm:size-24", "md:size-12", "object-contain");
       expect(image).not.toHaveClass("w-16");
     });
   });
