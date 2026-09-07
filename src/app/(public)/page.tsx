@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 
 import {
+  AppDownloadBanner,
   HomeLoadingSkeleton,
   KfcHeroSlider,
   KfcProductCarousel,
@@ -48,15 +49,7 @@ async function HomeContent() {
         <KfcProductCarousel title="Lo más top del momento 🔥" products={products} href="/menu" />
 
         {/* App Download Banner */}
-        <div className="md:-mx-margin-desktop relative -mx-4 mt-12 overflow-hidden">
-          <img
-            src="/banner-descargaapp_desktop.webp"
-            alt="Descarga la app Corrales"
-            className="h-auto w-full object-cover"
-            loading="lazy"
-            decoding="async"
-          />
-        </div>
+        <AppDownloadBanner />
 
         {/* Location Modal */}
         <LocationModal />

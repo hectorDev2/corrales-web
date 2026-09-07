@@ -1,5 +1,6 @@
 export { HeroSection } from "./HeroSection";
 export { HomeSlider } from "./HomeSlider";
+export { AppDownloadBanner } from "./AppDownloadBanner";
 export { KfcHeroSlider } from "./KfcHeroSlider";
 export { KfcProductCarousel } from "./KfcProductCarousel";
 export { LocationModal } from "./LocationModal";
