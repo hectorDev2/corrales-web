@@ -113,7 +113,7 @@ export function KfcProductCarousel({ title, products, href }: KfcProductCarousel
                         {product.name}
                       </a>
                     </h3>
-                    <p className="text-secondary line-clamp-2 h-8 text-[11px] leading-[1.2] md:h-10 md:text-xs">
+                    <p className="text-secondary line-clamp-3 min-h-10 text-[11px] leading-[1.2] md:line-clamp-2 md:h-10 md:text-xs">
                       {product.description}
                     </p>
 

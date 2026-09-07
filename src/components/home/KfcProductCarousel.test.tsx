@@ -79,7 +79,12 @@ describe("KfcProductCarousel", () => {
       expect(contentSlot).toHaveClass("h-[152px]", "md:h-[168px]", "shrink-0");
     });
 
-    expect(screen.getByText(longDescription)).toHaveClass("line-clamp-2", "h-8", "md:h-10");
+    expect(screen.getByText(longDescription)).toHaveClass(
+      "line-clamp-3",
+      "min-h-10",
+      "md:line-clamp-2",
+      "md:h-10",
+    );
     expect(cards[1].querySelector("h3")).toHaveClass("line-clamp-2", "h-9", "md:h-10");
     expect(cards[1].querySelector("[data-product-carousel-price-meta]")).toHaveClass(
       "h-5",
@@ -114,8 +119,7 @@ describe("KfcProductCarousel", () => {
     });
 
     const scrollTo = vi.fn((optionsOrX: ScrollToOptions | number) => {
-      carousel!.scrollLeft =
-        typeof optionsOrX === "number" ? optionsOrX : (optionsOrX.left ?? 0);
+      carousel!.scrollLeft = typeof optionsOrX === "number" ? optionsOrX : (optionsOrX.left ?? 0);
     }) as unknown as HTMLElement["scrollTo"];
     carousel!.scrollTo = scrollTo;
 
