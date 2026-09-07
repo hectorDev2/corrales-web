@@ -40,10 +40,10 @@ export function SavingsCategories({ settings = DEFAULT_HOME_SAVINGS_SETTINGS }: 
               aria-hidden="true"
               width={96}
               height={96}
-              className="size-20 shrink-0 object-contain sm:size-24 md:size-12"
-              sizes="(min-width: 768px) 48px, (min-width: 640px) 96px, 80px"
+              className="size-12 shrink-0 object-contain sm:size-16 md:size-12"
+              sizes="(min-width: 768px) 48px, (min-width: 640px) 64px, 48px"
             />
-            <span className="min-w-0 flex-1 text-sm leading-tight font-bold sm:text-base md:text-sm">
+            <span className="min-w-0 flex-1 text-sm leading-tight font-bold break-words sm:text-base md:text-sm">
               {label}
             </span>
             <span
