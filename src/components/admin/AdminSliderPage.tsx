@@ -151,11 +151,28 @@ function SlideForm({
       {isImage ? (
         /* ── Imagen (flyer de Canva) ── */
         <div className="space-y-4">
+          <div className="rounded-xl border border-primary/20 bg-primary/5 p-3 text-sm text-on-surface">
+            <p className="font-black text-primary">Guía para una visualización correcta</p>
+            <p className="mt-1 text-xs text-on-surface-variant">
+              Subí una versión para cada dispositivo. La imagen móvil evita que el diseño se recorte
+              en teléfonos.
+            </p>
+            <ul className="mt-2 space-y-1 text-xs text-on-surface-variant">
+              <li>
+                <strong className="text-on-surface">Escritorio:</strong> 1440 × 315 px · relación
+                4.56:1
+              </li>
+              <li>
+                <strong className="text-on-surface">Móvil:</strong> 720 × 554 px · relación 1.3:1
+                · recomendada
+              </li>
+            </ul>
+          </div>
+
           {/* Desktop */}
           <div>
             <Label>
-              Imagen escritorio{" "}
-              <Hint>banner horizontal, ej: 1200×400</Hint>
+              Imagen escritorio <Hint>1440 × 315 px · relación 4.56:1</Hint>
             </Label>
             <div className="mt-1">
               {data.image_url ? (
@@ -192,8 +209,7 @@ function SlideForm({
           {/* Mobile */}
           <div>
             <Label>
-              Imagen móvil{" "}
-              <Hint>cuadrada o vertical, ej: 720×720</Hint>
+              Imagen móvil <Hint>720 × 554 px · relación 1.3:1</Hint>
             </Label>
             <div className="mt-1">
               {data.image_url_mobile ? (
@@ -216,7 +232,9 @@ function SlideForm({
                 >
                   <span className="material-symbols-outlined text-4xl">smartphone</span>
                   <span className="text-sm font-bold">{uploading ? "Subiendo..." : "Subir imagen móvil"}</span>
-                  <span className="text-xs opacity-60">Opcional — si no subís, usa la de escritorio</span>
+                  <span className="text-xs opacity-60">
+                    Recomendada — sin ella se recorta la imagen de escritorio en mobile
+                  </span>
                 </button>
               )}
               <input
