@@ -27,7 +27,7 @@ export function SavingsCategories({ settings = DEFAULT_HOME_SAVINGS_SETTINGS }: 
         </Link>
       </div>
 
-      <div className="grid grid-cols-2 gap-3.5 md:grid-cols-4">
+      <div className="grid grid-cols-1 gap-3.5 min-[360px]:grid-cols-2 md:grid-cols-4">
         {activeTiles.map(({ href, imageSrc, label, sortOrder }) => (
           <Link
             key={`${sortOrder}-${label}`}
@@ -40,8 +40,8 @@ export function SavingsCategories({ settings = DEFAULT_HOME_SAVINGS_SETTINGS }: 
               aria-hidden="true"
               width={96}
               height={96}
-              className="size-12 shrink-0 object-contain sm:size-16 md:size-12"
-              sizes="(min-width: 768px) 48px, (min-width: 640px) 64px, 48px"
+              className="size-16 shrink-0 object-contain min-[360px]:size-12 sm:size-16 md:size-12"
+              sizes="(min-width: 768px) 48px, (min-width: 640px) 64px, (min-width: 360px) 48px, 64px"
             />
             <span className="min-w-0 flex-1 text-sm leading-tight font-bold break-words sm:text-base md:text-sm">
               {label}

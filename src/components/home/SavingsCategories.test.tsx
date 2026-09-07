@@ -35,10 +35,18 @@ describe("SavingsCategories", () => {
     );
 
     const images = container.querySelectorAll("img");
+    const grid = container.querySelector(".grid");
 
     expect(images).toHaveLength(4);
+    expect(grid).toHaveClass("grid-cols-1", "min-[360px]:grid-cols-2", "md:grid-cols-4");
     images.forEach((image) => {
-      expect(image).toHaveClass("size-12", "sm:size-16", "md:size-12", "object-contain");
+      expect(image).toHaveClass(
+        "size-16",
+        "min-[360px]:size-12",
+        "sm:size-16",
+        "md:size-12",
+        "object-contain",
+      );
       expect(image).not.toHaveClass("w-16");
     });
   });
