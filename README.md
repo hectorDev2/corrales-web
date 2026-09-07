@@ -50,7 +50,7 @@ src/
 │   ├── admin/                 # AdminPage, ProductForm, OptionGroupsForm, InvoiceModal, etc.
 │   ├── auth/                  # LoginForm, LogoutButton
 │   ├── delivery/              # DeliveryPage
-│   ├── home/                  # HomeSlider, HeroSection
+│   ├── home/                  # Hero slider, carruseles y contenido de la home
 │   ├── products/              # ProductCard, ProductCardMini, ProductDetailPage, OptionGroupAccordion
 │   ├── cart/                  # CartDrawer, CartItemRow
 │   ├── checkout/              # CheckoutForm, OrderSummary, UpsellSection, MapboxAutocomplete
@@ -96,7 +96,7 @@ src/
 
 - Node.js 20+
 - Supabase CLI
-- Bun (recomendado) o npm
+- pnpm 9+ (el repositorio usa `pnpm-lock.yaml`)
 
 ### Variables de entorno
 
@@ -126,10 +126,17 @@ VAPID_SUBJECT=mailto:admin@corrales.pe
 PUSH_NOTIFY_SECRET=<webhook-secret>
 ```
 
+> **Seguridad:** `SUPABASE_SERVICE_ROLE_KEY`, `CULQI_PRIVATE_KEY`, `NUBEFACT_API_KEY`,
+> `VAPID_PRIVATE_KEY` y `PUSH_NOTIFY_SECRET` son secretos de servidor. No deben tener
+> prefijo `NEXT_PUBLIC_`, subirse al repositorio ni exponerse en componentes del navegador.
+> En el panel actual de Supabase, la publishable key corresponde al uso público del cliente
+> y la secret key reemplaza el uso administrativo de `service_role`; usá cada una únicamente
+> en el contexto que corresponde.
+
 ### Instalación
 
 ```bash
-bun install
+pnpm install
 ```
 
 ### Base de datos
@@ -154,7 +161,13 @@ supabase gen types typescript --linked > src/types/database.types.ts
 ### Desarrollo
 
 ```bash
-bun dev
+pnpm dev
+```
+
+Para ejecutar las pruebas sin modo interactivo:
+
+```bash
+pnpm test:run
 ```
 
 ---
@@ -177,10 +190,13 @@ bun dev
 ## Módulos implementados
 
 ### Slider del home (`/`)
-- Carousel con Swiper + autoplay
+- Carrusel responsive con autoplay, flechas y paginación
 - Dos tipos de slide: `image` (flyer de Canva) y `custom` (gradiente + texto)
 - Soporte de imagen separada para mobile (`image_url_mobile`)
-- Aspect ratio `1:1` en mobile, `25:6` en desktop
+- Relación recomendada: `4.56:1` en desktop (1440 × 315 px)
+- Relación recomendada: `1.3:1` en mobile (720 × 554 px)
+- La imagen mobile es recomendada para evitar que el banner desktop se recorte
+- Las flechas y los indicadores aparecen únicamente cuando hay más de una slide válida
 - Contenido administrable desde el panel admin
 
 ### Menú público (`/menu`)
@@ -233,6 +249,7 @@ bun dev
 - Crear y editar producto con variantes dinámicas y grupos de opciones
 - Activar / desactivar (soft delete)
 - Subida de imagen a Supabase Storage (`product-images`) con preview instantáneo
+- Gestión de imágenes de productos, variantes y opciones de personalización
 
 ### CRUD de Categorías (`/admin/categorias`)
 - Crear, editar y desactivar categorías
@@ -263,6 +280,54 @@ bun dev
 - Crear, editar, reordenar y eliminar slides
 - Selector visual de iconos y presets de gradiente (sin strings técnicos)
 - Subida de imágenes desktop y mobile por separado al bucket `slider-images`
+- Guía visible con las dimensiones recomendadas para cada formato
+
+### Imágenes del menú y assets
+
+El repositorio incluye assets locales en `assets/generated-menu/` y un manifiesto que
+relaciona cada archivo con los nombres existentes en Supabase. El importador valida los
+archivos antes de modificar la base de datos y funciona en dos modos:
+
+```bash
+# Auditoría local: no modifica Supabase
+pnpm import:menu-images
+
+# Aplicar la carga usando credenciales de servidor disponibles en el entorno
+set -a
+source .env.local
+set +a
+SUPABASE_URL="$NEXT_PUBLIC_SUPABASE_URL" \
+SUPABASE_SERVICE_ROLE_KEY="$SUPABASE_SERVICE_ROLE_KEY" \
+pnpm import:menu-images -- --apply
+```
+
+El proceso sube imágenes a Storage y actualiza:
+
+- `products.image_src` para los productos del catálogo.
+- `product_options.image_url` para las opciones de personalización.
+- Los cuatro tiles de **Home Savings** dentro de `site_settings.footer.homeSavings`.
+- Los assets de slider dentro de `slider-images`; las filas existentes conservan su
+  configuración de contenido.
+
+#### Requisitos visuales para el administrador
+
+| Asset | Ubicación | Recomendación |
+|---|---|---|
+| Producto | `/admin/productos` | Imagen cuadrada, JPG/PNG/WebP optimizado |
+| Opción de producto | Dentro de los grupos de opciones | Imagen cuadrada; se muestra como miniatura de 48 px |
+| Tile Home Savings | Configuración de contenido | Imagen cuadrada y liviana |
+| Slider desktop | `/admin/slider` | 1440 × 315 px (`4.56:1`) |
+| Slider mobile | `/admin/slider` | 720 × 554 px (`1.3:1`), recomendado |
+
+Si no se carga una variante mobile del slider, la aplicación usa la imagen desktop y puede
+recortarla en pantallas pequeñas. Para reducir la carga inicial, las imágenes fuera de la
+primera vista usan lazy loading; aun así, conviene subir WebP o PNG optimizados y evitar
+archivos innecesariamente grandes.
+
+El script requiere `SUPABASE_URL` y `SUPABASE_SERVICE_ROLE_KEY` en el entorno únicamente
+cuando se ejecuta con `--apply`. No hardcodees esas variables ni uses una clave privada en
+el navegador. Para comandos autenticados del Supabase CLI se usa un Personal Access Token
+(`sbp_...`), que es distinto de las claves publishable/secret del proyecto.
 
 ### Panel Delivery (`/delivery`)
 - Pedidos en estado `listo` disponibles para tomar
@@ -281,7 +346,7 @@ bun dev
 
 | Bucket | Uso | Acceso |
 |---|---|---|
-| `product-images` | Imágenes del catálogo de productos | Público (lectura), admin (escritura) |
+| `product-images` | Productos, opciones y tiles de Home Savings | Público (lectura), admin (escritura) |
 | `slider-images` | Imágenes de slides del home | Público (lectura), admin (escritura) |
 
 - Tamaño máximo: 5 MB por archivo
