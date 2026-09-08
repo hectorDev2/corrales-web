@@ -1,15 +1,9 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import type { Product } from "@/types/product";
 
 import { ProductDetailPage } from "./ProductDetailPage";
-
-const { toast } = vi.hoisted(() => ({
-  toast: { error: vi.fn() },
-}));
-
-vi.mock("sonner", () => ({ toast }));
 
 const product: Product = {
   id: "pollo-a-la-brasa",
@@ -41,10 +35,6 @@ const product: Product = {
 };
 
 describe("ProductDetailPage", () => {
-  beforeEach(() => {
-    toast.error.mockClear();
-  });
-
   it("renders the fixed mobile purchase bar with quantity controls", () => {
     render(<ProductDetailPage product={product} />);
 
@@ -58,7 +48,7 @@ describe("ProductDetailPage", () => {
     expect(screen.getByRole("link", { name: "Comprar ahora (S/ 80.00)" })).toBeInTheDocument();
   });
 
-  it("scrolls to the first incomplete required group and shows an error", () => {
+  it("scrolls to the first incomplete required group and shows an inline error", () => {
     const scrollIntoView = vi.fn();
     Object.defineProperty(HTMLElement.prototype, "scrollIntoView", {
       configurable: true,
@@ -74,7 +64,7 @@ describe("ProductDetailPage", () => {
 
       fireEvent.click(addButton);
 
-      expect(toast.error).toHaveBeenCalledWith("Falta completar esta sección");
+      expect(screen.getByRole("alert")).toHaveTextContent("Falta completar esta sección");
       expect(scrollIntoView).toHaveBeenCalledWith({ behavior: "smooth", block: "center" });
       expect(
         screen.getByTestId("product-option-group-acompanamiento").querySelector("button"),

@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { toast } from "sonner";
 
 import { useCartStore } from "@/store/cart";
 import type { SelectedOptionsMap } from "@/types/cart";
@@ -87,6 +86,26 @@ function TrashIcon() {
   );
 }
 
+function WarningCircleIcon() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="1em"
+      height="1em"
+      fill="currentColor"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+    >
+      <path
+        fill="currentColor"
+        fillRule="evenodd"
+        d="M12 2.25A9.75 9.75 0 1 0 21.75 12 9.76 9.76 0 0 0 12 2.25m-.75 5.25a.75.75 0 1 1 1.5 0v5.25a.75.75 0 1 1-1.5 0zm.75 9.75A1.125 1.125 0 1 1 12 15a1.125 1.125 0 0 1 0 2.25"
+        clipRule="evenodd"
+      />
+    </svg>
+  );
+}
+
 export function ProductDetailPage({ product }: Props) {
   const { addItem, openDrawer } = useCartStore();
 
@@ -112,6 +131,7 @@ export function ProductDetailPage({ product }: Props) {
     return init;
   });
   const optionGroupRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const [validationErrorGroupId, setValidationErrorGroupId] = useState<string | null>(null);
 
   const selectedOptionsMap: SelectedOptionsMap = useMemo(() => {
     const map: SelectedOptionsMap = {};
@@ -146,6 +166,7 @@ export function ProductDetailPage({ product }: Props) {
   }, [groups, selections]);
 
   function updateOption(groupId: string, optionId: string, delta: number) {
+    setValidationErrorGroupId(null);
     setSelections((prev) => {
       const group = prev[groupId];
       if (!group) return prev;
@@ -156,6 +177,7 @@ export function ProductDetailPage({ product }: Props) {
   }
 
   function selectSingle(groupId: string, optionId: string) {
+    setValidationErrorGroupId(null);
     setSelections((prev) => {
       const cleared: Record<string, number> = {};
       for (const key of Object.keys(prev[groupId] ?? {})) {
@@ -199,7 +221,7 @@ export function ProductDetailPage({ product }: Props) {
     const target = optionGroupRefs.current[incompleteGroup.id];
     target?.scrollIntoView({ behavior: "smooth", block: "center" });
     target?.querySelector<HTMLButtonElement>("button")?.focus({ preventScroll: true });
-    toast.error("Falta completar esta sección");
+    setValidationErrorGroupId(incompleteGroup.id);
   }
 
   function groupStatus(g: ProductOptionGroup): { label: string; color: "success" | "neutral" } {
@@ -331,6 +353,16 @@ export function ProductDetailPage({ product }: Props) {
                       </span>
                     </div>
                   </button>
+
+                  {validationErrorGroupId === g.id && (
+                    <div
+                      role="alert"
+                      className="flex items-center gap-2 border-t border-[#fecaca] bg-[#fff1f2] px-4 py-3 text-sm font-semibold text-[#b42318]"
+                    >
+                      <WarningCircleIcon />
+                      <span>Falta completar esta sección</span>
+                    </div>
+                  )}
 
                   {/* ── Accordion Content ──────────────────────────── */}
                   {expanded[g.id] && (
