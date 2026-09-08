@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { toast } from "sonner";
 
 import { useCartStore } from "@/store/cart";
 import type { SelectedOptionsMap } from "@/types/cart";
@@ -110,6 +111,7 @@ export function ProductDetailPage({ product }: Props) {
     }
     return init;
   });
+  const optionGroupRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   const selectedOptionsMap: SelectedOptionsMap = useMemo(() => {
     const map: SelectedOptionsMap = {};
@@ -169,7 +171,11 @@ export function ProductDetailPage({ product }: Props) {
   }
 
   function handleAdd() {
-    if (!variant || !isComplete) return;
+    if (!variant) return;
+    if (!isComplete) {
+      focusFirstIncompleteGroup();
+      return;
+    }
     addItem(product, variant, selectedOptionsMap, quantity);
     openDrawer();
   }
@@ -177,6 +183,23 @@ export function ProductDetailPage({ product }: Props) {
   function handleBuyNow() {
     if (!variant || !isComplete) return;
     addItem(product, variant, selectedOptionsMap, quantity);
+  }
+
+  function focusFirstIncompleteGroup() {
+    const incompleteGroup = groups.find((g) => {
+      if (!g.isRequired) return false;
+      const groupSel = selections[g.id] ?? {};
+      const total = Object.values(groupSel).reduce((sum, q) => sum + q, 0);
+      return total < g.minSelect;
+    });
+
+    if (!incompleteGroup) return;
+
+    setExpanded((prev) => ({ ...prev, [incompleteGroup.id]: true }));
+    const target = optionGroupRefs.current[incompleteGroup.id];
+    target?.scrollIntoView({ behavior: "smooth", block: "center" });
+    target?.querySelector<HTMLButtonElement>("button")?.focus({ preventScroll: true });
+    toast.error("Falta completar esta sección");
   }
 
   function groupStatus(g: ProductOptionGroup): { label: string; color: "success" | "neutral" } {
@@ -263,6 +286,10 @@ export function ProductDetailPage({ product }: Props) {
                 className="overflow-hidden rounded-xl border shadow-sm"
                 style={{ borderColor: "#e0e0e0" }}
                 aria-label={`Accordion item ${groups.indexOf(g)}`}
+                data-testid={`product-option-group-${g.id}`}
+                ref={(node) => {
+                  optionGroupRefs.current[g.id] = node;
+                }}
               >
                 {/* ── Accordion Header ─────────────────────────────── */}
                 <div>
@@ -366,7 +393,7 @@ export function ProductDetailPage({ product }: Props) {
 
           <button
             onClick={handleAdd}
-            disabled={!isComplete}
+            aria-disabled={!isComplete}
             className={`flex min-h-16 flex-1 items-center justify-center rounded-xl border px-3 py-3 text-center text-sm leading-tight font-black tracking-wide uppercase shadow-lg transition-all active:scale-[0.98] md:py-4 md:text-lg ${
               isComplete
                 ? "border-primary bg-primary text-white"
@@ -387,6 +414,7 @@ export function ProductDetailPage({ product }: Props) {
             onClick={(event) => {
               if (!isComplete) {
                 event.preventDefault();
+                focusFirstIncompleteGroup();
                 return;
               }
               handleBuyNow();

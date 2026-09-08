@@ -1,9 +1,15 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { Product } from "@/types/product";
 
 import { ProductDetailPage } from "./ProductDetailPage";
+
+const { toast } = vi.hoisted(() => ({
+  toast: { error: vi.fn() },
+}));
+
+vi.mock("sonner", () => ({ toast }));
 
 const product: Product = {
   id: "pollo-a-la-brasa",
@@ -35,14 +41,47 @@ const product: Product = {
 };
 
 describe("ProductDetailPage", () => {
+  beforeEach(() => {
+    toast.error.mockClear();
+  });
+
   it("renders the fixed mobile purchase bar with quantity controls", () => {
     render(<ProductDetailPage product={product} />);
 
     expect(screen.getByRole("group", { name: "Cantidad del producto" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Disminuir cantidad del producto" })).toBeDisabled();
     expect(screen.getByRole("button", { name: "Incrementar cantidad del producto" })).toBeEnabled();
-    expect(screen.getByRole("button", { name: /Agregar al carrito/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Agregar al carrito/ })).toHaveAttribute(
+      "aria-disabled",
+      "true",
+    );
     expect(screen.getByRole("link", { name: "Comprar ahora (S/ 80.00)" })).toBeInTheDocument();
+  });
+
+  it("scrolls to the first incomplete required group and shows an error", () => {
+    const scrollIntoView = vi.fn();
+    Object.defineProperty(HTMLElement.prototype, "scrollIntoView", {
+      configurable: true,
+      value: scrollIntoView,
+    });
+
+    try {
+      render(<ProductDetailPage product={product} />);
+
+      const addButton = screen.getByRole("button", { name: /Agregar al carrito/ });
+      expect(addButton).toHaveAttribute("aria-disabled", "true");
+      expect(addButton).not.toBeDisabled();
+
+      fireEvent.click(addButton);
+
+      expect(toast.error).toHaveBeenCalledWith("Falta completar esta sección");
+      expect(scrollIntoView).toHaveBeenCalledWith({ behavior: "smooth", block: "center" });
+      expect(
+        screen.getByTestId("product-option-group-acompanamiento").querySelector("button"),
+      ).toHaveFocus();
+    } finally {
+      delete (HTMLElement.prototype as HTMLElement & { scrollIntoView?: unknown }).scrollIntoView;
+    }
   });
 
   it("shows a trash icon when an optional quantity reaches its minimum", () => {
