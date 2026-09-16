@@ -38,7 +38,7 @@ export function CookieConsent() {
               funcionales y analíticas. Si sigues navegando las cookies analíticas se aplicarán
               de forma automática. Conoce más en nuestra política de cookies{" "}
               <a
-                href="#"
+                href="/institucional/paginas-informativas/politicas-cookies"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-primary underline hover:text-primary/80 transition-colors"

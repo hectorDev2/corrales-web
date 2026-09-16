@@ -134,11 +134,17 @@ export default function CareersPage() {
                 className="text-on-surface-variant cursor-pointer text-sm leading-relaxed select-none"
               >
                 He leído y acepto la{" "}
-                <a href="/privacidad" className="text-primary font-semibold hover:underline">
+                <a
+                  href="/institucional/paginas-informativas/politicas-privacidad"
+                  className="text-primary font-semibold hover:underline"
+                >
                   Política de Privacidad
                 </a>{" "}
                 y los{" "}
-                <a href="/terminos" className="text-primary font-semibold hover:underline">
+                <a
+                  href="/institucional/paginas-informativas/terminos-condiciones-web"
+                  className="text-primary font-semibold hover:underline"
+                >
                   Términos y Condiciones
                 </a>
                 , y consiento el uso de mis datos personales con fines de reclutamiento y selección.

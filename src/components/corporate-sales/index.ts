@@ -1,0 +1,1 @@
+export { CorporateSalesPage } from "./CorporateSalesPage";

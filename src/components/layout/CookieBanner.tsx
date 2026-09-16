@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 export function CookieBanner() {
   const [isVisible, setIsVisible] = useState(false);
@@ -44,7 +44,10 @@ export function CookieBanner() {
           </h3>
           <p className="text-on-surface-variant text-sm leading-relaxed font-medium">
             Utilizamos cookies propias y de terceros para entender cómo interactúas con nuestra web y ofrecerte una experiencia más dulce y personalizada. Al continuar navegando, aceptas nuestra{" "}
-            <Link href="/privacidad" className="text-primary hover:underline font-bold">
+            <Link
+              href="/institucional/paginas-informativas/politicas-privacidad"
+              className="text-primary hover:underline font-bold"
+            >
               Política de Privacidad
             </Link>{" "}
             y el uso de tus datos.
