@@ -72,7 +72,7 @@ export function SearchBar() {
 
       let prodQuery = supabase
         .from("products")
-        .select(`id, name, description, image_src, tag, category_id, product_variants ( id, price )`)
+        .select(`id, name, description, image_src, tag, category_id, product_variants ( id, price, stock )`)
         .eq("is_active", true);
 
       const orParts = [`name.ilike.${q}`, `description.ilike.${q}`];
@@ -86,7 +86,7 @@ export function SearchBar() {
       if (prodData) {
         setProducts(
           prodData.map((r) => {
-            const variants = (r.product_variants as Array<{ id: string; price: number }>) ?? [];
+            const variants = (r.product_variants as Array<{ id: string; price: number; stock: number }>) ?? [];
             return {
               id: r.id,
               name: r.name,
@@ -95,8 +95,8 @@ export function SearchBar() {
               tag: r.tag,
               category: "",
               variants: variants.length > 0
-                ? variants.map((v) => ({ id: v.id, label: null, price: v.price, sort_order: 0 }))
-                : [{ id: "", label: null, price: 0, sort_order: 0 }],
+                ? variants.map((v) => ({ id: v.id, label: null, price: v.price, stock: v.stock, sort_order: 0 }))
+                : [{ id: "", label: null, price: 0, stock: 0, sort_order: 0 }],
             } as Product;
           }),
         );

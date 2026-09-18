@@ -79,4 +79,39 @@ describe("POST /api/payment/charge", () => {
       amount: 2750,
     });
   });
+
+  it("cancels the reserved order when the payment provider is unreachable", async () => {
+    const rpc = vi.fn().mockResolvedValue({ data: 42, error: null });
+    const single = vi.fn().mockResolvedValue({
+      data: { id: "order-1", total: 27.5 },
+      error: null,
+    });
+    const select = vi.fn().mockReturnValue({ eq: vi.fn().mockReturnValue({ single }) });
+    const cancelEq = vi.fn().mockResolvedValue({ error: null });
+    const update = vi.fn().mockReturnValue({ eq: cancelEq });
+    const from = vi.fn()
+      .mockReturnValueOnce({ select })
+      .mockReturnValueOnce({ update });
+    createAdminClientMock.mockReturnValue({ rpc, from } as never);
+    vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("timeout")));
+
+    const request = new NextRequest("http://localhost/api/payment/charge", {
+      method: "POST",
+      body: JSON.stringify({
+        token: "tkn_test",
+        email: "cliente@example.com",
+        deliveryType: "delivery",
+        customerName: "Cliente de prueba",
+        customerPhone: "999999999",
+        customerAddress: "Av. Siempre Viva 123",
+        items: [{ product_id: "product-1", variant_id: "variant-1", quantity: 1 }],
+      }),
+    });
+
+    const response = await POST(request);
+
+    expect(response.status).toBe(502);
+    expect(update).toHaveBeenCalledWith({ status: "cancelado" });
+    expect(cancelEq).toHaveBeenCalledWith("id", "order-1");
+  });
 });

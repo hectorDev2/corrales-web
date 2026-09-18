@@ -109,7 +109,9 @@ function WarningCircleIcon() {
 export function ProductDetailPage({ product }: Props) {
   const { addItem, openDrawer } = useCartStore();
 
-  const variant: ProductVariant = product.variants[0];
+  const [selectedVariantId, setSelectedVariantId] = useState(product.variants[0]?.id ?? "");
+  const variant = product.variants.find((item) => item.id === selectedVariantId) ?? product.variants[0];
+  const isOutOfStock = !variant || variant.stock <= 0;
   const groups = useMemo(() => product.optionGroups ?? [], [product.optionGroups]);
 
   const [selections, setSelections] = useState<Record<string, Record<string, number>>>(() => {
@@ -154,6 +156,7 @@ export function ProductDetailPage({ product }: Props) {
 
   const unitPrice = (variant?.price ?? 0) + optionsExtra;
   const [quantity, setQuantity] = useState(1);
+  const maxQuantity = variant?.stock ?? 0;
 
   const isComplete = useMemo(() => {
     for (const g of groups) {
@@ -279,6 +282,9 @@ export function ProductDetailPage({ product }: Props) {
               <div className="flex items-baseline gap-2">
                 <span className="text-3xl leading-none font-black">S/ {unitPrice.toFixed(2)}</span>
               </div>
+              <p className={`mt-2 text-sm font-bold ${isOutOfStock ? "text-error" : "text-on-surface-variant"}`}>
+                {isOutOfStock ? "Agotado" : `${variant?.stock ?? 0} disponibles`}
+              </p>
               {product.tag && (
                 <div className="mt-1 flex items-center gap-2">
                   <span className="text-sm font-bold" style={{ color: "#16a34a" }}>
@@ -294,6 +300,40 @@ export function ProductDetailPage({ product }: Props) {
             >
               {product.description}
             </p>
+
+
+            {product.variants.length > 1 && (
+              <fieldset className="mt-6 space-y-2" aria-label="Variante del producto">
+                <legend className="text-sm font-black text-on-surface">Elegí una opción</legend>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {product.variants.map((productVariant, index) => {
+                    const unavailable = productVariant.stock <= 0;
+                    const selected = productVariant.id === variant?.id;
+                    return (
+                      <button
+                        key={productVariant.id}
+                        type="button"
+                        disabled={unavailable}
+                        onClick={() => {
+                          setSelectedVariantId(productVariant.id);
+                          setQuantity(1);
+                        }}
+                        className={`rounded-xl border px-3 py-3 text-left transition-colors ${
+                          selected ? "border-primary bg-primary/5" : "border-[#d9d9d9]"
+                        } disabled:cursor-not-allowed disabled:opacity-45`}
+                      >
+                        <span className="block text-sm font-bold">
+                          {productVariant.label || `Opción ${index + 1}`}
+                        </span>
+                        <span className="mt-1 block text-xs text-on-surface-variant">
+                          {unavailable ? "Agotado" : `${productVariant.stock} disponibles`} · S/ {productVariant.price.toFixed(2)}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </fieldset>
+            )}
           </div>
         </section>
 
@@ -415,8 +455,9 @@ export function ProductDetailPage({ product }: Props) {
             </output>
             <button
               type="button"
-              onClick={() => setQuantity((current) => current + 1)}
+              onClick={() => setQuantity((current) => Math.min(maxQuantity, current + 1))}
               aria-label="Incrementar cantidad del producto"
+              disabled={isOutOfStock || quantity >= maxQuantity}
               className="bg-primary flex size-12 items-center justify-center rounded-xl text-white transition-transform active:scale-90"
             >
               <PlusIcon />
@@ -425,7 +466,8 @@ export function ProductDetailPage({ product }: Props) {
 
           <button
             onClick={handleAdd}
-            aria-disabled={!isComplete}
+            disabled={isOutOfStock}
+            aria-disabled={!isComplete || isOutOfStock}
             className={`flex min-h-16 flex-1 items-center justify-center rounded-xl border px-3 py-3 text-center text-sm leading-tight font-black tracking-wide uppercase shadow-lg transition-all active:scale-[0.98] md:py-4 md:text-lg ${
               isComplete
                 ? "border-primary bg-primary text-white"
@@ -449,15 +491,19 @@ export function ProductDetailPage({ product }: Props) {
                 focusFirstIncompleteGroup();
                 return;
               }
+              if (isOutOfStock) {
+                event.preventDefault();
+                return;
+              }
               handleBuyNow();
             }}
-            aria-disabled={!isComplete}
-            tabIndex={isComplete ? undefined : -1}
+            aria-disabled={!isComplete || isOutOfStock}
+            tabIndex={isComplete && !isOutOfStock ? undefined : -1}
             className={`col-span-2 flex min-h-16 items-center justify-center rounded-xl px-3 py-3 text-center text-lg leading-tight font-black transition-all active:scale-[0.98] md:hidden ${
               isComplete ? "bg-primary text-white" : "bg-[#dedede] text-[#737373]"
             }`}
           >
-            Comprar ahora (S/ {(unitPrice * quantity).toFixed(2)})
+            {isOutOfStock ? "Agotado" : `Comprar ahora (S/ ${(unitPrice * quantity).toFixed(2)})`}
           </a>
         </div>
       </footer>

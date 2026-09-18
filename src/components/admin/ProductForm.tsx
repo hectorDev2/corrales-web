@@ -22,6 +22,7 @@ const variantSchema = z.object({
   _id: z.string().optional(),
   label: z.string().max(60, "Máximo 60 caracteres"),
   price: z.number({ error: "Ingresa un precio" }).positive("El precio debe ser mayor a 0"),
+  stock: z.number({ error: "Ingresa el stock" }).int("Debe ser un número entero").min(0, "No puede ser negativo"),
 });
 
 const productSchema = z.object({
@@ -70,7 +71,7 @@ export function ProductForm({ product, categories, onSuccess, onClose }: Props) 
       image_src: "",
       image_alt: "",
       is_active: true,
-      variants: [{ label: "", price: 0 }],
+      variants: [{ label: "", price: 0, stock: 30 }],
     },
   });
 
@@ -89,7 +90,7 @@ export function ProductForm({ product, categories, onSuccess, onClose }: Props) 
         is_active: product.is_active,
         variants: product.variants
           .filter((v) => v.is_active)
-          .map((v) => ({ _id: v.id, label: v.label ?? "", price: v.price })),
+          .map((v) => ({ _id: v.id, label: v.label ?? "", price: v.price, stock: v.stock })),
       });
     } else {
       reset({
@@ -100,7 +101,7 @@ export function ProductForm({ product, categories, onSuccess, onClose }: Props) 
         image_src: "",
         image_alt: "",
         is_active: true,
-        variants: [{ label: "", price: 0 }],
+        variants: [{ label: "", price: 0, stock: 30 }],
       });
     }
   }, [product, reset]);
@@ -118,11 +119,17 @@ export function ProductForm({ product, categories, onSuccess, onClose }: Props) 
     try {
       const newVariants = values.variants
         .filter((v) => !v._id)
-        .map((v, i) => ({ label: v.label, price: v.price, sort_order: i }));
+        .map((v, i) => ({ label: v.label, price: v.price, stock: v.stock, sort_order: i }));
 
       const updatedVariants = values.variants
         .filter((v) => !!v._id)
-        .map((v, i) => ({ id: v._id!, label: v.label, price: v.price, sort_order: i }));
+        .map((v, i) => ({
+          id: v._id!,
+          label: v.label,
+          price: v.price,
+          stock: v.stock,
+          sort_order: i,
+        }));
 
       const input: ProductInput = {
         name: values.name,
@@ -258,7 +265,7 @@ export function ProductForm({ product, categories, onSuccess, onClose }: Props) 
             <p className="text-sm font-bold text-on-surface">Variantes</p>
             <button
               type="button"
-              onClick={() => append({ label: "", price: 0 })}
+              onClick={() => append({ label: "", price: 0, stock: 30 })}
               className="flex items-center gap-1 text-xs font-bold text-primary"
             >
               <span className="material-symbols-outlined text-base">add_circle</span>
@@ -305,6 +312,24 @@ export function ProductForm({ product, categories, onSuccess, onClose }: Props) 
                   {errors.variants?.[index]?.price && (
                     <p className="text-[10px] text-error mt-1">
                       {errors.variants[index]!.price?.message}
+                    </p>
+                  )}
+                </div>
+                <div className="w-20">
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
+                    Stock
+                  </label>
+                  <input
+                    {...register(`variants.${index}.stock`, { valueAsNumber: true })}
+                    type="number"
+                    min="0"
+                    step="1"
+                    placeholder="0"
+                    className={inputClass(!!errors.variants?.[index]?.stock)}
+                  />
+                  {errors.variants?.[index]?.stock && (
+                    <p className="text-[10px] text-error mt-1">
+                      {errors.variants[index]!.stock?.message}
                     </p>
                   )}
                 </div>

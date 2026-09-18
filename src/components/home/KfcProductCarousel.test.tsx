@@ -18,7 +18,7 @@ const products = [
     description: "Pollo dorado con papas fritas y ensalada.",
     image: { src: "/pollo.jpg", alt: "Pollo a la brasa" },
     category: "Pollo a la Brasa",
-    variants: [{ id: "regular", label: null, price: 45, sort_order: 0 }],
+    variants: [{ id: "regular", label: null, price: 45, stock: 10, sort_order: 0 }],
   },
 ];
 
@@ -60,8 +60,8 @@ describe("KfcProductCarousel", () => {
         description: longDescription,
         tag: "PROMOCIÓN ESPECIAL MUY LARGA",
         variants: [
-          { id: "oferta", label: null, price: 32, sort_order: 0 },
-          { id: "regular", label: null, price: 56, sort_order: 1 },
+          { id: "oferta", label: null, price: 32, stock: 10, sort_order: 0 },
+          { id: "regular", label: null, price: 56, stock: 10, sort_order: 1 },
         ],
       },
     ];

@@ -2,6 +2,7 @@ export interface ProductVariant {
   id: string;
   label: string | null;
   price: number;
+  stock: number;
   sort_order: number;
 }
 

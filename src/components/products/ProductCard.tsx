@@ -10,6 +10,9 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product, onAdd }: ProductCardProps) {
+  const variant = product.variants[0];
+  const isOutOfStock = !variant || variant.stock <= 0;
+
   return (
     <article className="group bg-white rounded-xl overflow-hidden shadow-card hover:shadow-[0_8px_24px_rgba(0,0,0,0.12)] hover:-translate-y-0.5 transition-all duration-300">
       {/* Image: 1:1 aspect ratio */}
@@ -45,15 +48,16 @@ export function ProductCard({ product, onAdd }: ProductCardProps) {
             S/ {product.variants[0]?.price.toFixed(2)}
           </span>
           <button
-            onClick={() => onAdd?.(product, product.variants[0])}
-            className="w-9 h-9 flex items-center justify-center rounded-lg border border-[#dddddd] bg-white text-primary hover:bg-primary hover:text-white hover:border-primary active:scale-90 transition-all"
+            onClick={() => variant && onAdd?.(product, variant)}
+            disabled={isOutOfStock}
+            className="w-9 h-9 flex items-center justify-center rounded-lg border border-[#dddddd] bg-white text-primary hover:bg-primary hover:text-white hover:border-primary active:scale-90 transition-all disabled:pointer-events-none disabled:opacity-50"
             aria-label={`Agregar ${product.name} al carrito`}
           >
             <span
               className="material-symbols-outlined text-lg"
               style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}
-            >
-              add
+              >
+              {isOutOfStock ? "block" : "add"}
             </span>
           </button>
         </div>

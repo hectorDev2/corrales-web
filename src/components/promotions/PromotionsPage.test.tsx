@@ -22,7 +22,7 @@ const promotions: Product[] = [
     image: { src: "/images/404-image.png", alt: "Parrilla a Compartir" },
     tag: "AHORRA",
     category: "Parrillas",
-    variants: [{ id: "variant-1", label: null, price: 65, sort_order: 0 }],
+    variants: [{ id: "variant-1", label: null, price: 65, stock: 10, sort_order: 0 }],
   },
   {
     id: "promo-2",
@@ -31,7 +31,7 @@ const promotions: Product[] = [
     image: { src: "/images/404-image.png", alt: "Monstrito" },
     tag: "ESPECIAL",
     category: "Pollo a la Brasa",
-    variants: [{ id: "variant-2", label: null, price: 15, sort_order: 0 }],
+    variants: [{ id: "variant-2", label: null, price: 15, stock: 10, sort_order: 0 }],
   },
 ];
 

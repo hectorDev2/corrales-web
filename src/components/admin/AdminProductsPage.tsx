@@ -191,6 +191,9 @@ function ProductCard({ product, toggling, onEdit, onToggle }: CardProps) {
       : minPrice === maxPrice
         ? `S/ ${minPrice.toFixed(2)}`
         : `S/ ${minPrice.toFixed(2)} – ${maxPrice.toFixed(2)}`;
+  const stockLabel = activeVariants
+    .map((variant) => `${variant.label || "Único"}: ${variant.stock}`)
+    .join(" · ");
 
   return (
     <div
@@ -235,6 +238,9 @@ function ProductCard({ product, toggling, onEdit, onToggle }: CardProps) {
             {product.category_name}
           </p>
           <p className="text-xs font-bold text-primary mt-1">{priceLabel}</p>
+          <p className={["text-[10px] font-bold mt-1", activeVariants.some((v) => v.stock > 0) ? "text-on-surface-variant" : "text-error"].join(" ")}>
+            Stock: {stockLabel || "Sin variantes"}
+          </p>
           {product.tag && (
             <span className="inline-block mt-1 text-[9px] font-bold uppercase tracking-wider bg-tertiary-container text-on-tertiary-container px-2 py-0.5 rounded-full">
               {product.tag}

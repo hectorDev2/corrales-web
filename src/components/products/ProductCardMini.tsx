@@ -60,6 +60,7 @@ export function ProductCardMini({ product, onAdd }: ProductCardMiniProps) {
             {product.variants.map((v) => (
               <button
                 key={v.id}
+                disabled={v.stock <= 0}
                 onClick={(e) => { e.stopPropagation(); setSelectedVariant(v); }}
                 className={`text-[10px] font-bold px-2 py-0.5 rounded-full border transition-colors ${
                   selectedVariant.id === v.id
@@ -79,14 +80,15 @@ export function ProductCardMini({ product, onAdd }: ProductCardMiniProps) {
           </span>
           <button
             onClick={handleAdd}
+            disabled={selectedVariant.stock <= 0}
             aria-label={`Agregar ${product.name} al carrito`}
-            className="w-8 h-8 flex items-center justify-center rounded-lg bg-primary text-white hover:bg-primary/90 active:scale-90 transition-all"
+            className="w-8 h-8 flex items-center justify-center rounded-lg bg-primary text-white hover:bg-primary/90 active:scale-90 transition-all disabled:pointer-events-none disabled:opacity-50"
           >
             <span
               className="material-symbols-outlined text-base"
               style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}
             >
-              add
+              {selectedVariant.stock <= 0 ? "block" : "add"}
             </span>
           </button>
         </div>

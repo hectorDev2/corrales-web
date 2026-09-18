@@ -58,10 +58,16 @@ export const useCartStore = create<CartStore>()(
         const key = getCartItemKey(variant.id, selectedOptions);
         set((state) => {
           const existing = state.items.find((i) => i.key === key);
+          const requestedQuantity = Math.max(0, qty);
+          const availableQuantity = Math.max(0, variant.stock - (existing?.quantity ?? 0));
+          const quantityToAdd = Math.min(requestedQuantity, availableQuantity);
+
+          if (quantityToAdd === 0) return state;
+
           if (existing) {
             return {
               items: state.items.map((i) =>
-                i.key === key ? { ...i, quantity: i.quantity + qty } : i,
+                i.key === key ? { ...i, quantity: i.quantity + quantityToAdd } : i,
               ),
             };
           }
@@ -72,7 +78,7 @@ export const useCartStore = create<CartStore>()(
                 key,
                 product,
                 variant,
-                quantity: qty,
+                quantity: quantityToAdd,
                 selectedOptions,
               },
             ],
@@ -88,12 +94,17 @@ export const useCartStore = create<CartStore>()(
 
       updateQuantity: (itemKey, quantity) =>
         set((state) => {
-          if (quantity <= 0) {
+          const item = state.items.find((current) => current.key === itemKey);
+          if (!item || quantity <= 0) {
+            return { items: state.items.filter((i) => i.key !== itemKey) };
+          }
+          const cappedQuantity = Math.min(quantity, item.variant.stock);
+          if (cappedQuantity <= 0) {
             return { items: state.items.filter((i) => i.key !== itemKey) };
           }
           return {
             items: state.items.map((i) =>
-              i.key === itemKey ? { ...i, quantity } : i,
+              i.key === itemKey ? { ...i, quantity: cappedQuantity } : i,
             ),
           };
         }),
@@ -115,6 +126,9 @@ export const useCartStore = create<CartStore>()(
             }
             if (!item.selectedOptions) {
               item.selectedOptions = {};
+            }
+            if (typeof item.variant?.stock !== "number") {
+              item.variant = { ...item.variant, stock: 0 } as ProductVariant;
             }
             return item as CartItem;
           });

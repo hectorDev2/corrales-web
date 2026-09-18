@@ -13,9 +13,11 @@ interface QuickAddButtonProps {
   children?: ReactNode;
 }
 
-export function QuickAddButton({ product, className = "", children }: QuickAddButtonProps) {
+export function QuickAddButton({ product, variant, className = "", children }: QuickAddButtonProps) {
   const router = useRouter();
   const { addItem, openDrawer } = useCartStore();
+  const selectedVariant = variant ?? product.variants[0];
+  const isOutOfStock = !selectedVariant || selectedVariant.stock <= 0;
 
   function handleAdd(e: React.MouseEvent) {
     e.stopPropagation();
@@ -26,15 +28,15 @@ export function QuickAddButton({ product, className = "", children }: QuickAddBu
       return;
     }
 
-    const variant = product.variants[0];
-    if (!variant) return;
-    addItem(product, variant);
+    if (!selectedVariant) return;
+    addItem(product, selectedVariant);
     openDrawer();
   }
 
   return (
     <button
       onClick={handleAdd}
+      disabled={isOutOfStock && !(product.optionGroups && product.optionGroups.length > 0)}
       className={className}
       aria-label="Agregar al carrito"
     >

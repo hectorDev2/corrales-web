@@ -32,6 +32,7 @@ describe("createOrder", () => {
             id: "variant-1",
             label: "Etiqueta manipulada",
             price: 0.01,
+            stock: 10,
             sort_order: 0,
           },
           quantity: 2,

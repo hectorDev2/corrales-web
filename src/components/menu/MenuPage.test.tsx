@@ -20,7 +20,7 @@ const products: Product[] = Array.from({ length: 13 }, (_, index) => ({
   description: "Una opción de nuestra carta.",
   image: { src: "/images/404-image.png", alt: `Producto ${index + 1}` },
   category: index < 7 ? "Pollo a la Brasa" : "Parrillas",
-  variants: [{ id: `variant-${index + 1}`, label: null, price: 20 + index, sort_order: 0 }],
+  variants: [{ id: `variant-${index + 1}`, label: null, price: 20 + index, stock: 10, sort_order: 0 }],
 }));
 
 describe("MenuPage", () => {

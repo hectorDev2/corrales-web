@@ -20,6 +20,7 @@ export interface AdminVariant {
   id: string;
   label: string | null;
   price: number;
+  stock: number;
   sort_order: number;
   is_active: boolean;
 }
@@ -65,9 +66,15 @@ export interface ProductInput {
   is_active: boolean;
   category_id: string;
   /** Variants without id → new inserts */
-  newVariants: Array<{ label: string; price: number; sort_order: number }>;
+  newVariants: Array<{ label: string; price: number; stock: number; sort_order: number }>;
   /** Variants with id → updates */
-  updatedVariants: Array<{ id: string; label: string; price: number; sort_order: number }>;
+  updatedVariants: Array<{
+    id: string;
+    label: string;
+    price: number;
+    stock: number;
+    sort_order: number;
+  }>;
   /** IDs of variants removed by the user → soft-delete */
   deletedVariantIds: string[];
 }
@@ -80,7 +87,7 @@ export async function getAdminProducts(): Promise<AdminProduct[]> {
     .select(`
       id, name, description, image_src, image_alt, tag, is_active, category_id,
       categories ( name ),
-      product_variants ( id, label, price, sort_order, is_active )
+      product_variants ( id, label, price, stock, sort_order, is_active )
     `)
     .order("name");
 
@@ -137,6 +144,7 @@ export async function createProduct(input: ProductInput): Promise<void> {
           product_id: product.id,
           label: v.label || null,
           price: v.price,
+          stock: v.stock,
           sort_order: v.sort_order,
           is_active: true,
         })),
@@ -174,7 +182,12 @@ export async function updateProduct(id: string, input: ProductInput): Promise<vo
   for (const v of input.updatedVariants) {
     const { error: upErr } = await supabase
       .from("product_variants")
-      .update({ label: v.label || null, price: v.price, sort_order: v.sort_order })
+      .update({
+        label: v.label || null,
+        price: v.price,
+        stock: v.stock,
+        sort_order: v.sort_order,
+      })
       .eq("id", v.id);
     if (upErr) throw upErr;
   }
@@ -188,6 +201,7 @@ export async function updateProduct(id: string, input: ProductInput): Promise<vo
           product_id: id,
           label: v.label || null,
           price: v.price,
+          stock: v.stock,
           sort_order: v.sort_order,
           is_active: true,
         })),
@@ -440,7 +454,7 @@ export async function getProducts(): Promise<Product[]> {
       image_alt,
       tag,
       categories!inner ( name, is_active ),
-      product_variants ( id, label, price, sort_order )
+      product_variants ( id, label, price, stock, sort_order )
     `)
     .eq("is_active", true)
     .eq("categories.is_active", true)
@@ -460,6 +474,7 @@ export async function getProducts(): Promise<Product[]> {
         id: string;
         label: string | null;
         price: number;
+        stock: number;
         sort_order: number;
       }>
     ).sort((a, b) => a.sort_order - b.sort_order),
@@ -478,7 +493,7 @@ export async function searchProducts(query: string): Promise<Product[]> {
       image_alt,
       tag,
       categories!inner ( name, is_active ),
-      product_variants ( id, label, price, sort_order )
+      product_variants ( id, label, price, stock, sort_order )
     `)
     .eq("is_active", true)
     .eq("categories.is_active", true)
@@ -499,6 +514,7 @@ export async function searchProducts(query: string): Promise<Product[]> {
         id: string;
         label: string | null;
         price: number;
+        stock: number;
         sort_order: number;
       }>
     ).sort((a, b) => a.sort_order - b.sort_order),
@@ -516,7 +532,7 @@ export async function getProductsByCategory(categoryName: string): Promise<Produ
       image_alt,
       tag,
       categories!inner ( name, is_active ),
-      product_variants ( id, label, price, sort_order )
+      product_variants ( id, label, price, stock, sort_order )
     `)
     .eq("is_active", true)
     .eq("categories.is_active", true)
@@ -537,6 +553,7 @@ export async function getProductsByCategory(categoryName: string): Promise<Produ
         id: string;
         label: string | null;
         price: number;
+        stock: number;
         sort_order: number;
       }>
     ).sort((a, b) => a.sort_order - b.sort_order),
@@ -554,7 +571,7 @@ export async function getProductsByTag(tag: string): Promise<Product[]> {
       image_alt,
       tag,
       categories!inner ( name, is_active ),
-      product_variants ( id, label, price, sort_order )
+      product_variants ( id, label, price, stock, sort_order )
     `)
     .eq("is_active", true)
     .eq("categories.is_active", true)
@@ -575,6 +592,7 @@ export async function getProductsByTag(tag: string): Promise<Product[]> {
         id: string;
         label: string | null;
         price: number;
+        stock: number;
         sort_order: number;
       }>
     ).sort((a, b) => a.sort_order - b.sort_order),
@@ -640,7 +658,7 @@ export async function getProductById(id: string): Promise<Product | null> {
       image_alt,
       tag,
       categories!inner ( name, is_active ),
-      product_variants ( id, label, price, sort_order )
+      product_variants ( id, label, price, stock, sort_order )
     `)
     .eq("id", id)
     .eq("is_active", true)
@@ -655,6 +673,7 @@ export async function getProductById(id: string): Promise<Product | null> {
       id: string;
       label: string | null;
       price: number;
+      stock: number;
       sort_order: number;
     }>
   ).sort((a, b) => a.sort_order - b.sort_order);

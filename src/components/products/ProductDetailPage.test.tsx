@@ -11,7 +11,7 @@ const product: Product = {
   description: "Pollo a la brasa con acompañamientos.",
   image: { src: "/pollo.jpg", alt: "1 Pollo a la Brasa" },
   category: "Parrillas",
-  variants: [{ id: "regular", label: null, price: 80, sort_order: 0 }],
+  variants: [{ id: "regular", label: null, price: 80, stock: 10, sort_order: 0 }],
   optionGroups: [
     {
       id: "acompanamiento",
@@ -35,6 +35,30 @@ const product: Product = {
 };
 
 describe("ProductDetailPage", () => {
+  it("shows stock per variant and limits the selected quantity", () => {
+    const productWithVariants: Product = {
+      ...product,
+      optionGroups: [],
+      variants: [
+        { id: "small", label: "Pequeño", price: 40, stock: 0, sort_order: 0 },
+        { id: "large", label: "Grande", price: 80, stock: 2, sort_order: 1 },
+      ],
+    };
+
+    render(<ProductDetailPage product={productWithVariants} />);
+
+    expect(screen.getByRole("button", { name: /Pequeño/ })).toBeDisabled();
+    fireEvent.click(screen.getByRole("button", { name: /Grande/ }));
+    expect(screen.getByText("2 disponibles")).toBeInTheDocument();
+
+    const increaseButton = screen.getByRole("button", {
+      name: "Incrementar cantidad del producto",
+    });
+    fireEvent.click(increaseButton);
+    expect(screen.getByText("2", { selector: "output" })).toBeInTheDocument();
+    expect(increaseButton).toBeDisabled();
+  });
+
   it("renders the fixed mobile purchase bar with quantity controls", () => {
     render(<ProductDetailPage product={product} />);
 
