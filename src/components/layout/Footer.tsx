@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 
 import type { FooterSettings } from "@/lib/api/settings";
 
@@ -53,6 +53,8 @@ const DEFAULT_FOOTER: FooterSettings = {
 const FOOTER_LINK_CLASS =
   "flex items-center gap-2 text-white/60 hover:text-primary transition-colors";
 
+type SubmissionState = "idle" | "submitting" | "success" | "error";
+
 function FooterLink({
   href,
   children,
@@ -79,6 +81,7 @@ function FooterLink({
 
 export function Footer() {
   const [settings, setSettings] = useState<FooterSettings>(DEFAULT_FOOTER);
+  const [newsletterState, setNewsletterState] = useState<SubmissionState>("idle");
 
   useEffect(() => {
     import("@/lib/api/settings").then((mod) =>
@@ -89,6 +92,33 @@ export function Footer() {
   }, []);
 
   const whatsappHref = `https://wa.me/${settings.whatsapp.replace(/\D/g, "")}`;
+
+  async function handleNewsletterSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setNewsletterState("submitting");
+
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+
+    try {
+      const response = await fetch("/api/public/forms", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "newsletter",
+          name: String(formData.get("newsletter-name") ?? "").trim(),
+          email: String(formData.get("newsletter-email") ?? "").trim(),
+        }),
+      });
+
+      if (!response.ok) throw new Error("Newsletter request failed");
+
+      form.reset();
+      setNewsletterState("success");
+    } catch {
+      setNewsletterState("error");
+    }
+  }
 
   return (
     <footer className="bg-[#111111] py-16 text-white">
@@ -168,23 +198,41 @@ export function Footer() {
             <p className="mb-4 text-sm text-white/60">
               Recibe las mejores ofertas y promociones en tu correo.
             </p>
-            <form className="space-y-3" onSubmit={(e) => e.preventDefault()}>
+            <form className="space-y-3" onSubmit={handleNewsletterSubmit}>
               <input
+                aria-label="Nombre para suscribirse"
+                name="newsletter-name"
                 className="focus:border-primary w-full border-2 border-white/20 bg-transparent p-3 text-sm text-white outline-none focus:ring-0"
                 placeholder="Nombre"
                 type="text"
+                required
               />
               <input
+                aria-label="Correo electrónico para suscribirse"
+                name="newsletter-email"
                 className="focus:border-primary w-full border-2 border-white/20 bg-transparent p-3 text-sm text-white outline-none focus:ring-0"
                 placeholder="Correo electrónico"
                 type="email"
+                required
               />
               <button
                 type="submit"
+                disabled={newsletterState === "submitting"}
+                aria-busy={newsletterState === "submitting"}
                 className="bg-primary hover:text-primary w-full py-4 text-xs font-bold tracking-widest text-white uppercase transition-all hover:bg-white"
               >
-                Suscribirme
+                {newsletterState === "submitting" ? "Enviando…" : "Suscribirme"}
               </button>
+              {newsletterState === "success" && (
+                <p role="status" className="text-sm text-green-300">
+                  Gracias. Te suscribimos correctamente.
+                </p>
+              )}
+              {newsletterState === "error" && (
+                <p role="alert" className="text-sm text-red-300">
+                  No pudimos completar la suscripción. Intentá nuevamente.
+                </p>
+              )}
             </form>
           </div>
         </div>

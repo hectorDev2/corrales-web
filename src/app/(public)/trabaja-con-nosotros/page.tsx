@@ -1,5 +1,7 @@
 import { Metadata } from "next";
 
+import { CareersForm } from "@/components/careers/CareersForm";
+
 export const metadata: Metadata = {
   title: "Trabaja con nosotros | Corrales",
   description: "Unete a nuestro equipo y forma parte de la familia Corrales.",
@@ -33,139 +35,7 @@ export default function CareersPage() {
           </p>
         </div>
 
-        {/* Upload Card */}
-        <div className="shadow-card group relative mx-auto w-full max-w-2xl overflow-hidden rounded-3xl border border-[#e5e5e5] bg-white p-8 md:p-12">
-          {/* Subtle hover gradient */}
-          <div className="from-primary/5 pointer-events-none absolute inset-0 bg-gradient-to-br via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-
-          <form className="relative flex flex-col gap-8">
-            <div className="space-y-2">
-              <h2 className="text-on-surface flex items-center gap-2 text-2xl font-bold">
-                <span
-                  className="material-symbols-outlined text-primary"
-                  style={{ fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}
-                >
-                  upload_file
-                </span>
-                Sube tu CV
-              </h2>
-              <p className="text-on-surface-variant text-sm">
-                Aceptamos documentos en formato PDF (máximo 5MB).
-              </p>
-            </div>
-
-            {/* Input Fields */}
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              <div className="flex flex-col gap-2">
-                <label htmlFor="firstName" className="text-on-surface text-sm font-bold">
-                  Nombre completo
-                </label>
-                <input
-                  type="text"
-                  id="firstName"
-                  placeholder="Ej. Juan Pérez"
-                  className="bg-surface-container-lowest border-outline-variant/30 focus:border-primary focus:ring-primary/20 placeholder:text-outline w-full rounded-xl border px-4 py-3 transition-all outline-none focus:ring-2"
-                />
-              </div>
-              <div className="flex flex-col gap-2">
-                <label htmlFor="email" className="text-on-surface text-sm font-bold">
-                  Correo electrónico
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  placeholder="juan@ejemplo.com"
-                  className="bg-surface-container-lowest border-outline-variant/30 focus:border-primary focus:ring-primary/20 placeholder:text-outline w-full rounded-xl border px-4 py-3 transition-all outline-none focus:ring-2"
-                />
-              </div>
-              <div className="flex flex-col gap-2 md:col-span-2">
-                <label htmlFor="phone" className="text-on-surface text-sm font-bold">
-                  Teléfono (opcional)
-                </label>
-                <input
-                  type="tel"
-                  id="phone"
-                  placeholder="Ej. +51 987 654 321"
-                  className="bg-surface-container-lowest border-outline-variant/30 focus:border-primary focus:ring-primary/20 placeholder:text-outline w-full rounded-xl border px-4 py-3 transition-all outline-none focus:ring-2"
-                />
-              </div>
-            </div>
-
-            {/* Drag & Drop Area */}
-            <div className="relative">
-              <input
-                type="file"
-                id="resume"
-                accept=".pdf"
-                className="absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0"
-              />
-              <div className="border-primary/30 bg-primary/5 hover:bg-primary/10 group-hover:border-primary/50 flex w-full flex-col items-center justify-center gap-4 rounded-2xl border-2 border-dashed px-6 py-12 text-center transition-colors duration-300">
-                <div className="text-primary mb-2 flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-sm transition-transform duration-300 group-hover:scale-110">
-                  <span
-                    className="material-symbols-outlined text-3xl"
-                    style={{ fontVariationSettings: "'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24" }}
-                  >
-                    cloud_upload
-                  </span>
-                </div>
-                <div>
-                  <p className="text-on-surface text-base font-bold">
-                    Haz clic para subir o arrastra tu PDF aquí
-                  </p>
-                  <p className="text-on-surface-variant mt-1 text-sm">
-                    Solo archivos PDF hasta 5MB
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Terms and conditions */}
-            <div className="flex items-start gap-3 px-1">
-              <div className="mt-0.5 flex h-5 items-center">
-                <input
-                  id="terms"
-                  type="checkbox"
-                  className="border-outline-variant/30 text-primary focus:ring-primary/20 accent-primary h-5 w-5 cursor-pointer rounded"
-                  required
-                />
-              </div>
-              <label
-                htmlFor="terms"
-                className="text-on-surface-variant cursor-pointer text-sm leading-relaxed select-none"
-              >
-                He leído y acepto la{" "}
-                <a
-                  href="/institucional/paginas-informativas/politicas-privacidad"
-                  className="text-primary font-semibold hover:underline"
-                >
-                  Política de Privacidad
-                </a>{" "}
-                y los{" "}
-                <a
-                  href="/institucional/paginas-informativas/terminos-condiciones-web"
-                  className="text-primary font-semibold hover:underline"
-                >
-                  Términos y Condiciones
-                </a>
-                , y consiento el uso de mis datos personales con fines de reclutamiento y selección.
-              </label>
-            </div>
-
-            {/* Submit Button */}
-            <button
-              type="button"
-              className="bg-primary text-on-primary shadow-primary/25 hover:shadow-primary/40 flex w-full items-center justify-center gap-2 rounded-xl py-4 text-lg font-bold shadow-lg transition-all duration-300 hover:-translate-y-1 active:translate-y-0"
-            >
-              <span
-                className="material-symbols-outlined"
-                style={{ fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}
-              >
-                send
-              </span>
-              Enviar postulación
-            </button>
-          </form>
-        </div>
+        <CareersForm />
 
         {/* Features/Values */}
         <div className="mt-20 grid grid-cols-1 gap-6 md:grid-cols-3">

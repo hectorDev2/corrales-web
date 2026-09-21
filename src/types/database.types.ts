@@ -60,6 +60,27 @@ export type Database = {
         }
         Relationships: []
       }
+      newsletter_subscriptions: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          name: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          name?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string | null
+        }
+        Relationships: []
+      }
       order_items: {
         Row: {
           id: string
@@ -310,6 +331,78 @@ export type Database = {
         }
         Relationships: []
       }
+      corporate_sales_requests: {
+        Row: {
+          additional_information: string | null
+          created_at: string
+          email: string
+          first_name: string
+          id: string
+          last_name: string
+          phone: string
+          privacy_policy_accepted: boolean
+        }
+        Insert: {
+          additional_information?: string | null
+          created_at?: string
+          email: string
+          first_name: string
+          id?: string
+          last_name: string
+          phone: string
+          privacy_policy_accepted?: boolean
+        }
+        Update: {
+          additional_information?: string | null
+          created_at?: string
+          email?: string
+          first_name?: string
+          id?: string
+          last_name?: string
+          phone?: string
+          privacy_policy_accepted?: boolean
+        }
+        Relationships: []
+      }
+      job_applications: {
+        Row: {
+          created_at: string
+          cv_content_type: string
+          cv_file_name: string
+          cv_size_bytes: number
+          cv_storage_path: string
+          email: string
+          full_name: string
+          id: string
+          phone: string | null
+          privacy_policy_accepted: boolean
+        }
+        Insert: {
+          created_at?: string
+          cv_content_type?: string
+          cv_file_name: string
+          cv_size_bytes: number
+          cv_storage_path: string
+          email: string
+          full_name: string
+          id?: string
+          phone?: string | null
+          privacy_policy_accepted?: boolean
+        }
+        Update: {
+          created_at?: string
+          cv_content_type?: string
+          cv_file_name?: string
+          cv_size_bytes?: number
+          cv_storage_path?: string
+          email?: string
+          full_name?: string
+          id?: string
+          phone?: string | null
+          privacy_policy_accepted?: boolean
+        }
+        Relationships: []
+      }
       reservations: {
         Row: {
           created_at: string
@@ -343,6 +436,27 @@ export type Database = {
           notes?: string | null
           status?: Database["public"]["Enums"]["reservation_status"]
           time?: string
+        }
+        Relationships: []
+      }
+      survey_responses: {
+        Row: {
+          comments: string | null
+          created_at: string
+          id: string
+          rating: string
+        }
+        Insert: {
+          comments?: string | null
+          created_at?: string
+          id?: string
+          rating: string
+        }
+        Update: {
+          comments?: string | null
+          created_at?: string
+          id?: string
+          rating?: string
         }
         Relationships: []
       }

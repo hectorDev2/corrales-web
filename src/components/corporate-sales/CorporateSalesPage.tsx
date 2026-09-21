@@ -3,13 +3,67 @@
 import Link from "next/link";
 import { FormEvent, useState } from "react";
 
-export function CorporateSalesPage() {
-  const [sent, setSent] = useState(false);
+type SubmissionState = "idle" | "submitting" | "success" | "error";
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setSent(true);
+async function getResponseError(response: Response): Promise<string> {
+  try {
+    const body: unknown = await response.json();
+    if (typeof body === "object" && body !== null && "message" in body) {
+      const message = body.message;
+      if (typeof message === "string" && message.trim()) return message;
+    }
+  } catch {
+    // The API may return an empty or non-JSON error response.
   }
+
+  return "No pudimos enviar la solicitud. Intentá de nuevo.";
+}
+
+export function CorporateSalesPage() {
+  const [submissionState, setSubmissionState] = useState<SubmissionState>("idle");
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (submissionState === "submitting") return;
+
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+    const payload = {
+      formType: "corporate-sales",
+      name: formData.get("name"),
+      lastName: formData.get("lastName"),
+      email: formData.get("email"),
+      phoneNumber: formData.get("phoneNumber"),
+      additionalInformation: formData.get("additionalInformation"),
+      privacyPolicy: formData.get("privacyPolicy") === "true",
+    };
+
+    setSubmissionState("submitting");
+    setErrorMessage(null);
+
+    try {
+      const response = await fetch("/api/public/forms", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) throw new Error(await getResponseError(response));
+
+      form.reset();
+      setSubmissionState("success");
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error && error.message
+          ? error.message
+          : "No pudimos enviar la solicitud. Intentá de nuevo.",
+      );
+      setSubmissionState("error");
+    }
+  }
+
+  const isSubmitting = submissionState === "submitting";
 
   return (
     <div className="bg-surface-container-low px-4 py-10 md:px-8 md:py-16">
@@ -83,6 +137,7 @@ export function CorporateSalesPage() {
               type="tel"
               inputMode="tel"
               maxLength={9}
+              pattern="[0-9]{9}"
               required
               className="border-outline-variant focus:border-primary focus:ring-primary/20 w-full rounded-xl border bg-white px-4 py-3 font-normal outline-none focus:ring-2"
             />
@@ -102,6 +157,7 @@ export function CorporateSalesPage() {
             <input
               type="checkbox"
               name="privacyPolicy"
+              value="true"
               required
               className="accent-primary mt-1 h-4 w-4"
             />
@@ -119,12 +175,18 @@ export function CorporateSalesPage() {
 
           <button
             type="submit"
-            className="bg-primary text-on-primary hover:bg-primary/90 w-full rounded-xl py-4 text-sm font-black tracking-widest uppercase transition-colors"
+            disabled={isSubmitting}
+            className="bg-primary text-on-primary hover:bg-primary/90 w-full rounded-xl py-4 text-sm font-black tracking-widest uppercase transition-colors disabled:cursor-not-allowed disabled:opacity-60"
           >
-            Solicitar información
+            {isSubmitting ? "Enviando..." : "Solicitar información"}
           </button>
 
-          {sent && (
+          {errorMessage && (
+            <p role="alert" className="bg-error/10 text-error rounded-xl p-4 text-sm font-semibold">
+              {errorMessage}
+            </p>
+          )}
+          {submissionState === "success" && (
             <p
               role="status"
               className="bg-success/10 rounded-xl p-4 text-sm font-semibold text-green-800"
