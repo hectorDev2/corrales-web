@@ -62,10 +62,9 @@ function openCulqiModal(
         msg.toLowerCase().includes("pública") ||
         msg.toLowerCase().includes("válida")
       ) {
-        toast.error(
-          `⚠️ Culqi: ${msg} — Verificá la llave pública en las variables de entorno.`,
-          { duration: 8000 },
-        );
+        toast.error(`⚠️ Culqi: ${msg} — Verificá la llave pública en las variables de entorno.`, {
+          duration: 8000,
+        });
       } else {
         onError(msg || "Error en el pago.");
       }
@@ -81,10 +80,20 @@ function isStoreOpen() {
   return min >= 660 && min < 1320; // 11:00 - 22:00
 }
 
+type CheckoutStep = 1 | 2 | 3;
+
+const CHECKOUT_STEPS: Array<{ number: CheckoutStep; label: string }> = [
+  { number: 1, label: "Cliente" },
+  { number: 2, label: "Entrega" },
+  { number: 3, label: "Pago" },
+];
+
 export function CheckoutForm() {
   const { items, total, clearCart } = useCartStore();
   const router = useRouter();
   const [storeOpen, setStoreOpen] = useState(false);
+  const [activeStep, setActiveStep] = useState<CheckoutStep>(1);
+  const [highestStepReached, setHighestStepReached] = useState<CheckoutStep>(1);
 
   useEffect(() => {
     setStoreOpen(isStoreOpen());
@@ -127,6 +136,7 @@ export function CheckoutForm() {
     control,
     register,
     handleSubmit,
+    trigger,
     setValue,
     formState: { errors, isSubmitting },
   } = useForm<CheckoutFormData>({
@@ -234,24 +244,43 @@ export function CheckoutForm() {
 
   const isLoading = isSubmitting || isPaying;
 
+  async function goToNextStep() {
+    if (activeStep === 3) return;
+
+    const fieldsByStep: Record<1 | 2, Array<keyof CheckoutFormData>> = {
+      1: ["name", "phone"],
+      2: ["deliveryType", "address"],
+    };
+    const isValid = await trigger(fieldsByStep[activeStep]);
+    if (!isValid) return;
+
+    const nextStep = (activeStep + 1) as CheckoutStep;
+    setActiveStep(nextStep);
+    setHighestStepReached((current) => Math.max(current, nextStep) as CheckoutStep);
+  }
+
+  function goToStep(step: CheckoutStep) {
+    if (step <= highestStepReached) setActiveStep(step);
+  }
+
   return (
     <>
       <Script src="https://js.culqi.com/checkout-js" strategy="lazyOnload" />
 
-      <div className="max-w-6xl mx-auto px-4 py-8">
+      <div className="mx-auto max-w-6xl px-4 py-8">
         {!storeOpen && (
-          <div className="mb-8 p-5 rounded-3xl bg-error/10 border-2 border-error/30 flex items-start gap-3">
+          <div className="bg-error/10 border-error/30 mb-8 flex items-start gap-3 rounded-3xl border-2 p-5">
             <span
-              className="material-symbols-outlined text-error shrink-0 mt-0.5"
+              className="material-symbols-outlined text-error mt-0.5 shrink-0"
               style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}
             >
               schedule
             </span>
             <div>
-              <p className="font-black text-sm text-error uppercase tracking-wider">
+              <p className="text-error text-sm font-black tracking-wider uppercase">
                 Tienda cerrada
               </p>
-              <p className="text-sm text-on-surface mt-0.5">
+              <p className="text-on-surface mt-0.5 text-sm">
                 La tienda está cerrada, el horario es desde 11:00 AM hasta 10:00 PM.
               </p>
             </div>
@@ -259,7 +288,7 @@ export function CheckoutForm() {
         )}
 
         <header className="mb-8">
-          <h1 className="text-3xl font-black tracking-tighter text-on-surface mb-2">
+          <h1 className="text-on-surface mb-2 text-3xl font-black tracking-tighter">
             Finalizar Pedido
           </h1>
           <p className="text-on-surface-variant leading-relaxed">
@@ -267,185 +296,257 @@ export function CheckoutForm() {
           </p>
         </header>
 
+        <nav aria-label="Progreso del checkout" className="mb-8 flex items-center justify-center">
+          {CHECKOUT_STEPS.map((step, index) => {
+            const isActive = step.number === activeStep;
+            const isAvailable = step.number <= highestStepReached;
+            return (
+              <div key={step.number} className="flex items-center">
+                <button
+                  type="button"
+                  disabled={!isAvailable}
+                  aria-current={isActive ? "step" : undefined}
+                  onClick={() => goToStep(step.number)}
+                  className="flex items-center gap-2 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <span
+                    className={`flex size-9 items-center justify-center rounded-full text-sm font-black transition-colors ${
+                      isActive
+                        ? "bg-primary text-white"
+                        : isAvailable
+                          ? "bg-primary/15 text-primary"
+                          : "bg-surface-container text-on-surface-variant"
+                    }`}
+                  >
+                    {step.number}
+                  </span>
+                  <span
+                    className={`hidden text-sm font-bold sm:inline ${isActive ? "text-primary" : "text-on-surface-variant"}`}
+                  >
+                    {step.label}
+                  </span>
+                </button>
+                {index < CHECKOUT_STEPS.length - 1 && (
+                  <span className="bg-outline-variant mx-3 h-px w-8 sm:mx-5 sm:w-14" />
+                )}
+              </div>
+            );
+          })}
+        </nav>
+
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start"
+          className="grid grid-cols-1 items-start gap-8 md:grid-cols-2"
         >
           {/* ── Left: Customer data ──────────────────────── */}
           <section className="space-y-6">
-            <div className="bg-white p-6 rounded-3xl space-y-6 shadow-card">
-              <h2 className="text-xl font-bold tracking-tight flex items-center gap-2">
+            <div className="shadow-card space-y-6 rounded-3xl bg-white p-6">
+              <h2 className="flex items-center gap-2 text-xl font-bold tracking-tight">
                 <span
                   className="material-symbols-outlined text-primary"
                   style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}
                 >
                   person
                 </span>
-                Datos del Cliente
+                {activeStep === 1
+                  ? "Datos del Cliente"
+                  : activeStep === 2
+                    ? "Datos de Entrega"
+                    : "Pago seguro"}
               </h2>
 
-              {/* Name */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant ml-1">
-                  Nombre Completo
-                </label>
-                <input
-                  {...register("name")}
-                  type="text"
-                  placeholder="Ej. Juan Pérez"
-                  className="w-full bg-surface-container-high border-none rounded-xl py-4 px-4 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-outline text-on-surface"
-                />
-                {errors.name && (
-                  <p className="text-xs text-error ml-1">{errors.name.message}</p>
-                )}
-              </div>
-
-              {/* Phone */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant ml-1">
-                  Teléfono / WhatsApp
-                </label>
-                <input
-                  {...register("phone")}
-                  type="tel"
-                  placeholder="999 999 999"
-                  className="w-full bg-surface-container-high border-none rounded-xl py-4 px-4 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-outline text-on-surface"
-                />
-                {errors.phone && (
-                  <p className="text-xs text-error ml-1">{errors.phone.message}</p>
-                )}
-              </div>
-
-              {/* Delivery type toggle */}
-              <div className="space-y-3">
-                <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant ml-1">
-                  Tipo de Entrega
-                </label>
-                <div className="flex p-1 bg-surface-container-highest rounded-2xl">
-                  {(["delivery", "pickup"] as const).map((type) => (
-                    <label key={type} className="flex-1 cursor-pointer">
-                      <input
-                        {...register("deliveryType")}
-                        type="radio"
-                        value={type}
-                        className="sr-only"
-                      />
-                      <span
-                        className={`block py-3 px-4 rounded-xl text-sm font-bold text-center transition-all ${
-                          deliveryType === type
-                            ? "bg-primary text-on-primary shadow-lg shadow-primary/20"
-                            : "text-on-surface-variant hover:bg-surface-container-high"
-                        }`}
-                      >
-                        {type === "delivery" ? "Delivery" : "Recojo en tienda"}
-                      </span>
+              {activeStep === 1 && (
+                <>
+                  {/* Name */}
+                  <div className="space-y-1.5">
+                    <label className="text-on-surface-variant ml-1 text-xs font-bold tracking-widest uppercase">
+                      Nombre Completo
                     </label>
-                  ))}
-                </div>
-              </div>
-
-              {/* Address (conditional) */}
-              {deliveryType === "delivery" && (
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant ml-1">
-                    Dirección de entrega
-                  </label>
-                  <MapboxAutocomplete
-                    value={addressValue}
-                    onChange={(val) => setValue("address", val, { shouldValidate: true })}
-                    onCoordinates={(lat, lng) => setMapboxCoords({ lat, lng })}
-                  />
-                  {needsHouseNumber && (
-                    <div className="flex items-center gap-2 pt-1">
-                      <span className="text-[11px] font-bold uppercase tracking-widest text-on-surface-variant shrink-0">
-                        Nro de casa
-                      </span>
-                      <input
-                        type="text"
-                        inputMode="numeric"
-                        placeholder="123"
-                        autoFocus
-                        onChange={(e) => {
-                          const nro = e.target.value;
-                          if (nro) {
-                            setValue("address", `${baseAddress} ${nro}`, {
-                              shouldValidate: true,
-                            });
-                          } else {
-                            setValue("address", baseAddress, { shouldValidate: true });
-                          }
-                        }}
-                        className="w-16 bg-surface-container-high rounded-lg py-1.5 px-2 text-sm text-center font-bold text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/20"
-                      />
-                      <span className="text-[11px] text-outline">Sin número → dejalo vacío</span>
-                    </div>
-                  )}
-                  {errors.address && (
-                    <p className="text-xs text-error ml-1">{errors.address.message}</p>
-                  )}
-                </div>
-              )}
-
-              {/* Ubicación (solo para delivery) */}
-              {deliveryType === "delivery" && (
-                <div className="space-y-3">
-                  <div>
-                    <p className="text-xs font-bold uppercase tracking-widest text-on-surface-variant ml-1 mb-0.5">
-                      Tu Ubicación{" "}
-                      <span className="font-normal normal-case tracking-normal text-outline">(opcional)</span>
-                    </p>
-                    <p className="text-[11px] text-on-surface-variant ml-1 leading-relaxed">
-                      Compartí tu ubicación para que podamos orientarte o coordinar el acceso.
-                    </p>
+                    <input
+                      {...register("name")}
+                      type="text"
+                      placeholder="Ej. Juan Pérez"
+                      className="bg-surface-container-high focus:ring-primary/20 placeholder:text-outline text-on-surface w-full rounded-xl border-none px-4 py-4 transition-all focus:ring-2 focus:outline-none"
+                    />
+                    {errors.name && (
+                      <p className="text-error ml-1 text-xs">{errors.name.message}</p>
+                    )}
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={handleLocation}
-                    disabled={locLoading}
-                    className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl border-2 border-dashed border-outline-variant bg-surface-container transition-all hover:border-primary hover:bg-primary/5 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
-                  >
-                    <span
-                      className={`material-symbols-outlined text-primary transition-all ${locLoading ? "animate-spin" : ""}`}
-                      style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}
-                    >
-                      {locLoading ? "progress_activity" : location ? "my_location" : "location_on"}
-                    </span>
-                    <span className="font-bold text-sm text-on-surface">
-                      {locLoading
-                        ? "Obteniendo ubicación..."
-                        : location
-                          ? "Ubicación capturada"
-                          : "Usar mi ubicación actual"}
-                    </span>
-                  </button>
+                  {/* Phone */}
+                  <div className="space-y-1.5">
+                    <label className="text-on-surface-variant ml-1 text-xs font-bold tracking-widest uppercase">
+                      Teléfono / WhatsApp
+                    </label>
+                    <input
+                      {...register("phone")}
+                      type="tel"
+                      placeholder="999 999 999"
+                      className="bg-surface-container-high focus:ring-primary/20 placeholder:text-outline text-on-surface w-full rounded-xl border-none px-4 py-4 transition-all focus:ring-2 focus:outline-none"
+                    />
+                    {errors.phone && (
+                      <p className="text-error ml-1 text-xs">{errors.phone.message}</p>
+                    )}
+                  </div>
+                  <p className="text-on-surface-variant text-sm leading-relaxed">
+                    Usaremos estos datos para confirmar tu pedido y comunicarnos con vos.
+                  </p>
+                </>
+              )}
 
-                  {location && (
-                    <p className="text-xs text-on-surface-variant ml-1 flex items-center gap-1">
-                      <span
-                        className="material-symbols-outlined text-sm"
-                        style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}
-                      >
-                        pin_drop
-                      </span>
-                      Coordenadas: {location.lat.toFixed(6)}, {location.lng.toFixed(6)}
-                    </p>
+              {activeStep === 2 && (
+                <div className="space-y-6">
+                  {/* Delivery type toggle */}
+                  <div className="space-y-3">
+                    <label className="text-on-surface-variant ml-1 text-xs font-bold tracking-widest uppercase">
+                      Tipo de Entrega
+                    </label>
+                    <div className="bg-surface-container-highest flex rounded-2xl p-1">
+                      {["delivery", "pickup"].map((type) => (
+                        <label key={type} className="flex-1 cursor-pointer">
+                          <input
+                            {...register("deliveryType")}
+                            type="radio"
+                            value={type}
+                            className="sr-only"
+                          />
+                          <span
+                            className={`block rounded-xl px-4 py-3 text-center text-sm font-bold transition-all ${
+                              deliveryType === type
+                                ? "bg-primary text-on-primary shadow-primary/20 shadow-lg"
+                                : "text-on-surface-variant hover:bg-surface-container-high"
+                            }`}
+                          >
+                            {type === "delivery" ? "Delivery" : "Recojo en tienda"}
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Address (conditional) */}
+                  {deliveryType === "delivery" && (
+                    <div className="space-y-1.5">
+                      <label className="text-on-surface-variant ml-1 text-xs font-bold tracking-widest uppercase">
+                        Dirección de entrega
+                      </label>
+                      <MapboxAutocomplete
+                        value={addressValue}
+                        onChange={(val) => setValue("address", val, { shouldValidate: true })}
+                        onCoordinates={(lat, lng) => setMapboxCoords({ lat, lng })}
+                      />
+                      {needsHouseNumber && (
+                        <div className="flex items-center gap-2 pt-1">
+                          <span className="text-on-surface-variant shrink-0 text-[11px] font-bold tracking-widest uppercase">
+                            Nro de casa
+                          </span>
+                          <input
+                            type="text"
+                            inputMode="numeric"
+                            placeholder="123"
+                            autoFocus
+                            onChange={(e) => {
+                              const nro = e.target.value;
+                              if (nro) {
+                                setValue("address", `${baseAddress} ${nro}`, {
+                                  shouldValidate: true,
+                                });
+                              } else {
+                                setValue("address", baseAddress, { shouldValidate: true });
+                              }
+                            }}
+                            className="bg-surface-container-high text-on-surface focus:ring-primary/20 w-16 rounded-lg px-2 py-1.5 text-center text-sm font-bold focus:ring-2 focus:outline-none"
+                          />
+                          <span className="text-outline text-[11px]">
+                            Sin número → dejalo vacío
+                          </span>
+                        </div>
+                      )}
+                      {errors.address && (
+                        <p className="text-error ml-1 text-xs">{errors.address.message}</p>
+                      )}
+                    </div>
                   )}
+
+                  {/* Ubicación (solo para delivery) */}
+                  {deliveryType === "delivery" && (
+                    <div className="space-y-3">
+                      <div>
+                        <p className="text-on-surface-variant mb-0.5 ml-1 text-xs font-bold tracking-widest uppercase">
+                          Tu Ubicación{" "}
+                          <span className="text-outline font-normal tracking-normal normal-case">
+                            (opcional)
+                          </span>
+                        </p>
+                        <p className="text-on-surface-variant ml-1 text-[11px] leading-relaxed">
+                          Compartí tu ubicación para que podamos orientarte o coordinar el acceso.
+                        </p>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={handleLocation}
+                        disabled={locLoading}
+                        className="border-outline-variant bg-surface-container hover:border-primary hover:bg-primary/5 flex w-full items-center justify-center gap-3 rounded-2xl border-2 border-dashed py-4 transition-all active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        <span
+                          className={`material-symbols-outlined text-primary transition-all ${locLoading ? "animate-spin" : ""}`}
+                          style={{
+                            fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24",
+                          }}
+                        >
+                          {locLoading
+                            ? "progress_activity"
+                            : location
+                              ? "my_location"
+                              : "location_on"}
+                        </span>
+                        <span className="text-on-surface text-sm font-bold">
+                          {locLoading
+                            ? "Obteniendo ubicación..."
+                            : location
+                              ? "Ubicación capturada"
+                              : "Usar mi ubicación actual"}
+                        </span>
+                      </button>
+
+                      {location && (
+                        <p className="text-on-surface-variant ml-1 flex items-center gap-1 text-xs">
+                          <span
+                            className="material-symbols-outlined text-sm"
+                            style={{
+                              fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24",
+                            }}
+                          >
+                            pin_drop
+                          </span>
+                          Coordenadas: {location.lat.toFixed(6)}, {location.lng.toFixed(6)}
+                        </p>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Notes */}
+                  <div className="space-y-1.5">
+                    <label className="text-on-surface-variant ml-1 text-xs font-bold tracking-widest uppercase">
+                      Notas del pedido
+                    </label>
+                    <textarea
+                      {...register("notes")}
+                      rows={3}
+                      placeholder="Ej. Sin cremas, la puerta es roja, etc."
+                      className="bg-surface-container-high focus:ring-primary/20 placeholder:text-outline text-on-surface w-full resize-none rounded-xl border-none px-4 py-4 transition-all focus:ring-2 focus:outline-none"
+                    />
+                  </div>
                 </div>
               )}
 
-              {/* Notes */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant ml-1">
-                  Notas del pedido
-                </label>
-                <textarea
-                  {...register("notes")}
-                  rows={3}
-                  placeholder="Ej. Sin cremas, la puerta es roja, etc."
-                  className="w-full bg-surface-container-high border-none rounded-xl py-4 px-4 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-outline resize-none text-on-surface"
-                />
-              </div>
+              {activeStep === 3 && (
+                <p className="text-on-surface-variant leading-relaxed">
+                  Revisá el resumen de tu pedido y elegí una forma de pago segura para confirmar la
+                  compra.
+                </p>
+              )}
             </div>
           </section>
 
@@ -454,61 +555,82 @@ export function CheckoutForm() {
             <OrderSummary />
             <UpsellSection />
 
-            <div className="bg-white p-6 rounded-3xl shadow-card space-y-4">
-              {/* Submit */}
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="w-full bg-primary text-on-primary font-black py-5 rounded-2xl shadow-lg shadow-primary/30 hover:scale-[1.02] active:scale-95 transition-all text-lg tracking-tight disabled:opacity-60 disabled:cursor-not-allowed disabled:scale-100 flex items-center justify-center gap-3"
-              >
-                {isLoading ? (
-                  <>
+            <div className="shadow-card space-y-4 rounded-3xl bg-white p-6">
+              {activeStep < 3 && (
+                <button
+                  type="button"
+                  onClick={() => void goToNextStep()}
+                  className="bg-primary text-on-primary shadow-primary/30 flex w-full items-center justify-center gap-3 rounded-2xl py-5 text-lg font-black tracking-tight shadow-lg transition-all hover:scale-[1.02] active:scale-95"
+                >
+                  Continuar
+                  <span className="material-symbols-outlined text-xl" aria-hidden="true">
+                    arrow_forward
+                  </span>
+                </button>
+              )}
+
+              {activeStep === 3 && (
+                <>
+                  {/* Submit */}
+                  <button
+                    type="submit"
+                    disabled={isLoading}
+                    className="bg-primary text-on-primary shadow-primary/30 flex w-full items-center justify-center gap-3 rounded-2xl py-5 text-lg font-black tracking-tight shadow-lg transition-all hover:scale-[1.02] active:scale-95 disabled:scale-100 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {isLoading ? (
+                      <>
+                        <span
+                          className="material-symbols-outlined animate-spin text-xl"
+                          style={{
+                            fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24",
+                          }}
+                        >
+                          progress_activity
+                        </span>
+                        Procesando pago...
+                      </>
+                    ) : (
+                      <>
+                        <span
+                          className="material-symbols-outlined text-xl"
+                          style={{
+                            fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24",
+                          }}
+                        >
+                          credit_card
+                        </span>
+                        Pagar con Culqi
+                      </>
+                    )}
+                  </button>
+
+                  {/* Demo button */}
+                  <button
+                    type="button"
+                    disabled={isLoading}
+                    onClick={handleSubmit(onDemoSubmit)}
+                    className="border-outline-variant text-on-surface-variant hover:border-outline hover:text-on-surface flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed py-4 text-sm font-bold tracking-tight transition-all active:scale-95 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
                     <span
-                      className="material-symbols-outlined text-xl animate-spin"
+                      className="material-symbols-outlined text-base"
                       style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}
                     >
-                      progress_activity
+                      play_circle
                     </span>
-                    Procesando pago...
-                  </>
-                ) : (
-                  <>
+                    Simular compra (demo)
+                  </button>
+
+                  <p className="text-outline flex items-center justify-center gap-1 text-center text-[10px] font-bold tracking-widest uppercase">
                     <span
-                      className="material-symbols-outlined text-xl"
-                      style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}
+                      className="material-symbols-outlined text-xs"
+                      style={{ fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}
                     >
-                      credit_card
+                      shield
                     </span>
-                    Pagar con Culqi
-                  </>
-                )}
-              </button>
-
-              {/* Demo button */}
-              <button
-                type="button"
-                disabled={isLoading}
-                onClick={handleSubmit(onDemoSubmit)}
-                className="w-full border-2 border-dashed border-outline-variant text-on-surface-variant font-bold py-4 rounded-2xl hover:border-outline hover:text-on-surface active:scale-95 transition-all text-sm tracking-tight disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-              >
-                <span
-                  className="material-symbols-outlined text-base"
-                  style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}
-                >
-                  play_circle
-                </span>
-                Simular compra (demo)
-              </button>
-
-              <p className="text-center text-[10px] text-outline flex items-center justify-center gap-1 uppercase font-bold tracking-widest">
-                <span
-                  className="material-symbols-outlined text-xs"
-                  style={{ fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}
-                >
-                  shield
-                </span>
-                Pago 100% Seguro · Powered by Culqi
-              </p>
+                    Pago 100% Seguro · Powered by Culqi
+                  </p>
+                </>
+              )}
             </div>
           </aside>
         </form>
