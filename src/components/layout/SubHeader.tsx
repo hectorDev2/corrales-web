@@ -53,7 +53,7 @@ export function SubHeader() {
           <h2>Promociones</h2>
         </Link>
         <Link
-          href="/trabaja-con-nosotros"
+          href="/ventas-corporativas"
           className="text-on-surface-variant hover:text-primary hover:border-primary flex items-center gap-2 border-b-2 border-transparent pb-1 text-xs font-bold tracking-wide whitespace-nowrap transition-colors"
         >
           <svg

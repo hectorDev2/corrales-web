@@ -27,7 +27,7 @@ describe("SubHeader", () => {
     );
     expect(screen.getByRole("link", { name: "Ventas Corporativas" })).toHaveAttribute(
       "href",
-      "/trabaja-con-nosotros",
+      "/ventas-corporativas",
     );
   });
 });
