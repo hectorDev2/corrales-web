@@ -54,6 +54,26 @@ describe("MenuPage", () => {
     expect(screen.queryByRole("link", { name: "Producto 1" })).not.toBeInTheDocument();
   });
 
+  it("scrolls to the category strip when changing pages", async () => {
+    const user = userEvent.setup();
+    const scrollIntoView = vi.fn();
+    Object.defineProperty(HTMLElement.prototype, "scrollIntoView", {
+      configurable: true,
+      value: scrollIntoView,
+    });
+
+    try {
+      render(<MenuPage products={products} categories={["Pollo a la Brasa", "Parrillas"]} />);
+
+      await user.click(screen.getByRole("button", { name: "Página 2" }));
+
+      expect(scrollIntoView).toHaveBeenCalledWith({ behavior: "smooth", block: "start" });
+    } finally {
+      delete (HTMLElement.prototype as HTMLElement & { scrollIntoView?: unknown })
+        .scrollIntoView;
+    }
+  });
+
   it("defaults to the vertical catalog and switches to horizontal product rows", async () => {
     const user = userEvent.setup();
     render(<MenuPage products={products} categories={["Pollo a la Brasa", "Parrillas"]} />);

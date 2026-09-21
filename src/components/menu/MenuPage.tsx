@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type RefObject } from "react";
 
 import { useCartStore } from "@/store/cart";
 import type { Product } from "@/types/product";
@@ -165,11 +165,15 @@ export function ViewModeToggle({
 function CategoryStrip({
   categories,
   activeCategory,
-}: Pick<MenuPageProps, "categories" | "activeCategory">) {
+  categoryStripRef,
+}: Pick<MenuPageProps, "categories" | "activeCategory"> & {
+  categoryStripRef: RefObject<HTMLElement | null>;
+}) {
   return (
     <nav
+      ref={categoryStripRef}
       aria-label="Categorías de la carta"
-      className="sticky top-[calc(var(--public-mobile-header-height)+var(--public-subheader-height))] z-30 border-b border-[#e9e9e9] bg-white shadow-sm md:top-[106px]"
+      className="sticky top-[calc(var(--public-mobile-header-height)+var(--public-subheader-height))] z-30 scroll-mt-[calc(var(--public-mobile-header-height)+var(--public-subheader-height))] border-b border-[#e9e9e9] bg-white shadow-sm md:top-[106px] md:scroll-mt-[106px]"
     >
       <div className="mx-auto flex max-w-7xl scrollbar-none gap-7 overflow-x-auto px-4 md:px-8">
         <Link
@@ -253,6 +257,7 @@ export function MenuPage({ products, categories, activeCategory, query, tag }: M
   const [page, setPage] = useState(1);
   const [sortOrder, setSortOrder] = useState<SortOrder>("featured");
   const [viewMode, setViewMode] = useState<ViewMode>("vertical");
+  const categoryStripRef = useRef<HTMLElement | null>(null);
 
   const filterKey = `${activeCategory ?? ""}|${query ?? ""}|${tag ?? ""}`;
 
@@ -288,12 +293,22 @@ export function MenuPage({ products, categories, activeCategory, query, tag }: M
   }
 
   function changePage(nextPage: number) {
-    setPage(Math.min(Math.max(nextPage, 1), pageCount));
+    const normalizedPage = Math.min(Math.max(nextPage, 1), pageCount);
+    if (normalizedPage === safePage) return;
+
+    setPage(normalizedPage);
+    if (typeof categoryStripRef.current?.scrollIntoView === "function") {
+      categoryStripRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
   }
 
   return (
     <div className="bg-white">
-      <CategoryStrip categories={categories} activeCategory={activeCategory} />
+      <CategoryStrip
+        categories={categories}
+        activeCategory={activeCategory}
+        categoryStripRef={categoryStripRef}
+      />
 
       <main className="mx-auto max-w-7xl px-4 pt-8 pb-14 md:px-8 lg:px-10">
         {filterLabel && <p className="text-on-surface-variant mb-4 text-sm">{filterLabel}</p>}
