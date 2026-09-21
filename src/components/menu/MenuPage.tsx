@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { useCartStore } from "@/store/cart";
 import type { Product } from "@/types/product";
@@ -254,6 +254,12 @@ export function MenuPage({ products, categories, activeCategory, query, tag }: M
   const [sortOrder, setSortOrder] = useState<SortOrder>("featured");
   const [viewMode, setViewMode] = useState<ViewMode>("vertical");
 
+  const filterKey = `${activeCategory ?? ""}|${query ?? ""}|${tag ?? ""}`;
+
+  useEffect(() => {
+    setPage(1);
+  }, [filterKey]);
+
   const sortedProducts = useMemo(() => {
     if (sortOrder === "featured") return products;
     return [...products].sort((a, b) => {
@@ -263,9 +269,10 @@ export function MenuPage({ products, categories, activeCategory, query, tag }: M
   }, [products, sortOrder]);
 
   const pageCount = Math.ceil(sortedProducts.length / PRODUCTS_PER_PAGE);
+  const safePage = pageCount > 0 ? Math.min(page, pageCount) : 1;
   const visibleProducts = sortedProducts.slice(
-    (page - 1) * PRODUCTS_PER_PAGE,
-    page * PRODUCTS_PER_PAGE,
+    (safePage - 1) * PRODUCTS_PER_PAGE,
+    safePage * PRODUCTS_PER_PAGE,
   );
   const filterLabel = query
     ? `Resultados para: ${query}`
@@ -331,7 +338,7 @@ export function MenuPage({ products, categories, activeCategory, query, tag }: M
                 <ProductCatalogCard key={product.id} product={product} viewMode={viewMode} />
               ))}
             </section>
-            <Pagination page={page} pageCount={pageCount} onChange={changePage} />
+            <Pagination page={safePage} pageCount={pageCount} onChange={changePage} />
           </>
         ) : (
           <div className="flex flex-col items-center justify-center py-24 text-center">

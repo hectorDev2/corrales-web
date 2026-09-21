@@ -94,4 +94,26 @@ describe("MenuPage", () => {
       "sm:line-clamp-2",
     );
   });
+
+  it("resets page to 1 when activeCategory changes so products are displayed instead of empty state", async () => {
+    const user = userEvent.setup();
+    const { rerender } = render(
+      <MenuPage products={products} categories={["Pollo a la Brasa", "Parrillas"]} />
+    );
+
+    await user.click(screen.getByRole("button", { name: "Página 2" }));
+    expect(screen.getByRole("link", { name: "Producto 13" })).toBeInTheDocument();
+
+    const parrillaProducts = products.filter((p) => p.category === "Parrillas");
+    rerender(
+      <MenuPage
+        products={parrillaProducts}
+        categories={["Pollo a la Brasa", "Parrillas"]}
+        activeCategory="Parrillas"
+      />
+    );
+
+    expect(screen.queryByText("No encontramos productos")).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Producto 8" })).toBeInTheDocument();
+  });
 });
