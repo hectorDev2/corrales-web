@@ -5,7 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useCartStore } from "@/store/cart";
 import type { SelectedOptionsMap } from "@/types/cart";
 import { calcOptionsTotal } from "@/types/cart";
-import type { Product, ProductOption, ProductOptionGroup, ProductVariant } from "@/types/product";
+import type { Product, ProductOption, ProductOptionGroup } from "@/types/product";
 
 interface Props {
   product: Product;
@@ -106,6 +106,21 @@ function WarningCircleIcon() {
   );
 }
 
+function PencilIcon() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="1em"
+      height="1em"
+      fill="currentColor"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+    >
+      <path d="m14.06 9.02.92.92L5.92 19H5v-.92l9.06-9.06M17.66 3c-.25 0-.51.1-.7.29l-1.83 1.83 3.75 3.75 1.83-1.83a.996.996 0 0 0 0-1.41l-2.34-2.34c-.2-.2-.45-.29-.71-.29zm-3.6 3.19L3 17.25V21h3.75L17.81 9.94l-3.75-3.75z" />
+    </svg>
+  );
+}
+
 export function ProductDetailPage({ product }: Props) {
   const { addItem, openDrawer } = useCartStore();
 
@@ -175,7 +190,17 @@ export function ProductDetailPage({ product }: Props) {
       if (!group) return prev;
       const current = group[optionId] ?? 0;
       const next = Math.max(0, current + delta);
-      return { ...prev, [groupId]: { ...group, [optionId]: next } };
+      const nextGroup = { ...group, [optionId]: next };
+
+      const targetGroup = groups.find((g) => g.id === groupId);
+      if (targetGroup?.maxSelect != null && delta > 0) {
+        const nextTotal = Object.values(nextGroup).reduce((sum, q) => sum + q, 0);
+        if (nextTotal >= targetGroup.maxSelect) {
+          setExpanded((e) => ({ ...e, [groupId]: false }));
+        }
+      }
+
+      return { ...prev, [groupId]: nextGroup };
     });
   }
 
@@ -189,6 +214,7 @@ export function ProductDetailPage({ product }: Props) {
       cleared[optionId] = 1;
       return { ...prev, [groupId]: cleared };
     });
+    setExpanded((prev) => ({ ...prev, [groupId]: false }));
   }
 
   function toggleGroup(id: string) {
@@ -227,22 +253,43 @@ export function ProductDetailPage({ product }: Props) {
     setValidationErrorGroupId(incompleteGroup.id);
   }
 
-  function groupStatus(g: ProductOptionGroup): { label: string; color: "success" | "neutral" } {
+  function groupStatus(g: ProductOptionGroup): {
+    label: string;
+    color: "success" | "neutral";
+    variant: "completed" | "required" | "optional";
+  } {
     const groupSel = selections[g.id] ?? {};
     const total = Object.values(groupSel).reduce((s, q) => s + q, 0);
-    if (g.isRequired && total < g.minSelect) {
-      return { label: "Requerido", color: "neutral" };
+    if (g.isRequired) {
+      if (total >= g.minSelect) {
+        return { label: "Completado", color: "success", variant: "completed" };
+      }
+      return { label: "Requerido", color: "neutral", variant: "required" };
     }
-    return { label: "Completado", color: "success" };
+    if (total > 0) {
+      return { label: "Completado", color: "success", variant: "completed" };
+    }
+    return { label: "Opcional", color: "neutral", variant: "optional" };
   }
 
   function groupSummary(g: ProductOptionGroup): string {
     const groupSel = selections[g.id] ?? {};
     const selected = Object.entries(groupSel).filter(([, q]) => q > 0);
     if (selected.length === 0) {
-      return g.selectionType === "single"
-        ? `Elige ${g.minSelect} opción`
-        : `Elige ${g.minSelect} opción`;
+      if (g.selectionType === "single") {
+        const count = g.minSelect || 1;
+        return `Elige ${count} ${count === 1 ? "opción" : "opciones"}`;
+      }
+      if (g.selectionType === "quantity") {
+        if (g.maxSelect != null) {
+          return `Elige ${g.maxSelect} ${g.maxSelect === 1 ? "opción" : "opciones"}`;
+        }
+        if (g.minSelect > 0) {
+          return `Elige ${g.minSelect} ${g.minSelect === 1 ? "opción" : "opciones"}`;
+        }
+        return "Elige opciones";
+      }
+      return "Elige 1 opción";
     }
     if (g.selectionType === "single") {
       const opt = g.options.find((o) => o.id === selected[0][0]);
@@ -257,6 +304,13 @@ export function ProductDetailPage({ product }: Props) {
         .join(", ");
     }
     return "";
+  }
+
+  function handleEditGroup(groupId: string) {
+    setExpanded((prev) => ({ ...prev, [groupId]: true }));
+    const target = optionGroupRefs.current[groupId];
+    target?.scrollIntoView({ behavior: "smooth", block: "center" });
+    target?.querySelector<HTMLButtonElement>("button")?.focus({ preventScroll: true });
   }
 
   return (
@@ -301,7 +355,6 @@ export function ProductDetailPage({ product }: Props) {
               {product.description}
             </p>
 
-
             {product.variants.length > 1 && (
               <fieldset className="mt-6 space-y-2" aria-label="Variante del producto">
                 <legend className="text-sm font-black text-on-surface">Elegí una opción</legend>
@@ -333,6 +386,58 @@ export function ProductDetailPage({ product }: Props) {
                   })}
                 </div>
               </fieldset>
+            )}
+
+            {groups.length > 0 && (
+              <div className="pt-6" data-testid="product-customize-summary">
+                <h2 className="mb-4 text-xl sm:text-2xl font-black text-on-surface">
+                  Personaliza tu pedido
+                </h2>
+                <ul className="space-y-4" aria-label="Lista de personalización del pedido">
+                  {groups.map((g) => {
+                    const status = groupStatus(g);
+                    const summary = groupSummary(g);
+                    return (
+                      <li
+                        key={g.id}
+                        className="group flex cursor-pointer items-center justify-between gap-4 py-1"
+                        onClick={() => handleEditGroup(g.id)}
+                      >
+                        <div className="min-w-0 flex-1">
+                          <p className="text-base font-black text-on-surface transition-colors group-hover:text-primary">
+                            {g.name}
+                          </p>
+                          <p className="text-xs font-medium text-neutral-500 sm:text-sm">
+                            {summary}
+                          </p>
+                        </div>
+                        <div className="flex shrink-0 items-center gap-2.5">
+                          <span
+                            className={`rounded-md border px-2.5 py-1 text-xs font-bold leading-none ${
+                              status.variant === "completed"
+                                ? "border-green-600 bg-green-50 text-green-700"
+                                : "border-black bg-transparent text-black"
+                            }`}
+                          >
+                            {status.label}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEditGroup(g.id);
+                            }}
+                            aria-label={`Editar ${g.name}`}
+                            className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-black text-white transition-opacity hover:opacity-80 active:scale-95"
+                          >
+                            <PencilIcon />
+                          </button>
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
             )}
           </div>
         </section>
@@ -438,7 +543,7 @@ export function ProductDetailPage({ product }: Props) {
       >
         <div className="mx-auto grid max-w-7xl grid-cols-2 gap-3 md:flex md:items-center md:gap-4">
           <fieldset
-            className="flex h-16 items-center justify-between rounded-xl border border-[#8a8a8a] bg-white px-3 md:hidden"
+            className="flex h-14 sm:h-16 items-center justify-between rounded-xl border border-[#8a8a8a] bg-white px-2.5 sm:px-3 md:w-auto md:shrink-0 md:gap-3"
             aria-label="Cantidad del producto"
           >
             <button
@@ -446,11 +551,14 @@ export function ProductDetailPage({ product }: Props) {
               onClick={() => setQuantity((current) => Math.max(1, current - 1))}
               disabled={quantity === 1}
               aria-label="Disminuir cantidad del producto"
-              className="flex size-12 items-center justify-center rounded-xl bg-[#dedede] text-[#666] transition-transform active:scale-90 disabled:cursor-not-allowed disabled:opacity-70"
+              className="flex size-9 sm:size-11 items-center justify-center rounded-lg bg-[#dedede] text-[#666] transition-transform active:scale-90 disabled:cursor-not-allowed disabled:opacity-70"
             >
               <MinusIcon decorative />
             </button>
-            <output className="text-2xl font-bold" aria-live="polite">
+            <output
+              className="min-w-6 text-center text-lg sm:text-2xl font-black text-on-surface"
+              aria-live="polite"
+            >
               {quantity}
             </output>
             <button
@@ -458,7 +566,11 @@ export function ProductDetailPage({ product }: Props) {
               onClick={() => setQuantity((current) => Math.min(maxQuantity, current + 1))}
               aria-label="Incrementar cantidad del producto"
               disabled={isOutOfStock || quantity >= maxQuantity}
-              className="bg-primary flex size-12 items-center justify-center rounded-xl text-white transition-transform active:scale-90"
+              className={`flex size-9 sm:size-11 items-center justify-center rounded-lg transition-transform active:scale-90 ${
+                isComplete
+                  ? "bg-primary text-white hover:bg-primary/90"
+                  : "bg-[#fee2e2] text-neutral-900 hover:bg-[#fecdd3]"
+              }`}
             >
               <PlusIcon />
             </button>
@@ -468,19 +580,13 @@ export function ProductDetailPage({ product }: Props) {
             onClick={handleAdd}
             disabled={isOutOfStock}
             aria-disabled={!isComplete || isOutOfStock}
-            className={`flex min-h-16 flex-1 items-center justify-center rounded-xl border px-3 py-3 text-center text-sm leading-tight font-black tracking-wide uppercase shadow-lg transition-all active:scale-[0.98] md:py-4 md:text-lg ${
-              isComplete
-                ? "border-primary bg-primary text-white"
-                : "cursor-not-allowed border-[#8a8a8a] bg-white text-[#737373]"
+            className={`flex h-14 sm:h-16 items-center justify-center rounded-xl px-2 text-center text-sm sm:text-base font-black leading-tight tracking-wide transition-all active:scale-[0.98] md:flex-1 ${
+              isComplete && !isOutOfStock
+                ? "border-2 border-primary bg-white text-primary hover:bg-primary/5"
+                : "cursor-not-allowed border border-[#8a8a8a] bg-white text-[#737373]"
             }`}
-            style={{
-              boxShadow: isComplete ? "0 10px 15px -3px rgba(228, 0, 43, 0.3)" : "none",
-            }}
           >
-            <span className="md:hidden">Agregar al carrito</span>
-            <span className="hidden md:inline">
-              Agregar (S/ {(unitPrice * quantity).toFixed(2)})
-            </span>
+            Agregar al carrito
           </button>
 
           <a
@@ -499,9 +605,14 @@ export function ProductDetailPage({ product }: Props) {
             }}
             aria-disabled={!isComplete || isOutOfStock}
             tabIndex={isComplete && !isOutOfStock ? undefined : -1}
-            className={`col-span-2 flex min-h-16 items-center justify-center rounded-xl px-3 py-3 text-center text-lg leading-tight font-black transition-all active:scale-[0.98] md:hidden ${
-              isComplete ? "bg-primary text-white" : "bg-[#dedede] text-[#737373]"
+            className={`col-span-2 flex h-14 sm:h-16 items-center justify-center rounded-xl px-3 text-center text-base sm:text-lg font-black transition-all active:scale-[0.98] md:col-span-1 md:flex-1 ${
+              isComplete && !isOutOfStock
+                ? "bg-primary text-white shadow-lg hover:bg-primary/90"
+                : "cursor-not-allowed bg-[#dedede] text-[#737373]"
             }`}
+            style={{
+              boxShadow: isComplete && !isOutOfStock ? "0 10px 15px -3px rgba(228, 0, 43, 0.3)" : "none",
+            }}
           >
             {isOutOfStock ? "Agotado" : `Comprar ahora (S/ ${(unitPrice * quantity).toFixed(2)})`}
           </a>

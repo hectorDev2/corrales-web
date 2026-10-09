@@ -79,6 +79,12 @@ export function PromotionsPage({ products, tags, activeTag }: PromotionsPageProp
   const [sortOrder, setSortOrder] = useState<SortOrder>("featured");
   const [viewMode, setViewMode] = useState<ViewMode>("vertical");
 
+  const [prevActiveTag, setPrevActiveTag] = useState(activeTag);
+  if (prevActiveTag !== activeTag) {
+    setPrevActiveTag(activeTag);
+    setPage(1);
+  }
+
   const sortedProducts = useMemo(() => {
     if (sortOrder === "featured") return products;
 
@@ -88,9 +94,10 @@ export function PromotionsPage({ products, tags, activeTag }: PromotionsPageProp
     });
   }, [products, sortOrder]);
   const pageCount = Math.ceil(sortedProducts.length / PRODUCTS_PER_PAGE);
+  const safePage = pageCount > 0 ? Math.min(page, pageCount) : 1;
   const visibleProducts = sortedProducts.slice(
-    (page - 1) * PRODUCTS_PER_PAGE,
-    page * PRODUCTS_PER_PAGE,
+    (safePage - 1) * PRODUCTS_PER_PAGE,
+    safePage * PRODUCTS_PER_PAGE,
   );
 
   function changeSort(order: SortOrder) {
@@ -172,7 +179,7 @@ export function PromotionsPage({ products, tags, activeTag }: PromotionsPageProp
                 <ProductCatalogCard key={product.id} product={product} viewMode={viewMode} />
               ))}
             </section>
-            <PromotionPagination page={page} pageCount={pageCount} onChange={changePage} />
+            <PromotionPagination page={safePage} pageCount={pageCount} onChange={changePage} />
           </>
         ) : (
           <div className="flex flex-col items-center justify-center py-24 text-center">

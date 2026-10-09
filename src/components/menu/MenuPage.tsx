@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState, type RefObject } from "react";
+import { useMemo, useRef, useState, type RefObject } from "react";
 
 import { useCartStore } from "@/store/cart";
 import type { Product } from "@/types/product";
@@ -15,9 +15,16 @@ export type ViewMode = "vertical" | "horizontal";
 interface MenuPageProps {
   products: Product[];
   categories: string[];
+  categoryNavigation?: CategoryNavigationItem[];
   activeCategory?: string;
   query?: string;
   tag?: string;
+}
+
+export interface CategoryNavigationItem {
+  label: string;
+  href: string;
+  slug: string;
 }
 
 function getProductPrice(product: Product) {
@@ -33,10 +40,11 @@ export function ProductCatalogCard({
 }) {
   const { addItem } = useCartStore();
   const price = getProductPrice(product);
+  const variant = product.variants[0];
+  const isOutOfStock = !variant || variant.stock <= 0;
   const isHorizontal = viewMode === "horizontal";
 
   function addToCart() {
-    const variant = product.variants[0];
     if (variant) addItem(product, variant);
   }
 
@@ -106,12 +114,12 @@ export function ProductCatalogCard({
         <button
           type="button"
           onClick={addToCart}
-          disabled={!product.variants[0]}
+          disabled={isOutOfStock}
           aria-label={`Agregar ${product.name} al carrito`}
           className="text-on-surface hover:border-primary hover:bg-primary focus-visible:ring-primary flex size-8 shrink-0 items-center justify-center rounded-md border border-[#e5e5e5] bg-white shadow-sm transition-colors hover:text-white focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
         >
           <span className="material-symbols-outlined text-xl" aria-hidden="true">
-            add
+            {isOutOfStock ? "block" : "add"}
           </span>
         </button>
       </div>
@@ -165,8 +173,9 @@ export function ViewModeToggle({
 function CategoryStrip({
   categories,
   activeCategory,
+  categoryNavigation,
   categoryStripRef,
-}: Pick<MenuPageProps, "categories" | "activeCategory"> & {
+}: Pick<MenuPageProps, "categories" | "activeCategory" | "categoryNavigation"> & {
   categoryStripRef: RefObject<HTMLElement | null>;
 }) {
   return (
@@ -182,15 +191,26 @@ function CategoryStrip({
         >
           Ver todo
         </Link>
-        {categories.map((category) => {
-          const isActive = activeCategory?.toLocaleLowerCase() === category.toLocaleLowerCase();
+        {(
+          categoryNavigation ??
+          categories.map((category) => ({
+            label: category,
+            href: `/menu?categoria=${encodeURIComponent(category)}`,
+            slug: category,
+          }))
+        ).map((category) => {
+          const isActive =
+            activeCategory?.toLocaleLowerCase() === category.label.toLocaleLowerCase();
           return (
             <Link
-              key={category}
-              href={`/menu?categoria=${encodeURIComponent(category)}`}
+              key={category.slug}
+              href={category.href}
+              data-slug={category.slug}
+              data-selected={isActive ? "true" : undefined}
+              aria-current={isActive ? "page" : undefined}
               className={`shrink-0 border-b-2 px-0 py-4 text-sm font-bold transition-colors ${isActive ? "border-primary text-primary" : "text-on-surface hover:border-primary hover:text-primary border-transparent"}`}
             >
-              {category}
+              {category.label}
             </Link>
           );
         })}
@@ -253,17 +273,21 @@ function Pagination({
   );
 }
 
-export function MenuPage({ products, categories, activeCategory, query, tag }: MenuPageProps) {
-  const [page, setPage] = useState(1);
+export function MenuPage({
+  products,
+  categories,
+  categoryNavigation,
+  activeCategory,
+  query,
+  tag,
+}: MenuPageProps) {
   const [sortOrder, setSortOrder] = useState<SortOrder>("featured");
   const [viewMode, setViewMode] = useState<ViewMode>("vertical");
   const categoryStripRef = useRef<HTMLElement | null>(null);
 
   const filterKey = `${activeCategory ?? ""}|${query ?? ""}|${tag ?? ""}`;
-
-  useEffect(() => {
-    setPage(1);
-  }, [filterKey]);
+  const [pagination, setPagination] = useState({ filterKey, page: 1 });
+  const requestedPage = pagination.filterKey === filterKey ? pagination.page : 1;
 
   const sortedProducts = useMemo(() => {
     if (sortOrder === "featured") return products;
@@ -274,7 +298,7 @@ export function MenuPage({ products, categories, activeCategory, query, tag }: M
   }, [products, sortOrder]);
 
   const pageCount = Math.ceil(sortedProducts.length / PRODUCTS_PER_PAGE);
-  const safePage = pageCount > 0 ? Math.min(page, pageCount) : 1;
+  const safePage = pageCount > 0 ? Math.min(requestedPage, pageCount) : 1;
   const visibleProducts = sortedProducts.slice(
     (safePage - 1) * PRODUCTS_PER_PAGE,
     safePage * PRODUCTS_PER_PAGE,
@@ -284,19 +308,21 @@ export function MenuPage({ products, categories, activeCategory, query, tag }: M
     : tag
       ? `Promociones: ${tag}`
       : activeCategory
-        ? `Categoría: ${activeCategory}`
+        ? categoryNavigation
+          ? activeCategory
+          : `Categoría: ${activeCategory}`
         : null;
 
   function changeSort(order: SortOrder) {
     setSortOrder(order);
-    setPage(1);
+    setPagination({ filterKey, page: 1 });
   }
 
   function changePage(nextPage: number) {
     const normalizedPage = Math.min(Math.max(nextPage, 1), pageCount);
     if (normalizedPage === safePage) return;
 
-    setPage(normalizedPage);
+    setPagination({ filterKey, page: normalizedPage });
     if (typeof categoryStripRef.current?.scrollIntoView === "function") {
       categoryStripRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
     }
@@ -307,11 +333,12 @@ export function MenuPage({ products, categories, activeCategory, query, tag }: M
       <CategoryStrip
         categories={categories}
         activeCategory={activeCategory}
+        categoryNavigation={categoryNavigation}
         categoryStripRef={categoryStripRef}
       />
 
       <main className="mx-auto max-w-7xl px-4 pt-8 pb-14 md:px-8 lg:px-10">
-        {filterLabel && <p className="text-on-surface-variant mb-4 text-sm">{filterLabel}</p>}
+        {filterLabel && <h1 className="text-on-surface-variant mb-4 text-sm">{filterLabel}</h1>}
 
         <div className="mb-7 flex flex-col gap-4 border-b border-[#f0f0f0] pb-5 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-on-surface text-base font-black">

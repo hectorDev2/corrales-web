@@ -27,12 +27,12 @@ export function SavingsCategories({ settings = DEFAULT_HOME_SAVINGS_SETTINGS }: 
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 gap-3.5 min-[360px]:grid-cols-2 md:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3.5 md:grid-cols-4">
         {activeTiles.map(({ href, imageSrc, label, sortOrder }) => (
           <Link
             key={`${sortOrder}-${label}`}
             href={href}
-            className="group hover:border-primary focus-visible:outline-primary flex min-h-[112px] items-center gap-3 rounded-xl border border-transparent bg-white p-3 transition-all focus-visible:outline-2 focus-visible:outline-offset-2 sm:min-h-[140px] md:h-[70px] md:min-h-0 md:gap-2 md:rounded-md"
+            className="group hover:border-primary focus-visible:outline-primary flex min-h-[140px] flex-col items-center justify-center gap-2 rounded-xl border border-transparent bg-white p-3 transition-all focus-visible:outline-2 focus-visible:outline-offset-2 sm:flex-row sm:gap-3 md:h-[70px] md:min-h-0 md:gap-2 md:rounded-md"
           >
             <Image
               src={imageSrc}
@@ -40,17 +40,19 @@ export function SavingsCategories({ settings = DEFAULT_HOME_SAVINGS_SETTINGS }: 
               aria-hidden="true"
               width={96}
               height={96}
-              className="size-16 shrink-0 object-contain min-[360px]:size-12 sm:size-16 md:size-12"
-              sizes="(min-width: 768px) 48px, (min-width: 640px) 64px, (min-width: 360px) 48px, 64px"
+              className="size-16 shrink-0 object-contain md:size-12"
+              sizes="(min-width: 768px) 48px, 64px"
             />
-            <span className="min-w-0 flex-1 text-sm leading-tight font-bold break-words sm:text-base md:text-sm">
-              {label}
-            </span>
-            <span
-              className="material-symbols-outlined text-secondary group-hover:text-primary shrink-0 transition-colors"
-              aria-hidden="true"
-            >
-              chevron_right
+            <span className="flex w-full min-w-0 items-center gap-1 sm:contents">
+              <span className="min-w-0 flex-1 text-sm leading-tight font-bold break-normal sm:text-base md:text-sm">
+                {label}
+              </span>
+              <span
+                className="material-symbols-outlined text-secondary group-hover:text-primary shrink-0 transition-colors"
+                aria-hidden="true"
+              >
+                chevron_right
+              </span>
             </span>
           </Link>
         ))}

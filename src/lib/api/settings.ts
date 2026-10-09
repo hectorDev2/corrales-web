@@ -1,5 +1,11 @@
 import { z } from "zod";
 
+import {
+  getCartaHrefForLabel,
+  getLegacyTargetCategory,
+  normalizeCategoryHref,
+  slugifyCategoryName,
+} from "@/lib/menu/category-routes";
 import { supabase } from "@/lib/supabase";
 
 const HOME_SAVINGS_TILE_COUNT = 4;
@@ -22,6 +28,8 @@ const siteSettings = supabase as unknown as {
 export interface HomeSavingsTile {
   label: string;
   href: string;
+  targetCategory?: string;
+  targetCategoryId?: string;
   imageSrc: string;
   sortOrder: number;
   isActive: boolean;
@@ -40,32 +48,36 @@ export const DEFAULT_HOME_SAVINGS_SETTINGS: HomeSavingsSettings = {
     {
       imageSrc:
         "https://lh3.googleusercontent.com/aida-public/AB6AXuDgI9oXSTO11iRW0fYY_KBnVP50bM2_uG6Cl1AxUXg6cX-904xB1TaCQdk2t7NWQRHqRg56pBPjrlDo7a6Z4o2Rm_r1GPH3Jsq9xTT0Nv1fjVTo0gyipUeLi31qMKFm-itvtzfGDOVPLZw6-C3vNQL6g6J0whiHQIhJfnaSVS0Il7UKZhsNOJdUofZx4DhKBvjwF10KntDDXfWzmkaa3YL7mxyMy7REZIVFWWfjA-g4KwM2vP7uCiFf",
-      href: "/menu?categoria=Pollo%20a%20la%20Brasa",
+      href: "/carta/para-compartir",
       label: "Para Compartir",
+      targetCategory: "Pollo a la Brasa",
       sortOrder: 0,
       isActive: true,
     },
     {
       imageSrc:
         "https://lh3.googleusercontent.com/aida-public/AB6AXuDLDDm6Eg2W6ONdjhergHQSAVA0DJpqb4dOTVFsk2RLJ1yJ-kivAMTTsTm_aYWD_GdRm6y6ZPr3htNiE2e1b-rRRsubcRlnLZcyPxb-kv_mv6TUVotCKZQRAxu2QAn-xA3mKNgTAcI51kpWw6lXOMzLbARpdOpxeAYPr4jUlbAubwZeh5YBYzOHpfldlHSFPumETH1GlPxybONDp4ldNl2epAL5O9XXm5mSHXjaTYIfPxUjAN7lsC_E",
-      href: "/menu?categoria=Parrillas",
+      href: "/carta/para-2",
       label: "Para 2",
+      targetCategory: "Parrillas",
       sortOrder: 1,
       isActive: true,
     },
     {
       imageSrc:
         "https://lh3.googleusercontent.com/aida-public/AB6AXuBWZ2r7TUlhi-Me7D91rL-rOQggnL5OvR4yMLym1PsHyis42YCsBfLkcUi88U0dTF10Tew2_QZ5Lt1uKyTofwqYyz160V4w6JybenSdMgQNSWiJTabfTtjMHIXEWcFjTiE73zNhC-aA787f6v1VVLTEwCiWGi44dIq2XXK5uHN-5IwNGguA3kEIekjemebP4bfBiXDIOjoYzJ0Ey9jMfN6DKXNbACi2LPe4OWhfR1kVV0L7Svj1kdhe",
-      href: "/menu?categoria=Acompa%C3%B1amiento",
+      href: "/carta/para-ti",
       label: "Para ti",
+      targetCategory: "Acompañamiento",
       sortOrder: 2,
       isActive: true,
     },
     {
       imageSrc:
         "https://lh3.googleusercontent.com/aida-public/AB6AXuDLjO6zy39hqWKU_BQBDS3UEHdkv7I6zURW5cKoCkLQ8QMeboX8czSdA7m51pIDentfeGBpUr3mItp2CI-U9FGmVnvgYxQ9aqnTpLLag0QCxkKox3pa4_lTOR6QGkfCQCCdk7_ytwWbDJcoOruv6wEyADBhblwWt4VqSPU1spoKwDKqMNVHhXYmRfgyrvIQNdVT76cnAvqrdemAIK64BgDto8Xw0WOa11V9qHz8Koi1XIEEScU3CH0Q",
-      href: "/menu?categoria=Bebidas",
+      href: "/carta/twister-xl",
       label: "Twister XL",
+      targetCategory: "Bebidas",
       sortOrder: 3,
       isActive: true,
     },
@@ -107,6 +119,8 @@ const homeSavingsTileSchema = z
   .object({
     label: z.string().trim().min(1).max(80),
     href: homeHrefSchema,
+    targetCategory: z.string().trim().min(1).max(120).optional(),
+    targetCategoryId: z.string().trim().min(1).max(120).optional(),
     imageSrc: z.string().trim().min(1).max(2_048).refine(isAllowedHomeSavingsImage, {
       message: "La imagen debe usar un origen permitido.",
     }),
@@ -135,6 +149,15 @@ export const homeSavingsSettingsSchema = z
         message: "Las cuatro posiciones deben ser únicas y consecutivas.",
       });
     }
+
+    const slugs = value.tiles.map((tile) => slugifyCategoryName(tile.label));
+    if (new Set(slugs).size !== slugs.length) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["tiles"],
+        message: "Las etiquetas deben generar rutas únicas.",
+      });
+    }
   });
 
 /** Validates untrusted JSON before it reaches either public rendering or persistence. */
@@ -144,7 +167,20 @@ export function parseHomeSavingsSettings(value: unknown): HomeSavingsSettings | 
 
   return {
     ...parsed.data,
-    tiles: [...parsed.data.tiles].sort((a, b) => a.sortOrder - b.sortOrder),
+    tiles: parsed.data.tiles
+      .map((tile) => {
+        const targetCategory =
+          tile.targetCategory ?? getLegacyTargetCategory(tile.href) ?? undefined;
+        const hasCategoryTarget = Boolean(tile.targetCategoryId || targetCategory);
+        return {
+          ...tile,
+          ...(targetCategory ? { targetCategory } : {}),
+          href: hasCategoryTarget
+            ? getCartaHrefForLabel(tile.label)
+            : normalizeCategoryHref(tile.href),
+        };
+      })
+      .sort((a, b) => a.sortOrder - b.sortOrder),
   };
 }
 

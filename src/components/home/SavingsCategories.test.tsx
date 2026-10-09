@@ -19,34 +19,40 @@ describe("SavingsCategories", () => {
 
     expect(screen.getByRole("link", { name: "Para Compartir" })).toHaveAttribute(
       "href",
-      "/menu?categoria=Pollo%20a%20la%20Brasa",
+      "/carta/para-compartir",
     );
     expect(screen.getByRole("link", { name: "Para 2" })).toHaveAttribute(
       "href",
-      "/menu?categoria=Parrillas",
+      "/carta/para-2",
     );
     expect(screen.getByRole("link", { name: "Para ti" })).toHaveAttribute(
       "href",
-      "/menu?categoria=Acompa%C3%B1amiento",
+      "/carta/para-ti",
     );
     expect(screen.getByRole("link", { name: "Twister XL" })).toHaveAttribute(
       "href",
-      "/menu?categoria=Bebidas",
+      "/carta/twister-xl",
     );
 
     const images = container.querySelectorAll("img");
     const grid = container.querySelector(".grid");
 
     expect(images).toHaveLength(4);
-    expect(grid).toHaveClass("grid-cols-1", "min-[360px]:grid-cols-2", "md:grid-cols-4");
+    expect(grid).toHaveClass("grid-cols-2", "md:grid-cols-4");
+    expect(grid).not.toHaveClass("grid-cols-1", "min-[480px]:grid-cols-2");
+
+    const categoryLinks = screen.getAllByRole("link").slice(1);
+    categoryLinks.forEach((link) => {
+      expect(link).toHaveClass("flex-col", "sm:flex-row");
+      const label = link.querySelector("span.font-bold");
+
+      expect(label).toHaveClass("break-normal");
+      expect(label).not.toHaveClass("break-words");
+    });
+
     images.forEach((image) => {
-      expect(image).toHaveClass(
-        "size-16",
-        "min-[360px]:size-12",
-        "sm:size-16",
-        "md:size-12",
-        "object-contain",
-      );
+      expect(image).toHaveClass("size-16", "md:size-12", "object-contain");
+      expect(image).not.toHaveClass("min-[480px]:size-12");
       expect(image).not.toHaveClass("w-16");
     });
   });

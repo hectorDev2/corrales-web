@@ -4,13 +4,15 @@ import { useRouter } from "next/navigation";
 import { useRef, useState, type ChangeEvent } from "react";
 import { toast } from "sonner";
 
-import { uploadProductImage } from "@/lib/api/products";
+import { uploadProductImage, type CategoryOption } from "@/lib/api/products";
 import type { FooterSettings, HomeSavingsSettings, HomeSavingsTile } from "@/lib/api/settings";
 import { updateHomeSavingsSettings } from "@/lib/api/settings";
+import { getCartaHrefForLabel, getLegacyTargetCategory } from "@/lib/menu/category-routes";
 
 interface Props {
   initial: HomeSavingsSettings;
   currentFooter: FooterSettings;
+  categories: CategoryOption[];
 }
 
 const ACCEPTED_IMAGE_TYPES = new Set(["image/jpeg", "image/jpg", "image/png", "image/webp"]);
@@ -32,7 +34,7 @@ function orderTiles(tiles: HomeSavingsTile[]) {
   return [...tiles].sort((first, second) => first.sortOrder - second.sortOrder);
 }
 
-export function AdminHomeSavingsPage({ initial, currentFooter }: Props) {
+export function AdminHomeSavingsPage({ initial, currentFooter, categories }: Props) {
   const router = useRouter();
   const [settings, setSettings] = useState<HomeSavingsSettings>(() => ({
     ...initial,
@@ -47,6 +49,14 @@ export function AdminHomeSavingsPage({ initial, currentFooter }: Props) {
     setSettings((previous) => {
       const tiles = orderTiles(previous.tiles);
       tiles[index] = { ...tiles[index], [field]: value } as HomeSavingsTile;
+      return { ...previous, tiles };
+    });
+  }
+
+  function updateTileValues(index: number, values: Partial<HomeSavingsTile>) {
+    setSettings((previous) => {
+      const tiles = orderTiles(previous.tiles);
+      tiles[index] = { ...tiles[index], ...values };
       return { ...previous, tiles };
     });
   }
@@ -116,6 +126,29 @@ export function AdminHomeSavingsPage({ initial, currentFooter }: Props) {
 
   const tiles = orderTiles(settings.tiles);
 
+  function updateTileCategory(index: number, categoryId: string) {
+    const category = categories.find((candidate) => candidate.id === categoryId);
+    if (!category) return;
+
+    updateTileValues(index, {
+      href: getCartaHrefForLabel(tiles[index].label),
+      targetCategoryId: category.id,
+      targetCategory: category.name,
+    });
+  }
+
+  function getSelectedCategoryId(tile: HomeSavingsTile): string | null {
+    if (
+      tile.targetCategoryId &&
+      categories.some((category) => category.id === tile.targetCategoryId)
+    ) {
+      return tile.targetCategoryId;
+    }
+
+    const targetName = tile.targetCategory ?? getLegacyTargetCategory(tile.href);
+    return categories.find((category) => category.name === targetName)?.id ?? null;
+  }
+
   return (
     <div className="mx-auto max-w-3xl space-y-8 px-4 py-8">
       <header>
@@ -170,8 +203,8 @@ export function AdminHomeSavingsPage({ initial, currentFooter }: Props) {
             Categorías destacadas
           </h2>
           <p className="text-on-surface-variant mt-1 text-xs">
-            Administrá las cuatro tarjetas, su orden y visibilidad. Usá rutas internas, por ejemplo
-            {" “/menu?categoria=Parrillas”"}.
+            Administrá las cuatro tarjetas, su orden y visibilidad. La ruta se genera
+            automáticamente a partir de una categoría activa del menú.
           </p>
         </div>
 
@@ -217,7 +250,12 @@ export function AdminHomeSavingsPage({ initial, currentFooter }: Props) {
                   id={`home-savings-label-${index}`}
                   type="text"
                   value={tile.label}
-                  onChange={(event) => updateTile(index, "label", event.target.value)}
+                  onChange={(event) =>
+                    updateTileValues(index, {
+                      label: event.target.value,
+                      href: getCartaHrefForLabel(event.target.value),
+                    })
+                  }
                   className="bg-surface-container-high text-on-surface focus:ring-primary/20 w-full rounded-xl px-4 py-3 text-sm focus:ring-2 focus:outline-none"
                 />
               </div>
@@ -226,16 +264,25 @@ export function AdminHomeSavingsPage({ initial, currentFooter }: Props) {
                   htmlFor={`home-savings-href-${index}`}
                   className="text-on-surface-variant ml-1 text-xs font-bold tracking-widest uppercase"
                 >
-                  URL / categoría
+                  Categoría del menú
                 </label>
-                <input
+                <select
                   id={`home-savings-href-${index}`}
-                  type="text"
-                  value={tile.href}
-                  onChange={(event) => updateTile(index, "href", event.target.value)}
-                  placeholder="/menu?categoria=..."
+                  value={getSelectedCategoryId(tile) ?? `legacy-${index}`}
+                  onChange={(event) => updateTileCategory(index, event.target.value)}
                   className="bg-surface-container-high text-on-surface focus:ring-primary/20 w-full rounded-xl px-4 py-3 text-sm focus:ring-2 focus:outline-none"
-                />
+                >
+                  {!getSelectedCategoryId(tile) && (
+                    <option value={`legacy-${index}`} disabled>
+                      Enlace anterior (elegí una categoría)
+                    </option>
+                  )}
+                  {categories.map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
 

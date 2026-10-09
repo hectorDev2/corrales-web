@@ -4,6 +4,7 @@ export { CartButton } from "./CartButton";
 export { CookieBanner } from "./CookieBanner";
 export { CookieConsent } from "./CookieConsent";
 export { Footer } from "./Footer";
+export { PublicFooter } from "./PublicFooter";
 export { Header } from "./Header";
 export { LocationBanner } from "./LocationBanner";
 export { LocationModal } from "./LocationModal";

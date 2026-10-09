@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 
+import type { CategoryOption } from "@/lib/api/products";
 import { resolveHomeSavingsSettings, type SiteSettings } from "@/lib/api/settings";
 import type { SliderSlide } from "@/lib/api/slider";
 
@@ -12,6 +13,7 @@ import { AdminSliderPage } from "./AdminSliderPage";
 interface Props {
   initialSlides: SliderSlide[];
   initialSettings: SiteSettings;
+  categories: CategoryOption[];
 }
 
 const TABS = [
@@ -22,7 +24,7 @@ const TABS = [
 
 type TabId = (typeof TABS)[number]["id"];
 
-export function AdminContentPage({ initialSlides, initialSettings }: Props) {
+export function AdminContentPage({ initialSlides, initialSettings, categories }: Props) {
   const [activeTab, setActiveTab] = useState<TabId>("slider");
 
   return (
@@ -63,6 +65,7 @@ export function AdminContentPage({ initialSlides, initialSettings }: Props) {
         <AdminHomeSavingsPage
           initial={resolveHomeSavingsSettings(initialSettings.footer.homeSavings)}
           currentFooter={initialSettings.footer}
+          categories={categories}
         />
       </div>
       <div className={activeTab === "footer" ? "block" : "hidden"}>

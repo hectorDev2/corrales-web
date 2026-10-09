@@ -67,4 +67,31 @@ describe("PromotionsPage", () => {
 
     expect(screen.getByTestId("promotions-product-list")).toBeInTheDocument();
   });
+
+  it("resets page to 1 when activeTag changes so promotions are displayed instead of empty state", async () => {
+    const user = userEvent.setup();
+    const manyPromos: Product[] = Array.from({ length: 13 }, (_, index) => ({
+      ...promotions[0],
+      id: `promo-many-${index + 1}`,
+      name: `Promo ${index + 1}`,
+    }));
+
+    const { rerender } = render(
+      <PromotionsPage products={manyPromos} tags={["AHORRA", "ESPECIAL"]} />
+    );
+
+    await user.click(screen.getByRole("button", { name: "Página 2" }));
+    expect(screen.getByRole("link", { name: "Promo 13" })).toBeInTheDocument();
+
+    rerender(
+      <PromotionsPage
+        products={[promotions[0]]}
+        tags={["AHORRA", "ESPECIAL"]}
+        activeTag="AHORRA"
+      />
+    );
+
+    expect(screen.queryByText("No encontramos promociones")).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Parrilla a Compartir" })).toBeInTheDocument();
+  });
 });

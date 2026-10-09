@@ -20,7 +20,9 @@ const products: Product[] = Array.from({ length: 13 }, (_, index) => ({
   description: "Una opción de nuestra carta.",
   image: { src: "/images/404-image.png", alt: `Producto ${index + 1}` },
   category: index < 7 ? "Pollo a la Brasa" : "Parrillas",
-  variants: [{ id: `variant-${index + 1}`, label: null, price: 20 + index, stock: 10, sort_order: 0 }],
+  variants: [
+    { id: `variant-${index + 1}`, label: null, price: 20 + index, stock: 10, sort_order: 0 },
+  ],
 }));
 
 describe("MenuPage", () => {
@@ -32,6 +34,24 @@ describe("MenuPage", () => {
       "top-[calc(var(--public-mobile-header-height)+var(--public-subheader-height))]",
       "md:top-[106px]",
     );
+  });
+
+  it("renders marketing category navigation with its clean slug selected", () => {
+    render(
+      <MenuPage
+        products={products}
+        categories={["Parrillas"]}
+        activeCategory="Para 2"
+        categoryNavigation={[
+          { label: "Para Compartir", href: "/carta/para-compartir", slug: "para-compartir" },
+          { label: "Para 2", href: "/carta/para-2", slug: "para-2" },
+        ]}
+      />,
+    );
+
+    expect(screen.getByRole("link", { name: "Para 2" })).toHaveAttribute("data-slug", "para-2");
+    expect(screen.getByRole("link", { name: "Para 2" })).toHaveAttribute("data-selected", "true");
+    expect(screen.getByRole("heading", { name: "Para 2" })).toBeInTheDocument();
   });
 
   it("renders a catalog strip, desktop product grid, and accessible pagination", async () => {
@@ -69,8 +89,7 @@ describe("MenuPage", () => {
 
       expect(scrollIntoView).toHaveBeenCalledWith({ behavior: "smooth", block: "start" });
     } finally {
-      delete (HTMLElement.prototype as HTMLElement & { scrollIntoView?: unknown })
-        .scrollIntoView;
+      Reflect.deleteProperty(HTMLElement.prototype, "scrollIntoView");
     }
   });
 
@@ -118,7 +137,7 @@ describe("MenuPage", () => {
   it("resets page to 1 when activeCategory changes so products are displayed instead of empty state", async () => {
     const user = userEvent.setup();
     const { rerender } = render(
-      <MenuPage products={products} categories={["Pollo a la Brasa", "Parrillas"]} />
+      <MenuPage products={products} categories={["Pollo a la Brasa", "Parrillas"]} />,
     );
 
     await user.click(screen.getByRole("button", { name: "Página 2" }));
@@ -130,7 +149,7 @@ describe("MenuPage", () => {
         products={parrillaProducts}
         categories={["Pollo a la Brasa", "Parrillas"]}
         activeCategory="Parrillas"
-      />
+      />,
     );
 
     expect(screen.queryByText("No encontramos productos")).not.toBeInTheDocument();

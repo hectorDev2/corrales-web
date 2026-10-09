@@ -8,7 +8,6 @@ import { createClient } from "@supabase/supabase-js";
 
 const PROJECT_ROOT = process.cwd();
 const DEFAULT_SOURCE = path.join(PROJECT_ROOT, "assets/generated-menu");
-const manifestPath = path.join(DEFAULT_SOURCE, "manifest.json");
 const mimeTypes = {
   ".png": "image/png",
   ".jpg": "image/jpeg",
@@ -22,25 +21,29 @@ const DEFAULT_HOME_SAVINGS = {
   tiles: [
     {
       label: "Para Compartir",
-      href: "/menu?categoria=Pollo%20a%20la%20Brasa",
+      href: "/carta/para-compartir",
+      targetCategory: "Pollo a la Brasa",
       sortOrder: 0,
       isActive: true,
     },
     {
       label: "Para 2",
-      href: "/menu?categoria=Parrillas",
+      href: "/carta/para-2",
+      targetCategory: "Parrillas",
       sortOrder: 1,
       isActive: true,
     },
     {
       label: "Para ti",
-      href: "/menu?categoria=Acompa%C3%B1amiento",
+      href: "/carta/para-ti",
+      targetCategory: "Acompañamiento",
       sortOrder: 2,
       isActive: true,
     },
     {
       label: "Twister XL",
-      href: "/menu?categoria=Bebidas",
+      href: "/carta/twister-xl",
+      targetCategory: "Bebidas",
       sortOrder: 3,
       isActive: true,
     },

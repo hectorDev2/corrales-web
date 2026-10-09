@@ -19,7 +19,13 @@ describe("home savings settings", () => {
       })),
     };
 
-    expect(parseHomeSavingsSettings(settings)).toEqual(settings);
+    expect(parseHomeSavingsSettings(settings)).toEqual({
+      ...settings,
+      tiles: settings.tiles.map((tile) => ({
+        ...tile,
+        href: `/carta/categoria-${tile.sortOrder + 1}`,
+      })),
+    });
   });
 
   it("rejects malformed settings instead of trusting arbitrary JSON or image hosts", () => {
@@ -56,5 +62,73 @@ describe("home savings settings", () => {
     expect(resolveHomeSavingsSettings({ title: "No confiable" })).toEqual(
       DEFAULT_HOME_SAVINGS_SETTINGS,
     );
+  });
+
+  it("normalizes legacy saved category query links to their clean carta routes", () => {
+    const legacySettings = {
+      ...DEFAULT_HOME_SAVINGS_SETTINGS,
+      tiles: [
+        {
+          ...DEFAULT_HOME_SAVINGS_SETTINGS.tiles[0],
+          href: "/menu?categoria=Pollo%20a%20la%20Brasa",
+        },
+        {
+          ...DEFAULT_HOME_SAVINGS_SETTINGS.tiles[1],
+          href: "/menu?categoria=Parrillas",
+        },
+        {
+          ...DEFAULT_HOME_SAVINGS_SETTINGS.tiles[2],
+          href: "/menu?categoria=Acompa%C3%B1amiento",
+        },
+        {
+          ...DEFAULT_HOME_SAVINGS_SETTINGS.tiles[3],
+          href: "/menu?categoria=Bebidas",
+        },
+      ],
+    };
+
+    const parsed = parseHomeSavingsSettings(legacySettings);
+    expect(parsed?.tiles.map((tile) => tile.href)).toEqual([
+      "/carta/para-compartir",
+      "/carta/para-2",
+      "/carta/para-ti",
+      "/carta/twister-xl",
+    ]);
+    expect(parsed?.tiles.map((tile) => tile.targetCategory)).toEqual([
+      "Pollo a la Brasa",
+      "Parrillas",
+      "Acompañamiento",
+      "Bebidas",
+    ]);
+  });
+
+  it("derives the clean href from the marketing label, independently from its target category", () => {
+    const settings = {
+      ...DEFAULT_HOME_SAVINGS_SETTINGS,
+      tiles: DEFAULT_HOME_SAVINGS_SETTINGS.tiles.map((tile, index) =>
+        index === 1
+          ? { ...tile, label: "Combo Dúo", href: "/carta/para-2", targetCategory: "Parrillas" }
+          : tile,
+      ),
+    };
+
+    expect(parseHomeSavingsSettings(settings)?.tiles[1]).toEqual(
+      expect.objectContaining({
+        label: "Combo Dúo",
+        href: "/carta/combo-duo",
+        targetCategory: "Parrillas",
+      }),
+    );
+  });
+
+  it("rejects duplicate marketing slugs instead of routing to an arbitrary tile", () => {
+    const settings = {
+      ...DEFAULT_HOME_SAVINGS_SETTINGS,
+      tiles: DEFAULT_HOME_SAVINGS_SETTINGS.tiles.map((tile, index) =>
+        index === 1 ? { ...tile, label: "Para compartir" } : tile,
+      ),
+    };
+
+    expect(parseHomeSavingsSettings(settings)).toBeNull();
   });
 });

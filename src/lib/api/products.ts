@@ -695,16 +695,22 @@ export async function getProductById(id: string): Promise<Product | null> {
 const PRIORITY_CATEGORIES = ["Pollo a la Brasa", "Parrillas"];
 
 export async function getCategories(): Promise<string[]> {
+  const categories = await getActiveCategoryOptions();
+  return categories.map((category) => category.name);
+}
+
+export async function getActiveCategoryOptions(): Promise<CategoryOption[]> {
   const { data, error } = await supabase
     .from("categories")
-    .select("name")
+    .select("id, name")
     .eq("is_active", true)
     .order("name");
 
   if (error) throw error;
 
-  const names = data.map((c) => c.name);
-  const priority = PRIORITY_CATEGORIES.filter((p) => names.includes(p));
-  const rest = names.filter((n) => !PRIORITY_CATEGORIES.includes(n));
+  const priority = PRIORITY_CATEGORIES.flatMap((name) =>
+    data.filter((category) => category.name === name),
+  );
+  const rest = data.filter((category) => !PRIORITY_CATEGORIES.includes(category.name));
   return [...priority, ...rest];
 }

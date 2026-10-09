@@ -49,14 +49,14 @@ export function MobileNav({ isAdmin }: MobileNavProps) {
       {/* Backdrop */}
       {open && (
         <div
-          className="fixed inset-0 z-[70] bg-black/40 backdrop-blur-sm"
+          className="fixed inset-0 z-[120] bg-black/40 backdrop-blur-sm"
           onClick={() => setOpen(false)}
         />
       )}
 
       {/* Drawer */}
       <div
-        className={`fixed top-0 left-0 z-[80] h-full w-72 bg-white shadow-2xl transition-transform duration-300 ease-in-out ${
+        className={`fixed top-0 left-0 z-[130] h-full w-72 bg-white shadow-2xl transition-transform duration-300 ease-in-out ${
           open ? "translate-x-0" : "-translate-x-full"
         }`}
       >

@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import type { Product } from "@/types/product";
@@ -198,5 +198,64 @@ describe("ProductDetailPage", () => {
     expect(productContextPanel.querySelector("img")).toHaveAttribute("src", "/pollo.jpg");
     expect(productContextPanel).toHaveTextContent("S/ 80.00");
     expect(productContextPanel).toHaveTextContent(product.description);
+  });
+
+  it("renders 'Personaliza tu pedido' summary list under product description with status badges and edit actions", () => {
+    render(<ProductDetailPage product={product} />);
+
+    const summarySection = screen.getByTestId("product-customize-summary");
+    expect(
+      within(summarySection).getByRole("heading", { name: "Personaliza tu pedido" }),
+    ).toBeInTheDocument();
+    expect(within(summarySection).getByText("Elige tu Complemento")).toBeInTheDocument();
+    expect(within(summarySection).getByText("Elige 1 opción")).toBeInTheDocument();
+    expect(within(summarySection).getByText("Requerido")).toBeInTheDocument();
+    expect(
+      within(summarySection).getByRole("button", { name: "Editar Elige tu Complemento" }),
+    ).toBeInTheDocument();
+  });
+
+  it("focuses and expands option group when clicking the edit button in customization summary", () => {
+    const scrollIntoView = vi.fn();
+    Object.defineProperty(HTMLElement.prototype, "scrollIntoView", {
+      configurable: true,
+      value: scrollIntoView,
+    });
+
+    try {
+      render(<ProductDetailPage product={product} />);
+
+      const editButton = screen.getByRole("button", { name: "Editar Elige tu Complemento" });
+      fireEvent.click(editButton);
+
+      expect(scrollIntoView).toHaveBeenCalledWith({ behavior: "smooth", block: "center" });
+      expect(
+        screen.getByTestId("product-option-group-acompanamiento").querySelector("button"),
+      ).toHaveFocus();
+    } finally {
+      delete (HTMLElement.prototype as HTMLElement & { scrollIntoView?: unknown }).scrollIntoView;
+    }
+  });
+
+  it("updates status to Completado and shows selected option in customization summary when selected", () => {
+    render(<ProductDetailPage product={product} />);
+
+    const summarySection = screen.getByTestId("product-customize-summary");
+    expect(within(summarySection).getByText("Requerido")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /Papas Fritas/ }));
+
+    expect(within(summarySection).getByText("Completado")).toBeInTheDocument();
+    expect(within(summarySection).getByText("Papas Fritas")).toBeInTheDocument();
+  });
+
+  it("automatically closes the accordion when the required selection is completed", () => {
+    render(<ProductDetailPage product={product} />);
+
+    expect(screen.getByRole("radio")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("radio"));
+
+    expect(screen.queryByRole("radio")).not.toBeInTheDocument();
   });
 });
