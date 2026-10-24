@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 
 import { useCartStore } from "@/store/cart";
 import type { CartItem } from "@/types/cart";
@@ -11,7 +12,7 @@ interface CartItemRowProps {
 }
 
 export function CartItemRow({ item }: CartItemRowProps) {
-  const { updateQuantity, removeItem } = useCartStore();
+  const { updateQuantity, closeDrawer } = useCartStore();
   const { product, variant, quantity, selectedOptions } = item;
   const optionsExtra = calcOptionsTotal(product, selectedOptions);
   const unitPrice = variant.price + optionsExtra;
@@ -45,84 +46,80 @@ export function CartItemRow({ item }: CartItemRowProps) {
   const hasDeltaOptions = optionsExtra > 0;
 
   return (
-    <article className="rounded-xl bg-white p-4 shadow-sm">
-      <div className="flex items-start gap-3">
-        <div className="relative size-20 shrink-0 overflow-hidden bg-[#f5f5f5] sm:size-24">
+    <article className="rounded-xl bg-white p-4 shadow-sm sm:px-8 sm:py-5">
+      <div className="flex justify-end">
+        <Link
+          href={`/producto/${product.id}`}
+          onClick={closeDrawer}
+          className="focus-visible:outline-primary flex items-center gap-1 text-xs font-bold text-[#111111] hover:underline focus-visible:outline-2"
+        >
+          <span className="material-symbols-outlined text-[16px]" aria-hidden="true">
+            edit
+          </span>
+          Editar
+        </Link>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-3 sm:flex-nowrap">
+        <div className="relative size-16 shrink-0 overflow-hidden sm:size-[72px]">
           <Image
             src={product.image.src}
             alt={product.image.alt}
             fill
             className="object-contain"
-            sizes="(min-width: 640px) 96px, 80px"
+            sizes="72px"
           />
         </div>
 
-        <div className="min-w-0 flex-1">
-          <div className="flex items-start justify-between gap-2">
-            <h3 className="line-clamp-2 leading-snug font-bold text-[#111111]">
-              {product.name}
-              {variant.label && (
-                <span className="text-on-surface-variant ml-1 text-xs font-normal">
-                  ({variant.label})
-                </span>
-              )}
-            </h3>
-            <button
-              type="button"
-              onClick={() => removeItem(item.key)}
-              aria-label={`Eliminar ${product.name}`}
-              className="text-primary hover:bg-primary/10 focus-visible:outline-primary flex size-9 shrink-0 items-center justify-center rounded-full transition-colors focus-visible:outline-2"
+        <h3 className="line-clamp-2 min-w-0 flex-1 basis-40 leading-snug font-bold text-[#111111] sm:text-lg">
+          {product.name}
+          {variant.label && (
+            <span className="text-on-surface-variant ml-1 text-xs font-normal">
+              ({variant.label})
+            </span>
+          )}
+        </h3>
+
+        <p className="w-28 shrink-0 text-sm leading-tight text-[#111111] sm:w-36">
+          <span className="block text-xs font-bold">Precio</span>
+          <span className="text-base font-black">S/ {(unitPrice * quantity).toFixed(2)}</span>
+          {quantity > 1 && (
+            <span className="block text-xs font-bold text-green-600">
+              unidad S/ {unitPrice.toFixed(2)}
+            </span>
+          )}
+        </p>
+
+        <div className="ml-auto flex items-center rounded-lg border border-[#d5d5d5] bg-white p-1">
+          <button
+            type="button"
+            onClick={() => updateQuantity(item.key, quantity - 1)}
+            aria-label={quantity === 1 ? `Eliminar ${product.name}` : "Reducir cantidad"}
+            className="bg-primary flex size-8 items-center justify-center rounded-full text-white transition-transform active:scale-90"
+          >
+            <span
+              className="material-symbols-outlined text-[20px]"
+              style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}
+              aria-hidden="true"
             >
-              <span
-                className="material-symbols-outlined text-[22px]"
-                style={{
-                  fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24",
-                }}
-                aria-hidden="true"
-              >
-                delete
-              </span>
-            </button>
-          </div>
-
-          <p className="mt-1 text-sm leading-tight text-[#111111]">
-            <span className="text-on-surface-variant block text-xs">Precio</span>
-            <span className="font-black">S/ {(unitPrice * quantity).toFixed(2)}</span>
-          </p>
-
-          <div className="mt-3 flex justify-end">
-            <div className="flex items-center rounded-lg border border-[#d5d5d5] bg-white p-1">
-              <button
-                type="button"
-                onClick={() => updateQuantity(item.key, quantity - 1)}
-                aria-label="Reducir cantidad"
-                className="bg-primary flex size-8 items-center justify-center rounded-lg text-white transition-transform active:scale-90"
-              >
-                <span
-                  className="material-symbols-outlined text-[20px]"
-                  style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}
-                  aria-hidden="true"
-                >
-                  {quantity === 1 ? "delete" : "remove"}
-                </span>
-              </button>
-              <span className="min-w-10 px-2 text-center text-base font-bold">{quantity}</span>
-              <button
-                type="button"
-                onClick={() => updateQuantity(item.key, quantity + 1)}
-                aria-label="Aumentar cantidad"
-                className="bg-primary flex size-8 items-center justify-center rounded-lg text-white transition-transform active:scale-90"
-              >
-                <span
-                  className="material-symbols-outlined text-[20px]"
-                  style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}
-                  aria-hidden="true"
-                >
-                  add
-                </span>
-              </button>
-            </div>
-          </div>
+              {quantity === 1 ? "delete" : "remove"}
+            </span>
+          </button>
+          <span className="min-w-10 px-2 text-center text-base font-bold">{quantity}</span>
+          <button
+            type="button"
+            onClick={() => updateQuantity(item.key, quantity + 1)}
+            aria-label="Aumentar cantidad"
+            className="bg-primary flex size-8 items-center justify-center rounded-full text-white transition-transform active:scale-90"
+          >
+            <span
+              className="material-symbols-outlined text-[20px]"
+              style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}
+              aria-hidden="true"
+            >
+              add
+            </span>
+          </button>
         </div>
       </div>
 

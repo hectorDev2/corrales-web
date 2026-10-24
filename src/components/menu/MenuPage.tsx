@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useRef, useState, type RefObject } from "react";
+import { toast } from "sonner";
 
 import { useCartStore } from "@/store/cart";
 import type { Product } from "@/types/product";
@@ -45,7 +46,9 @@ export function ProductCatalogCard({
   const isHorizontal = viewMode === "horizontal";
 
   function addToCart() {
-    if (variant) addItem(product, variant);
+    if (!variant) return;
+    addItem(product, variant);
+    toast.success(`${product.name} agregado al carrito`);
   }
 
   return (

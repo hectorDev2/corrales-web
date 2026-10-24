@@ -39,7 +39,7 @@ export function CartDrawer() {
         role="dialog"
         aria-modal="true"
         aria-label="Tu pedido"
-        className="fixed top-0 right-0 z-[130] flex h-full w-full max-w-none flex-col overflow-hidden bg-[#f4f4f4] shadow-2xl sm:max-w-[390px]"
+        className="fixed top-0 right-0 z-[130] flex h-full w-full max-w-none flex-col overflow-hidden bg-[#f4f4f4] shadow-2xl"
       >
         <header className="bg-primary relative grid min-h-16 shrink-0 grid-cols-[3rem_1fr_3rem] items-center px-3 text-white sm:min-h-18">
           <button
@@ -55,7 +55,7 @@ export function CartDrawer() {
           <span aria-hidden="true" />
         </header>
 
-        <div className="flex-1 overflow-y-auto overscroll-contain px-3 py-4 sm:px-5">
+        <div className="flex-1 overflow-y-auto overscroll-contain px-3 py-4 sm:px-6">
           {isEmpty ? (
             <div className="flex min-h-full flex-col items-center justify-center py-12 text-center">
               <div className="mb-4 flex size-24 items-center justify-center rounded-full bg-white">
@@ -79,7 +79,7 @@ export function CartDrawer() {
               </Link>
             </div>
           ) : (
-            <div className="space-y-5">
+            <div className="mx-auto w-full max-w-[1100px] space-y-4 pb-24 lg:pb-0">
               <button
                 type="button"
                 onClick={clearCart}
@@ -92,59 +92,65 @@ export function CartDrawer() {
                 Vaciar carrito
               </button>
 
-              <div className="space-y-3">
-                {items.map((item, index) => (
-                  <CartItemRow key={`${item.key}:${index}`} item={item} />
-                ))}
-              </div>
-
-              <section
-                aria-label="Resumen de pedido"
-                className="rounded-xl bg-white px-4 py-5 shadow-sm"
-              >
-                <h3 className="border-b border-[#e5e5e5] pb-3 text-base font-black text-[#111111]">
-                  Resumen de Pedido
-                </h3>
-                <div className="space-y-3 pt-4 text-sm">
-                  <div className="flex items-center justify-between">
-                    <span className="text-on-surface-variant">Subtotal</span>
-                    <span className="font-medium text-[#111111]">S/ {subtotal().toFixed(2)}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-on-surface-variant">Delivery</span>
-                    <span className="font-medium text-[#111111]">S/ {deliveryCost.toFixed(2)}</span>
-                  </div>
-                  <div className="flex items-center justify-between border-t border-[#e5e5e5] pt-4">
-                    <span className="text-lg font-black text-[#111111]">Total</span>
-                    <span className="text-xl font-black text-[#111111]">
-                      S/ {total().toFixed(2)}
-                    </span>
-                  </div>
+              <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_366px] lg:gap-8">
+                <div className="space-y-4">
+                  {items.map((item, index) => (
+                    <CartItemRow key={`${item.key}:${index}`} item={item} />
+                  ))}
                 </div>
-              </section>
 
-              <Link
-                href="/menu"
-                onClick={closeDrawer}
-                className="text-primary flex min-h-14 w-full items-center justify-center font-bold underline-offset-4 transition-opacity hover:underline hover:opacity-80"
-              >
-                Seguir comprando
-              </Link>
+                <div className="space-y-4 lg:sticky lg:top-0">
+                  <section
+                    aria-label="Resumen de pedido"
+                    className="rounded-xl bg-white px-6 py-6 shadow-sm"
+                  >
+                    <h3 className="border-b border-[#e5e5e5] pb-3 text-xl font-black text-[#111111]">
+                      Resumen de Pedido
+                    </h3>
+                    <div className="space-y-2 pt-4 text-sm">
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-[#111111]">Subtotal</span>
+                        <span className="font-medium text-[#111111]">
+                          S/ {subtotal().toFixed(2)}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-[#111111]">Delivery</span>
+                        <span className="font-medium text-[#111111]">
+                          S/ {deliveryCost.toFixed(2)}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between border-t border-[#e5e5e5] pt-4">
+                        <span className="text-lg font-black text-[#111111]">Total</span>
+                        <span className="text-xl font-black text-[#111111]">
+                          S/ {total().toFixed(2)}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="fixed inset-x-0 bottom-0 z-10 border-t border-[#e5e5e5] bg-white px-5 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-[0_-6px_18px_rgba(0,0,0,0.06)] lg:static lg:border-0 lg:px-0 lg:pt-8 lg:pb-0 lg:shadow-none">
+                      <Link
+                        href="/checkout"
+                        onClick={closeDrawer}
+                        className="bg-primary mx-auto flex h-12 w-full items-center justify-center rounded-xl font-bold text-white transition-transform active:scale-[0.98] lg:w-44"
+                      >
+                        Ir a pagar
+                      </Link>
+                    </div>
+                  </section>
+
+                  <Link
+                    href="/menu"
+                    onClick={closeDrawer}
+                    className="text-primary flex min-h-12 w-full items-center justify-center font-bold underline-offset-4 transition-opacity hover:underline hover:opacity-80"
+                  >
+                    Seguir comprando
+                  </Link>
+                </div>
+              </div>
             </div>
           )}
         </div>
-
-        {!isEmpty && (
-          <footer className="shrink-0 border-t border-[#e5e5e5] bg-white px-5 pt-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] shadow-[0_-6px_18px_rgba(0,0,0,0.06)]">
-            <Link
-              href="/checkout"
-              onClick={closeDrawer}
-              className="bg-primary shadow-primary/20 flex h-14 w-full items-center justify-center rounded-xl text-lg font-bold text-white shadow-lg transition-transform active:scale-[0.98]"
-            >
-              Ir a pagar
-            </Link>
-          </footer>
-        )}
       </aside>
     </>,
     document.body,
