@@ -223,7 +223,11 @@ function HistoryOrderCard({ order }: { order: AdminOrder }) {
               {label}
             </span>
             <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-surface-container-high text-secondary">
-              {order.delivery_type === "delivery" ? "Delivery" : "Recojo"}
+              {order.delivery_type === "delivery"
+                ? "Delivery"
+                : order.delivery_type === "dine_in"
+                  ? `Mesa ${order.table_label ?? "?"}`
+                  : "Recojo"}
             </span>
           </div>
 

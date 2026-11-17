@@ -5,6 +5,7 @@ export { AdminCategoriesPage } from "./AdminCategoriesPage";
 export { AdminUsersPage } from "./AdminUsersPage";
 export { AdminProductsPage } from "./AdminProductsPage";
 export { AdminReservationsPage } from "./AdminReservationsPage";
+export { AdminTablesPage } from "./AdminTablesPage";
 export { AdminSliderPage } from "./AdminSliderPage";
 export { AdminOrderHistoryPage } from "./AdminOrderHistoryPage";
 export { FacturacionPage } from "./FacturacionPage";

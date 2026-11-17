@@ -1,4 +1,5 @@
 import { CartDrawer } from "@/components/cart";
+import { TableBanner } from "@/components/mesa";
 import {
   AnnouncementBar,
   BottomNav,
@@ -12,6 +13,7 @@ import {
 export default function PublicLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
+      <TableBanner />
       <AnnouncementBar />
       <Header />
       <SubHeader />

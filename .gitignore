@@ -70,3 +70,5 @@ skills/
 skills-lock.json
 /new-design/node_modules/
 /new-design/.next/
+# print agent
+tools/print-agent/config.json

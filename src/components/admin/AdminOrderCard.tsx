@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 
+import { printReceipt, printStationTickets } from "@/lib/print";
 import type { AdminOrder, AdminOrderStatus, DeliveryProfile } from "@/types/admin";
 
 import { InvoiceModal } from "./InvoiceModal";
@@ -26,6 +28,24 @@ const STATUS_CONFIG: Record<AdminOrderStatus, { label: string; bg: string; text:
 export function AdminOrderCard({ order, deliveryProfiles, onAdvance, onAssign, onCancel }: Props) {
   const [selectedDelivery, setSelectedDelivery] = useState("");
   const [invoiceOpen, setInvoiceOpen] = useState(false);
+  const [printing, setPrinting] = useState<"kitchen" | "receipt" | null>(null);
+
+  async function handlePrint(type: "kitchen" | "receipt") {
+    setPrinting(type);
+    try {
+      if (type === "kitchen") {
+        const stations = await printStationTickets(order);
+        toast.success(`Comanda enviada a: ${stations.join(", ")}.`);
+      } else {
+        await printReceipt(order);
+        toast.success("Boleta impresa en caja.");
+      }
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Error al imprimir.");
+    } finally {
+      setPrinting(null);
+    }
+  }
   const { label, bg, text } = STATUS_CONFIG[order.status];
   const whatsappHref = `https://wa.me/51${order.customer_phone.replace(/\s/g, "")}`;
   const createdAt = new Date(order.created_at).toLocaleTimeString("es-PE", {
@@ -51,7 +71,11 @@ export function AdminOrderCard({ order, deliveryProfiles, onAdvance, onAssign, o
               {label}
             </span>
             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-surface-container-high text-secondary">
-              {order.delivery_type === "delivery" ? "Delivery" : "Recojo"}
+              {order.delivery_type === "delivery"
+                ? "Delivery"
+                : order.delivery_type === "dine_in"
+                  ? `Mesa ${order.table_label ?? "?"}`
+                  : "Recojo"}
             </span>
           </div>
         </div>
@@ -77,7 +101,9 @@ export function AdminOrderCard({ order, deliveryProfiles, onAdvance, onAssign, o
           </div>
           <div className="flex-1">
             <p className="text-sm font-bold text-on-surface">{order.customer_name}</p>
-            <p className="text-xs text-on-surface-variant">{order.customer_phone}</p>
+            {order.delivery_type !== "dine_in" && (
+              <p className="text-xs text-on-surface-variant">{order.customer_phone}</p>
+            )}
 
             {order.customer_address && (
               <div className="mt-2 flex items-start gap-1 text-on-surface-variant">
@@ -187,6 +213,9 @@ export function AdminOrderCard({ order, deliveryProfiles, onAdvance, onAssign, o
               </select>
             )}
             <div className="grid grid-cols-2 gap-3">
+              {order.delivery_type === "dine_in" ? (
+                <span />
+              ) : (
               <a
                 href={whatsappHref}
                 target="_blank"
@@ -198,6 +227,7 @@ export function AdminOrderCard({ order, deliveryProfiles, onAdvance, onAssign, o
                 </span>
                 Contactar
               </a>
+              )}
               {order.delivery_type === "delivery" && selectedDelivery ? (
                 <button
                   onClick={() => onAssign(order.id, selectedDelivery)}
@@ -260,6 +290,18 @@ export function AdminOrderCard({ order, deliveryProfiles, onAdvance, onAssign, o
           </button>
         )}
 
+        {order.status === "listo" && order.delivery_type === "dine_in" && (
+          <button
+            onClick={() => onAdvance(order.id, "entregado")}
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-surface-container-highest text-on-surface-variant text-[11px] font-bold uppercase tracking-wider transition-all active:scale-95"
+          >
+            <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>
+              table_restaurant
+            </span>
+            Servido en la mesa
+          </button>
+        )}
+
         {order.status === "en_camino" && (
           <div className="flex items-center justify-center gap-2 py-3 text-on-surface-variant text-[11px] font-bold uppercase tracking-wider">
             <span className="material-symbols-outlined text-sm text-primary" style={{ fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>
@@ -268,6 +310,23 @@ export function AdminOrderCard({ order, deliveryProfiles, onAdvance, onAssign, o
             En camino con {order.assigned_profile?.full_name ?? "el repartidor"}
           </div>
         )}
+
+        {/* Impresión */}
+        <div className="grid grid-cols-2 gap-3">
+          {(["kitchen", "receipt"] as const).map((type) => (
+            <button
+              key={type}
+              disabled={printing !== null}
+              onClick={() => handlePrint(type)}
+              className="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-surface-container-highest text-on-surface-variant text-[11px] font-bold uppercase tracking-wider transition-all active:scale-95 disabled:opacity-40"
+            >
+              <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>
+                {type === "kitchen" ? "soup_kitchen" : "print"}
+              </span>
+              {printing === type ? "Imprimiendo..." : type === "kitchen" ? "Comandas" : "Caja (todo)"}
+            </button>
+          ))}
+        </div>
 
         {/* Invoice button */}
         {(() => {

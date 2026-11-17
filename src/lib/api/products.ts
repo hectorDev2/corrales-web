@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import type { ProductStation } from "@/types/admin";
 import type { Product, ProductOptionGroup } from "@/types/product";
 
 // ─── Admin types ──────────────────────────────────────────────────────────────
@@ -33,6 +34,7 @@ export interface AdminProduct {
   image_alt: string;
   tag: string | null;
   is_active: boolean;
+  station: ProductStation;
   category_id: string;
   category_name: string;
   variants: AdminVariant[];
@@ -64,6 +66,7 @@ export interface ProductInput {
   image_alt: string;
   tag: string | null;
   is_active: boolean;
+  station: ProductStation;
   category_id: string;
   /** Variants without id → new inserts */
   newVariants: Array<{ label: string; price: number; stock: number; sort_order: number }>;
@@ -85,7 +88,7 @@ export async function getAdminProducts(): Promise<AdminProduct[]> {
   const { data, error } = await supabase
     .from("products")
     .select(`
-      id, name, description, image_src, image_alt, tag, is_active, category_id,
+      id, name, description, image_src, image_alt, tag, is_active, station, category_id,
       categories ( name ),
       product_variants ( id, label, price, stock, sort_order, is_active )
     `)
@@ -101,6 +104,7 @@ export async function getAdminProducts(): Promise<AdminProduct[]> {
     image_alt: row.image_alt,
     tag: row.tag,
     is_active: row.is_active,
+    station: row.station as ProductStation,
     category_id: row.category_id,
     category_name: (row.categories as { name: string }).name,
     variants: (
@@ -129,6 +133,7 @@ export async function createProduct(input: ProductInput): Promise<void> {
       image_alt: input.image_alt,
       tag: input.tag || null,
       is_active: input.is_active,
+      station: input.station,
       category_id: input.category_id,
     })
     .select("id")
@@ -163,6 +168,7 @@ export async function updateProduct(id: string, input: ProductInput): Promise<vo
       image_alt: input.image_alt,
       tag: input.tag || null,
       is_active: input.is_active,
+      station: input.station,
       category_id: input.category_id,
     })
     .eq("id", id);

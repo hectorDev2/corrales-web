@@ -5,11 +5,13 @@ import { useEffect } from "react";
 import { createPortal } from "react-dom";
 
 import { useCartStore } from "@/store/cart";
+import { useTableSession } from "@/store/table-session";
 
 import { CartItemRow } from "./CartItemRow";
 
 export function CartDrawer() {
   const { isOpen, closeDrawer, clearCart, items, subtotal, total, deliveryCost } = useCartStore();
+  const tableSession = useTableSession((s) => s.table);
 
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "";
@@ -114,12 +116,14 @@ export function CartDrawer() {
                           S/ {subtotal().toFixed(2)}
                         </span>
                       </div>
-                      <div className="flex items-center justify-between">
-                        <span className="font-bold text-[#111111]">Delivery</span>
-                        <span className="font-medium text-[#111111]">
-                          S/ {deliveryCost.toFixed(2)}
-                        </span>
-                      </div>
+                      {!tableSession && (
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-[#111111]">Delivery</span>
+                          <span className="font-medium text-[#111111]">
+                            S/ {deliveryCost.toFixed(2)}
+                          </span>
+                        </div>
+                      )}
                       <div className="flex items-center justify-between border-t border-[#e5e5e5] pt-4">
                         <span className="text-lg font-black text-[#111111]">Total</span>
                         <span className="text-xl font-black text-[#111111]">

@@ -3,9 +3,11 @@
 import Image from "next/image";
 
 import { useCartStore } from "@/store/cart";
+import { useTableSession } from "@/store/table-session";
 
 export function OrderSummary() {
   const { items, subtotal, total, deliveryCost } = useCartStore();
+  const isTable = useTableSession((s) => s.table !== null);
 
   return (
     <div className="bg-white p-8 rounded-[2rem] shadow-card">
@@ -53,10 +55,12 @@ export function OrderSummary() {
           <span>Subtotal</span>
           <span>S/ {subtotal().toFixed(2)}</span>
         </div>
-        <div className="flex justify-between text-on-surface-variant">
-          <span>Delivery</span>
-          <span>S/ {deliveryCost.toFixed(2)}</span>
-        </div>
+        {!isTable && (
+          <div className="flex justify-between text-on-surface-variant">
+            <span>Delivery</span>
+            <span>S/ {deliveryCost.toFixed(2)}</span>
+          </div>
+        )}
         <div className="flex justify-between text-xl font-black text-on-surface pt-2">
           <span>Total</span>
           <span className="text-primary">S/ {total().toFixed(2)}</span>

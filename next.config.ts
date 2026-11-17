@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Permite abrir el servidor de desarrollo desde el celular (red local), p. ej. al probar los QR de mesa.
+  allowedDevOrigins: ["192.168.2.84", "192.168.*.*"],
   images: {
     remotePatterns: [
       {

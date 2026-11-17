@@ -12,6 +12,7 @@ const NAV_ITEMS = [
   { href: "/admin/usuarios", icon: "group", label: "Usuarios" },
   { href: "/admin/historial", icon: "history", label: "Historial" },
   { href: "/admin/reservas", icon: "event_seat", label: "Reservas" },
+  { href: "/admin/mesas", icon: "table_restaurant", label: "Mesas" },
   { href: "/", icon: "home", label: "Inicio" },
 ] as const;
 

@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
+import { useTableSession } from "@/store/table-session";
 import type { CartItem, SelectedOptionsMap } from "@/types/cart";
 import { calcOptionsTotal, getCartItemKey } from "@/types/cart";
 import type { Product, ProductVariant } from "@/types/product";
@@ -48,7 +49,10 @@ export const useCartStore = create<CartStore>()(
 
       total: () => {
         const { items, subtotal, deliveryCost } = get();
-        return items.length > 0 ? subtotal() + deliveryCost : 0;
+        if (items.length === 0) return 0;
+        // Pedidos desde la mesa (QR) no llevan cargo de delivery.
+        if (useTableSession.getState().table) return subtotal();
+        return subtotal() + deliveryCost;
       },
 
       openDrawer: () => set({ isOpen: true }),

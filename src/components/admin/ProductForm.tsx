@@ -33,6 +33,7 @@ const productSchema = z.object({
   image_src: z.string().min(1, "Ingresá la imagen"),
   image_alt: z.string().min(2, "Ingresá el alt text"),
   is_active: z.boolean(),
+  station: z.enum(["cocina", "horno", "barra"]),
   variants: z.array(variantSchema).min(1, "Agregá al menos una variante"),
 });
 
@@ -71,6 +72,7 @@ export function ProductForm({ product, categories, onSuccess, onClose }: Props) 
       image_src: "",
       image_alt: "",
       is_active: true,
+      station: "cocina",
       variants: [{ label: "", price: 0, stock: 30 }],
     },
   });
@@ -88,6 +90,7 @@ export function ProductForm({ product, categories, onSuccess, onClose }: Props) 
         image_src: product.image_src,
         image_alt: product.image_alt,
         is_active: product.is_active,
+        station: product.station,
         variants: product.variants
           .filter((v) => v.is_active)
           .map((v) => ({ _id: v.id, label: v.label ?? "", price: v.price, stock: v.stock })),
@@ -101,6 +104,7 @@ export function ProductForm({ product, categories, onSuccess, onClose }: Props) 
         image_src: "",
         image_alt: "",
         is_active: true,
+        station: "cocina",
         variants: [{ label: "", price: 0, stock: 30 }],
       });
     }
@@ -138,6 +142,7 @@ export function ProductForm({ product, categories, onSuccess, onClose }: Props) 
         image_alt: values.image_alt,
         tag: values.tag || null,
         is_active: values.is_active,
+        station: values.station,
         category_id: values.category_id,
         newVariants,
         updatedVariants,
@@ -205,6 +210,15 @@ export function ProductForm({ product, categories, onSuccess, onClose }: Props) 
                 {c.name}
               </option>
             ))}
+          </select>
+        </Field>
+
+        {/* Estación de producción */}
+        <Field label="Se prepara en" error={errors.station?.message}>
+          <select {...register("station")} className={inputClass(!!errors.station)}>
+            <option value="cocina">Cocina</option>
+            <option value="horno">Horno</option>
+            <option value="barra">Barra (bar)</option>
           </select>
         </Field>
 

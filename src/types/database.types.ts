@@ -150,6 +150,7 @@ export type Database = {
           order_number: number
           payment_method: Database["public"]["Enums"]["payment_method"]
           status: Database["public"]["Enums"]["order_status"]
+          table_id: string | null
           total: number
           updated_at: string
         }
@@ -166,6 +167,7 @@ export type Database = {
           order_number?: never
           payment_method: Database["public"]["Enums"]["payment_method"]
           status?: Database["public"]["Enums"]["order_status"]
+          table_id?: string | null
           total: number
           updated_at?: string
         }
@@ -182,6 +184,7 @@ export type Database = {
           order_number?: never
           payment_method?: Database["public"]["Enums"]["payment_method"]
           status?: Database["public"]["Enums"]["order_status"]
+          table_id?: string | null
           total?: number
           updated_at?: string
         }
@@ -193,7 +196,50 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "orders_table_id_fkey"
+            columns: ["table_id"]
+            isOneToOne: false
+            referencedRelation: "restaurant_tables"
+            referencedColumns: ["id"]
+          },
         ]
+      }
+      restaurant_tables: {
+        Row: {
+          capacity: number
+          created_at: string
+          id: string
+          is_active: boolean
+          label: string
+          pos_x: number
+          pos_y: number
+          qr_token: string
+          zone: string
+        }
+        Insert: {
+          capacity?: number
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          label: string
+          pos_x?: number
+          pos_y?: number
+          qr_token?: string
+          zone?: string
+        }
+        Update: {
+          capacity?: number
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          label?: string
+          pos_x?: number
+          pos_y?: number
+          qr_token?: string
+          zone?: string
+        }
+        Relationships: []
       }
       product_variants: {
         Row: {
@@ -243,6 +289,7 @@ export type Database = {
           image_src: string
           is_active: boolean
           name: string
+          station: string
           tag: string | null
         }
         Insert: {
@@ -254,6 +301,7 @@ export type Database = {
           image_src: string
           is_active?: boolean
           name: string
+          station?: string
           tag?: string | null
         }
         Update: {
@@ -265,6 +313,7 @@ export type Database = {
           image_src?: string
           is_active?: boolean
           name?: string
+          station?: string
           tag?: string | null
         }
         Relationships: [
@@ -652,6 +701,19 @@ export type Database = {
         }
         Returns: number
       }
+      get_table_by_token: {
+        Args: { p_token: string }
+        Returns: { id: string; label: string; zone: string }[]
+      }
+      create_table_order: {
+        Args: {
+          p_table_token: string
+          p_customer_name: string
+          p_customer_notes: string
+          p_items: Json
+        }
+        Returns: number
+      }
       calculate_order_total: {
         Args: {
           p_delivery_type: string
@@ -665,7 +727,7 @@ export type Database = {
       }
     }
     Enums: {
-      delivery_type: "delivery" | "pickup"
+      delivery_type: "delivery" | "pickup" | "dine_in"
       order_status:
         | "pendiente"
         | "preparando"
@@ -806,7 +868,7 @@ export const Constants = {
   },
   public: {
     Enums: {
-      delivery_type: ["delivery", "pickup"],
+      delivery_type: ["delivery", "pickup", "dine_in"],
       order_status: [
         "pendiente",
         "preparando",
