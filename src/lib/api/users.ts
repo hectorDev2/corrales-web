@@ -1,7 +1,10 @@
 import { supabase } from "@/lib/supabase";
 
+export type StaffRole = "delivery" | "cocina";
+
 export interface DeliveryUser {
   id: string;
+  role: StaffRole;
   full_name: string;
   phone: string | null;
   is_active: boolean;
@@ -11,12 +14,12 @@ export interface DeliveryUser {
 export async function getDeliveryUsers(): Promise<DeliveryUser[]> {
   const { data, error } = await supabase
     .from("profiles")
-    .select("id, full_name, phone, is_active, created_at")
-    .eq("role", "delivery")
+    .select("id, role, full_name, phone, is_active, created_at")
+    .in("role", ["delivery", "cocina"])
     .order("full_name");
 
   if (error) throw error;
-  return data;
+  return data as DeliveryUser[];
 }
 
 export async function createDeliveryUser(input: {
@@ -24,6 +27,7 @@ export async function createDeliveryUser(input: {
   email: string;
   password: string;
   phone?: string;
+  role?: StaffRole;
 }): Promise<void> {
   const res = await fetch("/api/admin/users", {
     method: "POST",

@@ -30,7 +30,8 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const isAdminRoute    = pathname.startsWith("/admin");
   const isDeliveryRoute = pathname.startsWith("/delivery");
-  const isProtected     = isAdminRoute || isDeliveryRoute;
+  const isKitchenRoute  = pathname.startsWith("/cocina");
+  const isProtected     = isAdminRoute || isDeliveryRoute || isKitchenRoute;
   const isLogin         = pathname === "/login";
 
   // Sin sesión → redirigir a login
@@ -47,21 +48,20 @@ export async function proxy(request: NextRequest) {
       .single();
 
     const role = profile?.role ?? "delivery";
+    const home = role === "admin" ? "/admin" : role === "cocina" ? "/cocina" : "/delivery";
 
     // En login → redirigir a su panel
     if (isLogin) {
-      const dest = role === "admin" ? "/admin" : "/delivery";
-      return NextResponse.redirect(new URL(dest, request.url));
+      return NextResponse.redirect(new URL(home, request.url));
     }
 
-    // Delivery intentando entrar a /admin → redirigir a /delivery
-    if (isAdminRoute && role !== "admin") {
-      return NextResponse.redirect(new URL("/delivery", request.url));
-    }
-
-    // Admin intentando entrar a /delivery → redirigir a /admin
-    if (isDeliveryRoute && role !== "delivery") {
-      return NextResponse.redirect(new URL("/admin", request.url));
+    // Cada perfil solo entra a su propio panel
+    if (
+      (isAdminRoute && role !== "admin") ||
+      (isDeliveryRoute && role !== "delivery") ||
+      (isKitchenRoute && role !== "cocina")
+    ) {
+      return NextResponse.redirect(new URL(home, request.url));
     }
   }
 
@@ -69,5 +69,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/delivery/:path*", "/login"],
+  matcher: ["/admin/:path*", "/delivery/:path*", "/cocina/:path*", "/login"],
 };

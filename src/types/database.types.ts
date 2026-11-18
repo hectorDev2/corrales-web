@@ -803,7 +803,7 @@ export type Database = {
         | "cancelado"
       payment_method: "yape" | "cash" | "culqi"
       reservation_status: "pendiente" | "confirmada" | "cancelada"
-      user_role: "admin" | "delivery"
+      user_role: "admin" | "delivery" | "cocina"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -945,7 +945,7 @@ export const Constants = {
       ],
       payment_method: ["yape", "cash", "culqi"],
       reservation_status: ["pendiente", "confirmada", "cancelada"],
-      user_role: ["admin", "delivery"],
+      user_role: ["admin", "delivery", "cocina"],
     },
   },
 } as const

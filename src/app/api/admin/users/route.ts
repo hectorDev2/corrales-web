@@ -7,7 +7,8 @@ export async function POST(req: NextRequest) {
   const authorization = await requireAdmin();
   if (authorization.response) return authorization.response;
 
-  const { full_name, email, password, phone } = await req.json();
+  const { full_name, email, password, phone, role: requestedRole } = await req.json();
+  const role: "delivery" | "cocina" = requestedRole === "cocina" ? "cocina" : "delivery";
 
   if (!full_name?.trim() || !email?.trim() || !password?.trim()) {
     return NextResponse.json({ error: "Nombre, email y contraseña son obligatorios." }, { status: 400 });
@@ -19,7 +20,7 @@ export async function POST(req: NextRequest) {
     email,
     password,
     email_confirm: true,
-    user_metadata: { full_name: full_name.trim(), role: "delivery" },
+    user_metadata: { full_name: full_name.trim() },
   });
 
   if (error) {
@@ -29,12 +30,16 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: msg }, { status: 400 });
   }
 
-  // Actualizar phone si fue provisto (el trigger no lo maneja)
-  if (phone?.trim() && data.user) {
-    await admin
+  // El trigger crea el perfil como "delivery"; aquí se asigna el perfil elegido y el teléfono.
+  if (data.user) {
+    const { error: profileError } = await admin
       .from("profiles")
-      .update({ phone: phone.trim() })
+      .update({ role, ...(phone?.trim() ? { phone: phone.trim() } : {}) })
       .eq("id", data.user.id);
+    if (profileError) {
+      await admin.auth.admin.deleteUser(data.user.id);
+      return NextResponse.json({ error: "No se pudo asignar el perfil. ¿Ya ejecutaste la migración de cocina?" }, { status: 500 });
+    }
   }
 
   return NextResponse.json({ id: data.user?.id }, { status: 201 });

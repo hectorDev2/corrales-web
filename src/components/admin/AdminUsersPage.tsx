@@ -10,11 +10,14 @@ import {
   getDeliveryUsers,
   toggleDeliveryUser,
   type DeliveryUser,
+  type StaffRole,
 } from "@/lib/api/users";
 
 import { PAGE_CONTAINER, PageHeader } from "./PageHeader";
 
-const EMPTY_FORM = { full_name: "", email: "", password: "", phone: "" };
+const EMPTY_FORM = { full_name: "", email: "", password: "", phone: "", role: "delivery" as StaffRole };
+
+const ROLE_LABEL: Record<StaffRole, string> = { delivery: "Repartidor", cocina: "Cocina" };
 
 export function AdminUsersPage() {
   const [confirm, confirmDialog] = useConfirm();
@@ -50,6 +53,7 @@ export function AdminUsersPage() {
         email: form.email.trim(),
         password: form.password.trim(),
         phone: form.phone.trim() || undefined,
+        role: form.role,
       });
       toast.success(`Usuario "${form.full_name.trim()}" creado correctamente.`);
       setForm(EMPTY_FORM);
@@ -64,7 +68,7 @@ export function AdminUsersPage() {
 
   async function handleToggle(user: DeliveryUser) {
     const action = user.is_active ? "desactivar" : "activar";
-    if (!(await confirm({ title: `¿${action[0].toUpperCase()}${action.slice(1)} a ${user.full_name}?`, message: user.is_active ? "Ya no podrá recibir pedidos." : "Podrá volver a recibir pedidos.", confirmLabel: `Sí, ${action}`, tone: user.is_active ? "danger" : "default" }))) return;
+    if (!(await confirm({ title: `¿${action[0].toUpperCase()}${action.slice(1)} a ${user.full_name}?`, message: user.is_active ? "Ya no podrá entrar al sistema." : "Podrá volver a entrar al sistema.", confirmLabel: `Sí, ${action}`, tone: user.is_active ? "danger" : "default" }))) return;
     try {
       await toggleDeliveryUser(user.id, !user.is_active);
       toast.success(user.is_active ? "Usuario desactivado." : "Usuario activado.");
@@ -80,7 +84,7 @@ export function AdminUsersPage() {
   return (
     <div className={PAGE_CONTAINER}>
       {confirmDialog}
-      <PageHeader eyebrow="Sitio" title="Repartidores" help="Personas que entregan los pedidos a domicilio. Desactiva a quien ya no trabaje." stat={{ label: "Activos", value: active.length }} />
+      <PageHeader eyebrow="Sitio" title="Personal" help="Repartidores (entregan a domicilio) y cocina (preparan los pedidos). Cada uno entra con su correo a su propia pantalla. Desactiva a quien ya no trabaje." stat={{ label: "Activos", value: active.length }} />
 
       {/* Botón nuevo usuario */}
       <button
@@ -94,7 +98,7 @@ export function AdminUsersPage() {
           {showForm ? "close" : "person_add"}
         </span>
         <span className="font-bold text-sm text-on-surface">
-          {showForm ? "Cancelar" : "Nuevo repartidor"}
+          {showForm ? "Cancelar" : "Nuevo usuario"}
         </span>
       </button>
 
@@ -102,8 +106,26 @@ export function AdminUsersPage() {
       {showForm && (
         <div className="bg-surface-container-low p-5 rounded-3xl space-y-4">
           <p className="text-xs font-black uppercase tracking-widest text-on-surface-variant">
-            Datos del repartidor
+            Datos del nuevo usuario
           </p>
+
+          <div role="radiogroup" aria-label="Perfil" className="grid grid-cols-2 gap-2">
+            {(["delivery", "cocina"] as const).map((r) => (
+              <button
+                key={r}
+                type="button"
+                role="radio"
+                aria-checked={form.role === r}
+                onClick={() => setForm((f) => ({ ...f, role: r }))}
+                className={`flex min-h-14 items-center justify-center gap-2 rounded-xl text-sm font-bold transition ${
+                  form.role === r ? "bg-primary text-on-primary" : "bg-surface-container-high text-on-surface-variant"
+                }`}
+              >
+                <span className="material-symbols-outlined text-xl">{r === "delivery" ? "two_wheeler" : "soup_kitchen"}</span>
+                {ROLE_LABEL[r]}
+              </button>
+            ))}
+          </div>
 
           <div className="space-y-3">
             <input
@@ -161,7 +183,7 @@ export function AdminUsersPage() {
             >
               {creating ? "progress_activity" : "person_add"}
             </span>
-            {creating ? "Creando..." : "Crear repartidor"}
+            {creating ? "Creando..." : `Crear ${ROLE_LABEL[form.role].toLowerCase()}`}
           </button>
         </div>
       )}
@@ -184,7 +206,7 @@ export function AdminUsersPage() {
           >
             group
           </span>
-          <p className="font-bold text-sm">Sin repartidores registrados</p>
+          <p className="font-bold text-sm">Aún no hay personal registrado</p>
         </div>
       ) : (
         <div className="space-y-5">
@@ -242,6 +264,9 @@ function UserCard({
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
           <p className="font-bold text-sm text-on-surface truncate">{user.full_name}</p>
+          <span className="bg-surface-container-high text-on-surface-variant shrink-0 rounded-full px-2 py-0.5 text-xs font-bold">
+            {ROLE_LABEL[user.role]}
+          </span>
           {!user.is_active && (
             <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-surface-container-highest text-outline shrink-0">
               Inactivo

@@ -30,7 +30,9 @@ export function LoginForm() {
       .eq("id", (await supabase.auth.getUser()).data.user!.id)
       .single();
 
-    router.push(profile?.role === "delivery" ? "/delivery" : "/admin");
+    router.push(
+      profile?.role === "delivery" ? "/delivery" : profile?.role === "cocina" ? "/cocina" : "/admin",
+    );
     router.refresh();
   }
 
