@@ -212,7 +212,7 @@ export function ProductForm({ product, categories, onSuccess, onClose }: Props) 
 
             {/* Imagen */}
             <div className="space-y-2">
-              <label className="text-on-surface-variant text-[10px] font-bold tracking-widest uppercase">
+              <label className="text-on-surface-variant text-xs font-bold">
                 Imagen
               </label>
               <Controller
@@ -227,12 +227,12 @@ export function ProductForm({ product, categories, onSuccess, onClose }: Props) 
                 )}
               />
               {errors.image_src && (
-                <p className="text-error text-[10px]">{errors.image_src.message}</p>
+                <p className="text-error text-xs">{errors.image_src.message}</p>
               )}
             </div>
 
             {/* Alt text */}
-            <Field label="Alt text (descripción de imagen)" error={errors.image_alt?.message}>
+            <Field label="Descripción de la foto (para personas con baja visión)" error={errors.image_alt?.message}>
               <input
                 {...register("image_alt")}
                 placeholder="Ej: Pollo a la brasa entero con papas"
@@ -258,7 +258,7 @@ export function ProductForm({ product, categories, onSuccess, onClose }: Props) 
 
             {/* Estación de producción */}
             <div>
-              <label className="text-on-surface-variant text-[10px] font-bold tracking-widest uppercase">
+              <label className="text-on-surface-variant text-xs font-bold">
                 Se prepara en
               </label>
               <div className="mt-1 grid grid-cols-3 gap-2">
@@ -286,10 +286,10 @@ export function ProductForm({ product, categories, onSuccess, onClose }: Props) 
             </div>
 
             {/* Tag */}
-            <Field label="Tag (opcional)" error={errors.tag?.message}>
+            <Field label="Etiqueta (opcional)" error={errors.tag?.message}>
               <input
                 {...register("tag")}
-                placeholder="Ej: Nuevo, Promo, Popular"
+                placeholder="Ej: Nuevo, Promo, Más pedido"
                 className={inputClass(!!errors.tag)}
               />
             </Field>
@@ -331,22 +331,22 @@ export function ProductForm({ product, categories, onSuccess, onClose }: Props) 
                 <div key={field.id} className="bg-surface-container-low space-y-2 rounded-2xl p-3">
                   <div className="flex items-center gap-2">
                     <div className="flex-1">
-                      <label className="text-on-surface-variant text-[10px] font-bold tracking-widest uppercase">
-                        Label (opcional)
+                      <label className="text-on-surface-variant text-xs font-bold">
+                        Presentación
                       </label>
                       <input
                         {...register(`variants.${index}.label`)}
-                        placeholder="Ej: 1/4, 1/2, Entero"
+                        placeholder="Ej: 1/4, 1/2, Entero (vacío si es única)"
                         className={inputClass(!!errors.variants?.[index]?.label)}
                       />
                       {errors.variants?.[index]?.label && (
-                        <p className="text-error mt-1 text-[10px]">
+                        <p className="text-error mt-1 text-xs">
                           {errors.variants[index]!.label?.message}
                         </p>
                       )}
                     </div>
                     <div className="w-24">
-                      <label className="text-on-surface-variant text-[10px] font-bold tracking-widest uppercase">
+                      <label className="text-on-surface-variant text-xs font-bold">
                         Precio
                       </label>
                       <input
@@ -357,14 +357,14 @@ export function ProductForm({ product, categories, onSuccess, onClose }: Props) 
                         className={inputClass(!!errors.variants?.[index]?.price)}
                       />
                       {errors.variants?.[index]?.price && (
-                        <p className="text-error mt-1 text-[10px]">
+                        <p className="text-error mt-1 text-xs">
                           {errors.variants[index]!.price?.message}
                         </p>
                       )}
                     </div>
                     <div className="w-20">
-                      <label className="text-on-surface-variant text-[10px] font-bold tracking-widest uppercase">
-                        Stock
+                      <label className="text-on-surface-variant text-xs font-bold">
+                        Cantidad disponible
                       </label>
                       <input
                         {...register(`variants.${index}.stock`, { valueAsNumber: true })}
@@ -375,7 +375,7 @@ export function ProductForm({ product, categories, onSuccess, onClose }: Props) 
                         className={inputClass(!!errors.variants?.[index]?.stock)}
                       />
                       {errors.variants?.[index]?.stock && (
-                        <p className="text-error mt-1 text-[10px]">
+                        <p className="text-error mt-1 text-xs">
                           {errors.variants[index]!.stock?.message}
                         </p>
                       )}
@@ -422,7 +422,7 @@ export function ProductForm({ product, categories, onSuccess, onClose }: Props) 
 
 function inputClass(hasError: boolean) {
   return [
-    "w-full mt-1 bg-surface-container-high rounded-xl px-3 py-2.5 text-sm text-on-surface",
+    "w-full mt-1 bg-surface-container-high rounded-xl px-3 py-3 text-base text-on-surface",
     "placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2",
     hasError ? "ring-2 ring-error/50 focus:ring-error/60" : "focus:ring-primary/25",
   ].join(" ");
@@ -448,11 +448,11 @@ function Field({
 }) {
   return (
     <div>
-      <label className="text-on-surface-variant text-[10px] font-bold tracking-widest uppercase">
+      <label className="text-on-surface-variant text-xs font-bold">
         {label}
       </label>
       {children}
-      {error && <p className="text-error mt-1 text-[10px]">{error}</p>}
+      {error && <p className="text-error mt-1 text-xs">{error}</p>}
     </div>
   );
 }

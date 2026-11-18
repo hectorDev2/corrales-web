@@ -107,7 +107,7 @@ export function FacturacionPage() {
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="font-black text-lg text-on-surface">{s.series}</span>
-                    <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
+                    <span className={`text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
                       s.type === "boleta" ? "bg-blue-100 text-blue-700" : "bg-purple-100 text-purple-700"
                     }`}>
                       {s.type === "boleta" ? "Boleta" : "Factura"}
@@ -162,12 +162,12 @@ export function FacturacionPage() {
                       <span className="font-black text-on-surface">
                         {inv.series}-{String(inv.number).padStart(8, "0")}
                       </span>
-                      <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
+                      <span className={`text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
                         inv.invoice_type === "boleta" ? "bg-blue-100 text-blue-700" : "bg-purple-100 text-purple-700"
                       }`}>
                         {inv.invoice_type === "boleta" ? "Boleta" : "Factura"}
                       </span>
-                      <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${badge.cls}`}>
+                      <span className={`text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${badge.cls}`}>
                         {badge.label}
                       </span>
                     </div>
@@ -196,20 +196,20 @@ export function FacturacionPage() {
                         href={pdf}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="bg-primary text-on-primary flex items-center gap-1.5 rounded-xl px-4 py-2 text-[11px] font-bold uppercase tracking-wider"
+                        className="bg-primary text-on-primary flex items-center gap-1.5 rounded-xl px-4 py-2 text-xs font-bold uppercase tracking-wider"
                       >
                         <span className="material-symbols-outlined text-sm">picture_as_pdf</span>
                         Ver PDF
                       </a>
                     ) : (
-                      <span className="text-outline text-[11px] font-bold uppercase">Sin PDF</span>
+                      <span className="text-outline text-xs font-bold uppercase">Sin PDF</span>
                     )}
                     {xml && (
                       <a
                         href={xml}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="bg-surface-container-high text-on-surface-variant rounded-xl px-3 py-2 text-[11px] font-bold uppercase tracking-wider"
+                        className="bg-surface-container-high text-on-surface-variant rounded-xl px-3 py-2 text-xs font-bold uppercase tracking-wider"
                       >
                         XML
                       </a>

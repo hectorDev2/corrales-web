@@ -26,7 +26,7 @@ export function PageHeader({ title, eyebrow = "Administración", description, st
         {actions}
         {stat && (
           <div className="bg-surface-container-high rounded-xl px-3 py-2 text-right">
-            <p className="text-secondary text-[10px] font-bold uppercase">{stat.label}</p>
+            <p className="text-secondary text-xs font-bold uppercase">{stat.label}</p>
             <p className="text-primary text-sm font-black">{stat.value}</p>
           </div>
         )}

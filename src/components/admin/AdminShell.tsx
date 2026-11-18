@@ -22,7 +22,7 @@ function Brand() {
       </span>
       <div className="leading-none">
         <p className="text-on-surface text-base font-black tracking-tight uppercase">Corrales</p>
-        <p className="text-on-surface-variant mt-0.5 text-[10px] font-bold tracking-widest uppercase">
+        <p className="text-on-surface-variant mt-0.5 text-xs font-bold">
           Administración
         </p>
       </div>
@@ -76,7 +76,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         <nav aria-label="Administración" className="flex-1 space-y-6 overflow-y-auto px-3 pb-4">
           {NAV_GROUPS.map((group) => (
             <div key={group.title} className="space-y-1">
-              <p className="text-outline px-3 pb-1 text-[10px] font-black tracking-widest uppercase">
+              <p className="text-outline px-3 pb-1 text-xs font-bold">
                 {group.title}
               </p>
               {group.items.map((item) => (
@@ -129,7 +129,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                 <span className="material-symbols-outlined text-2xl" style={ICON_STYLE(active)}>
                   {item.icon}
                 </span>
-                <span className="mt-0.5 text-[10px] font-bold tracking-wider uppercase">{item.label}</span>
+                <span className="mt-0.5 text-xs font-bold tracking-wider uppercase">{item.label}</span>
               </Link>
             );
           })}
@@ -145,7 +145,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             <span className="material-symbols-outlined text-2xl" style={ICON_STYLE(!primaryActive)}>
               apps
             </span>
-            <span className="mt-0.5 text-[10px] font-bold tracking-wider uppercase">Más</span>
+            <span className="mt-0.5 text-xs font-bold tracking-wider uppercase">Más</span>
           </button>
         </div>
       </nav>
@@ -164,7 +164,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             <div className="space-y-5">
               {NAV_GROUPS.map((group) => (
                 <section key={group.title}>
-                  <h2 className="text-outline mb-2 px-1 text-[10px] font-black tracking-widest uppercase">
+                  <h2 className="text-outline mb-2 px-1 text-xs font-bold">
                     {group.title}
                   </h2>
                   <div className="grid grid-cols-3 gap-2">
@@ -182,7 +182,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                           <span className="material-symbols-outlined text-2xl" style={ICON_STYLE(active)}>
                             {item.icon}
                           </span>
-                          <span className="text-[11px] leading-tight font-bold">{item.label}</span>
+                          <span className="text-xs leading-tight font-bold">{item.label}</span>
                         </Link>
                       );
                     })}

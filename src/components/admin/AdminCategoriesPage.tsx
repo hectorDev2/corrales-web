@@ -128,7 +128,7 @@ export function AdminCategoriesPage() {
           <button
             onClick={handleCreate}
             disabled={creating || !newName.trim()}
-            className="flex items-center gap-1.5 px-4 py-3 rounded-xl bg-primary text-on-primary text-[11px] font-black uppercase tracking-wider shadow-lg shadow-primary/20 transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
+            className="flex items-center gap-1.5 px-4 py-3 rounded-xl bg-primary text-on-primary text-xs font-black uppercase tracking-wider shadow-lg shadow-primary/20 transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <span
               className="material-symbols-outlined text-base"
@@ -222,12 +222,12 @@ export function AdminCategoriesPage() {
                     <div className="flex items-center gap-2">
                       <p className="font-bold text-sm text-on-surface truncate">{cat.name}</p>
                       {!cat.is_active && (
-                        <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-surface-container-highest text-outline">
+                        <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-surface-container-highest text-outline">
                           Oculta
                         </span>
                       )}
                     </div>
-                    <p className="text-[11px] text-on-surface-variant">
+                    <p className="text-xs text-on-surface-variant">
                       {cat.product_count === 0
                         ? "Sin productos"
                         : `${cat.product_count} producto${cat.product_count !== 1 ? "s" : ""}`}

@@ -38,7 +38,7 @@ export function PushNotificationBanner() {
         <button
           onClick={unsubscribe}
           disabled={loading}
-          className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant hover:text-error transition-colors disabled:opacity-50"
+          className="text-xs font-bold uppercase tracking-wider text-on-surface-variant hover:text-error transition-colors disabled:opacity-50"
         >
           Desactivar
         </button>
@@ -60,7 +60,7 @@ export function PushNotificationBanner() {
       </span>
       <div className="text-left flex-1">
         <p className="text-sm font-bold">Activar alertas de pedidos</p>
-        <p className="text-[11px] opacity-70">Recibí notificaciones aunque el tab esté cerrado</p>
+        <p className="text-xs opacity-70">Recibí notificaciones aunque el tab esté cerrado</p>
       </div>
       <span
         className={`material-symbols-outlined text-xl shrink-0 ${loading ? "animate-spin" : ""}`}

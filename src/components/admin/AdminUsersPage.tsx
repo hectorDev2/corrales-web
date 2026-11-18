@@ -187,7 +187,7 @@ export function AdminUsersPage() {
           {/* Activos */}
           {active.length > 0 && (
             <section className="space-y-2">
-              <p className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant px-1">
+              <p className="text-xs font-black uppercase tracking-widest text-on-surface-variant px-1">
                 Activos ({active.length})
               </p>
               {active.map((user) => (
@@ -199,7 +199,7 @@ export function AdminUsersPage() {
           {/* Inactivos */}
           {inactive.length > 0 && (
             <section className="space-y-2">
-              <p className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant px-1">
+              <p className="text-xs font-black uppercase tracking-widest text-on-surface-variant px-1">
                 Desactivados ({inactive.length})
               </p>
               {inactive.map((user) => (
@@ -239,13 +239,13 @@ function UserCard({
         <div className="flex items-center gap-2">
           <p className="font-bold text-sm text-on-surface truncate">{user.full_name}</p>
           {!user.is_active && (
-            <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-surface-container-highest text-outline shrink-0">
+            <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-surface-container-highest text-outline shrink-0">
               Inactivo
             </span>
           )}
         </div>
         {user.phone && (
-          <p className="text-[11px] text-on-surface-variant">{user.phone}</p>
+          <p className="text-xs text-on-surface-variant">{user.phone}</p>
         )}
       </div>
 

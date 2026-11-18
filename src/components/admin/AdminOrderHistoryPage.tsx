@@ -100,15 +100,15 @@ export function AdminOrderHistoryPage() {
       {/* Stats */}
       <div className="grid grid-cols-3 gap-2 md:gap-4">
         <div className="bg-surface-container-lowest rounded-2xl p-3 shadow-sm">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-secondary mb-1">Ingresos</p>
+          <p className="text-xs font-bold uppercase tracking-widest text-secondary mb-1">Ingresos</p>
           <p className="text-base font-black text-primary leading-none">S/ {totalRevenue.toFixed(2)}</p>
         </div>
         <div className="bg-surface-container-lowest rounded-2xl p-3 shadow-sm">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-secondary mb-1">Total</p>
+          <p className="text-xs font-bold uppercase tracking-widest text-secondary mb-1">Total</p>
           <p className="text-base font-black text-on-surface leading-none">{orders.length}</p>
         </div>
         <div className="bg-surface-container-lowest rounded-2xl p-3 shadow-sm">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-secondary mb-1">Cancelados</p>
+          <p className="text-xs font-bold uppercase tracking-widest text-secondary mb-1">Cancelados</p>
           <p className="text-base font-black text-error leading-none">
             {orders.filter((o) => o.status === "cancelado").length}
           </p>
@@ -125,7 +125,7 @@ export function AdminOrderHistoryPage() {
             <button
               key={tab.value}
               onClick={() => setStatusFilter(tab.value)}
-              className={`shrink-0 px-3 py-1.5 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all ${
+              className={`shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${
                 statusFilter === tab.value
                   ? "bg-primary text-on-primary shadow-sm"
                   : "bg-surface-container-high text-on-surface-variant"
@@ -188,10 +188,10 @@ function HistoryOrderCard({ order }: { order: AdminOrder }) {
             <span className="text-xs font-black tracking-tighter text-on-surface">
               #{order.order_number}
             </span>
-            <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${bg} ${text}`}>
+            <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider ${bg} ${text}`}>
               {label}
             </span>
-            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-surface-container-high text-secondary">
+            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-surface-container-high text-secondary">
               {order.delivery_type === "delivery"
                 ? "Delivery"
                 : order.delivery_type === "dine_in"
@@ -201,9 +201,9 @@ function HistoryOrderCard({ order }: { order: AdminOrder }) {
           </div>
 
           <p className="text-sm font-bold text-on-surface truncate">{order.customer_name}</p>
-          <p className="text-[11px] text-on-surface-variant mt-0.5">{createdAt}</p>
+          <p className="text-xs text-on-surface-variant mt-0.5">{createdAt}</p>
 
-          <div className="mt-2 text-[11px] text-on-surface-variant space-y-0.5">
+          <div className="mt-2 text-xs text-on-surface-variant space-y-0.5">
             {order.items.map((item) => (
               <p key={item.id}>
                 <span className="font-black text-primary">{item.quantity}x</span>{" "}
@@ -218,11 +218,11 @@ function HistoryOrderCard({ order }: { order: AdminOrder }) {
 
         <div className="text-right ml-3 shrink-0">
           <p className="text-base font-black text-primary">S/ {order.total.toFixed(2)}</p>
-          <p className="text-[10px] text-on-surface-variant mt-0.5">
+          <p className="text-xs text-on-surface-variant mt-0.5">
             {PAYMENT_LABEL[order.payment_method] ?? order.payment_method}
           </p>
           {order.assigned_profile && (
-            <p className="text-[10px] text-on-surface-variant mt-1 flex items-center justify-end gap-0.5">
+            <p className="text-xs text-on-surface-variant mt-1 flex items-center justify-end gap-0.5">
               <span
                 className="material-symbols-outlined text-xs text-primary"
                 style={{ fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}

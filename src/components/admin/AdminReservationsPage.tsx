@@ -141,7 +141,7 @@ function ReservationSection({
 
   return (
     <section className="space-y-3">
-      <p className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant">
+      <p className="text-xs font-black uppercase tracking-widest text-on-surface-variant">
         {title} ({items.length})
       </p>
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 items-start">
@@ -197,9 +197,9 @@ function ReservationCard({
             </a>
           </div>
         </div>
-        <span className={`shrink-0 inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${bg} ${text}`}>
+        <span className={`shrink-0 inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider ${bg} ${text}`}>
           <span
-            className="material-symbols-outlined text-[10px]"
+            className="material-symbols-outlined text-xs"
             style={{ fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}
           >
             {icon}
@@ -217,7 +217,7 @@ function ReservationCard({
 
       {r.notes && (
         <div className="px-4 pb-3">
-          <p className="text-[11px] text-on-surface-variant italic bg-surface-container-low rounded-xl px-3 py-2 leading-snug">
+          <p className="text-xs text-on-surface-variant italic bg-surface-container-low rounded-xl px-3 py-2 leading-snug">
             &ldquo;{r.notes}&rdquo;
           </p>
         </div>
@@ -230,7 +230,7 @@ function ReservationCard({
             <button
               onClick={() => onStatus(r.id, "confirmada")}
               disabled={updating}
-              className="flex-1 py-2.5 rounded-xl bg-primary text-on-primary text-[11px] font-bold uppercase tracking-wider shadow-lg shadow-primary/20 transition active:scale-95 disabled:opacity-50"
+              className="flex-1 py-2.5 rounded-xl bg-primary text-on-primary text-xs font-bold uppercase tracking-wider shadow-lg shadow-primary/20 transition active:scale-95 disabled:opacity-50"
             >
               Confirmar
             </button>
@@ -238,7 +238,7 @@ function ReservationCard({
           <button
             onClick={() => onStatus(r.id, "cancelada")}
             disabled={updating}
-            className="flex-1 py-2.5 rounded-xl bg-error-container text-error text-[11px] font-bold uppercase tracking-wider transition active:scale-95 disabled:opacity-50"
+            className="flex-1 py-2.5 rounded-xl bg-error-container text-error text-xs font-bold uppercase tracking-wider transition active:scale-95 disabled:opacity-50"
           >
             Cancelar
           </button>
@@ -257,8 +257,8 @@ function Detail({ icon, label, value }: { icon: string; label: string; value: st
       >
         {icon}
       </span>
-      <p className="text-[9px] font-bold uppercase tracking-widest text-on-surface-variant mt-0.5">{label}</p>
-      <p className="text-[11px] font-black text-on-surface leading-tight mt-0.5 capitalize">{value}</p>
+      <p className="text-xs font-bold uppercase tracking-widest text-on-surface-variant mt-0.5">{label}</p>
+      <p className="text-xs font-black text-on-surface leading-tight mt-0.5 capitalize">{value}</p>
     </div>
   );
 }

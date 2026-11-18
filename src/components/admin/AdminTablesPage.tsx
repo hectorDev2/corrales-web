@@ -184,7 +184,7 @@ function TableManager({
               }`}
             >
               <span className="block text-sm font-black">{f}</span>
-              <span className="block text-[11px] font-bold opacity-80">
+              <span className="block text-xs font-bold opacity-80">
                 {count} {count === 1 ? "mesa" : "mesas"}
               </span>
             </button>
@@ -307,7 +307,7 @@ function TableCard({
         <button
           type="button"
           onClick={onToggle}
-          className="bg-surface-container-high text-on-surface-variant rounded-full px-3 py-1 text-[10px] font-bold uppercase"
+          className="bg-surface-container-high text-on-surface-variant rounded-full px-3 py-1 text-xs font-bold uppercase"
         >
           {table.is_active ? "Activa" : "Inactiva"}
         </button>
@@ -321,14 +321,14 @@ function TableCard({
           <div className="bg-surface-container aspect-[600/900] w-44 animate-pulse rounded-xl" />
         )}
       </div>
-      <p className="text-outline text-center text-[10px] break-all">{url}</p>
+      <p className="text-outline text-center text-xs break-all">{url}</p>
 
       <div className="grid grid-cols-3 gap-2">
         <button
           type="button"
           onClick={() => void downloadPng()}
           disabled={!card}
-          className="bg-primary text-on-primary flex items-center justify-center gap-1 rounded-xl py-2 text-[10px] font-bold uppercase disabled:opacity-50"
+          className="bg-primary text-on-primary flex items-center justify-center gap-1 rounded-xl py-2 text-xs font-bold uppercase disabled:opacity-50"
         >
           <span className="material-symbols-outlined text-sm">download</span>
           PNG
@@ -336,7 +336,7 @@ function TableCard({
         <button
           type="button"
           onClick={onRegenerate}
-          className="bg-surface-container-high text-on-surface-variant flex items-center justify-center gap-1 rounded-xl py-2 text-[10px] font-bold uppercase"
+          className="bg-surface-container-high text-on-surface-variant flex items-center justify-center gap-1 rounded-xl py-2 text-xs font-bold uppercase"
         >
           <span className="material-symbols-outlined text-sm">autorenew</span>
           Nuevo
@@ -344,7 +344,7 @@ function TableCard({
         <button
           type="button"
           onClick={onDelete}
-          className="bg-error-container text-error flex items-center justify-center gap-1 rounded-xl py-2 text-[10px] font-bold uppercase"
+          className="bg-error-container text-error flex items-center justify-center gap-1 rounded-xl py-2 text-xs font-bold uppercase"
         >
           <span className="material-symbols-outlined text-sm">delete</span>
           Borrar

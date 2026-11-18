@@ -104,7 +104,7 @@ export function ImageUploadField({ value, onChange, productName }: Props) {
           onChange={handleFile}
         />
       </button>
-      <p className="text-[11px] text-on-surface-variant/60 mt-1.5 text-center leading-tight">
+      <p className="text-xs text-on-surface-variant/60 mt-1.5 text-center leading-tight">
         Recomendado: 800×800px · Formato: JPG o WebP · Máx 5MB · Fondo claro · Cuadrado (1:1)
       </p>
     </>

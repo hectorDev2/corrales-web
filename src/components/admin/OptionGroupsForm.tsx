@@ -262,7 +262,7 @@ export function OptionGroupsForm({ productId, onSaved }: Props) {
                 {/* Group settings */}
                 <div className="grid grid-cols-2 gap-3 p-3 bg-surface">
                   <div>
-                    <label className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
+                    <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">
                       Tipo
                     </label>
                     <select
@@ -280,7 +280,7 @@ export function OptionGroupsForm({ productId, onSaved }: Props) {
                   </div>
                   <div className="flex items-end gap-2">
                     <div className="flex-1">
-                      <label className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
+                      <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">
                         Min
                       </label>
                       <input
@@ -296,7 +296,7 @@ export function OptionGroupsForm({ productId, onSaved }: Props) {
                       />
                     </div>
                     <div className="flex-1">
-                      <label className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">
+                      <label className="text-xs font-bold uppercase tracking-widest text-on-surface-variant">
                         Max
                       </label>
                       <input
@@ -474,7 +474,7 @@ function OptionImageRow({
             aria-label={`Quitar imagen de ${opt.name || "opción"}`}
             className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-error text-white flex items-center justify-center shadow"
           >
-            <span className="material-symbols-outlined text-[10px]">close</span>
+            <span className="material-symbols-outlined text-xs">close</span>
           </button>
         )}
       </div>

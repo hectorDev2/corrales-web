@@ -251,9 +251,9 @@ export function TableMap({
                 }`}
               >
                 <span className="block text-xs font-black">{z}</span>
-                <span className="block text-[10px] font-bold opacity-80">{sum?.libres ?? 0} libres</span>
+                <span className="block text-xs font-bold opacity-80">{sum?.libres ?? 0} libres</span>
                 {(sum?.nuevos ?? 0) > 0 && (
-                  <span className="absolute -top-1.5 -right-1.5 flex size-5 items-center justify-center rounded-full bg-red-600 text-[10px] font-black text-white shadow ring-2 ring-white">
+                  <span className="absolute -top-1.5 -right-1.5 flex size-5 items-center justify-center rounded-full bg-red-600 text-xs font-black text-white shadow ring-2 ring-white">
                     {sum?.nuevos}
                   </span>
                 )}
@@ -296,7 +296,7 @@ export function TableMap({
             type="button"
             aria-pressed={filter === s}
             onClick={() => setFilter((f) => (f === s ? null : s))}
-            className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-bold transition-all ${STATE_CONFIG[s].chip} ${
+            className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold transition-all ${STATE_CONFIG[s].chip} ${
               filter === s ? "ring-2 ring-current ring-offset-1" : filter ? "opacity-50" : ""
             }`}
           >
@@ -308,7 +308,7 @@ export function TableMap({
           <button
             type="button"
             onClick={() => setFilter(null)}
-            className="text-on-surface-variant px-2 text-[11px] font-bold underline"
+            className="text-on-surface-variant px-2 text-xs font-bold underline"
           >
             Ver todas
           </button>
@@ -399,9 +399,9 @@ export function TableMap({
                   </span>
                   {t.is_active && state !== "libre" && (
                     <span
-                      className={`-mt-1 flex items-center gap-0.5 rounded-full px-2 py-0.5 text-[10px] leading-none font-black shadow ${cfg.chip}`}
+                      className={`-mt-1 flex items-center gap-0.5 rounded-full px-2 py-0.5 text-xs leading-none font-black shadow ${cfg.chip}`}
                     >
-                      <span className="material-symbols-outlined text-[12px]">{cfg.icon}</span>
+                      <span className="material-symbols-outlined text-xs">{cfg.icon}</span>
                       {mins !== null && mins > 0 ? `${mins} min` : cfg.label}
                     </span>
                   )}
@@ -414,7 +414,7 @@ export function TableMap({
           </div>
 
           {editMode && (
-            <p className="bg-surface-container-lowest/90 pointer-events-none absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full px-4 py-1.5 text-[11px] font-bold shadow">
+            <p className="bg-surface-container-lowest/90 pointer-events-none absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full px-4 py-1.5 text-xs font-bold shadow">
               Arrastra las mesas a su lugar
             </p>
           )}
@@ -484,7 +484,7 @@ function TableDetail({
             {table.zone} · {table.capacity} personas
           </p>
           <span
-            className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-bold tracking-wider uppercase ${cfg.chip}`}
+            className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold tracking-wider uppercase ${cfg.chip}`}
           >
             <span className="material-symbols-outlined text-sm">{table.is_active ? cfg.icon : "block"}</span>
             {table.is_active ? cfg.label : "Inactiva"}
@@ -525,7 +525,7 @@ function TableDetail({
             <div key={o.id} className="bg-surface-container-low space-y-1 rounded-xl p-3">
               <div className="flex items-center justify-between text-xs font-black">
                 <span>ORDEN #{o.order_number}</span>
-                <span className={`rounded-full px-2 py-0.5 text-[10px] uppercase ${STATE_CONFIG[o.status].chip}`}>
+                <span className={`rounded-full px-2 py-0.5 text-xs uppercase ${STATE_CONFIG[o.status].chip}`}>
                   {STATE_CONFIG[o.status].label}
                 </span>
               </div>
@@ -540,7 +540,7 @@ function TableDetail({
                 <button
                   type="button"
                   onClick={() => void markServed(o.id)}
-                  className="bg-primary text-on-primary mt-2 flex w-full items-center justify-center gap-2 rounded-xl py-2.5 text-[11px] font-bold tracking-wider uppercase active:scale-95"
+                  className="bg-primary text-on-primary mt-2 flex w-full items-center justify-center gap-2 rounded-xl py-2.5 text-xs font-bold tracking-wider uppercase active:scale-95"
                 >
                   <span className="material-symbols-outlined text-sm">table_restaurant</span>
                   Servido en la mesa
@@ -549,7 +549,7 @@ function TableDetail({
             </div>
           ))}
           <div className="bg-primary/5 flex items-end justify-between rounded-2xl px-4 py-3">
-            <span className="text-on-surface-variant text-[11px] font-black tracking-widest uppercase">Por cobrar</span>
+            <span className="text-on-surface-variant text-xs font-bold">Por cobrar</span>
             <span className="text-primary text-3xl leading-none font-black">S/ {total.toFixed(2)}</span>
           </div>
         </>
@@ -576,7 +576,7 @@ function OrderTimeline({ step }: { step: number }) {
                 className={`h-0.5 flex-1 ${i === ORDER_STEPS.length - 1 ? "opacity-0" : i < step ? "bg-primary" : "bg-outline-variant"}`}
               />
             </div>
-            <span className={`text-[9px] font-bold ${done ? "text-on-surface" : "text-outline"}`}>{label}</span>
+            <span className={`text-xs font-bold ${done ? "text-on-surface" : "text-outline"}`}>{label}</span>
           </li>
         );
       })}

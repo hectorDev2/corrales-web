@@ -357,7 +357,7 @@ function SlideForm({
                   key={opt.value}
                   type="button"
                   onClick={() => onChange({ ...data, icon: opt.value })}
-                  className={`flex flex-col items-center gap-1 py-2 rounded-xl text-[10px] font-bold transition border-2 ${
+                  className={`flex flex-col items-center gap-1 py-2 rounded-xl text-xs font-bold transition border-2 ${
                     data.icon === opt.value
                       ? "bg-primary/10 border-primary text-primary"
                       : "border-transparent bg-surface-container-high text-on-surface-variant hover:border-outline-variant"
@@ -391,7 +391,7 @@ function SlideForm({
                   }`}
                   style={{ background: preset.preview }}
                 >
-                  <span className="absolute bottom-1 left-0 right-0 text-center text-[10px] font-bold text-white/90 drop-shadow">
+                  <span className="absolute bottom-1 left-0 right-0 text-center text-xs font-bold text-white/90 drop-shadow">
                     {preset.label}
                   </span>
                   {data.bg_gradient === preset.value && (
@@ -610,7 +610,7 @@ export function AdminSliderPage({ initialSlides }: AdminSliderPageProps) {
                   <p className="text-white text-sm font-bold truncate">
                     {slide.title?.replace(/\n/g, " ") ?? "Sin título"}
                   </p>
-                  <p className="text-white/70 text-[10px] uppercase tracking-wider">
+                  <p className="text-white/70 text-xs uppercase tracking-wider">
                     {slide.type === "image" ? "Imagen" : "Texto y color"}
                   </p>
                 </div>
@@ -710,7 +710,7 @@ function Label({ children }: { children: React.ReactNode }) {
 
 function Hint({ children }: { children: React.ReactNode }) {
   return (
-    <span className="ml-1 text-[10px] font-normal normal-case tracking-normal text-on-surface-variant/60">
+    <span className="ml-1 text-xs font-normal normal-case tracking-normal text-on-surface-variant/60">
       — {children}
     </span>
   );

@@ -62,15 +62,15 @@ export function AdminOrderCard({ order, deliveryProfiles, onAdvance, onAssign, o
             <span className="text-xs font-black tracking-tighter text-on-surface">
               ORDEN #{order.order_number}
             </span>
-            <span className="text-[10px] font-medium text-on-surface-variant/60">
+            <span className="text-xs font-medium text-on-surface-variant/60">
               {createdAt}
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${bg} ${text}`}>
+            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider ${bg} ${text}`}>
               {label}
             </span>
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-surface-container-high text-secondary">
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-surface-container-high text-secondary">
               {order.delivery_type === "delivery"
                 ? "Delivery"
                 : order.delivery_type === "dine_in"
@@ -113,7 +113,7 @@ export function AdminOrderCard({ order, deliveryProfiles, onAdvance, onAssign, o
                 >
                   location_on
                 </span>
-                <p className="text-[11px] leading-tight">{order.customer_address}</p>
+                <p className="text-xs leading-tight">{order.customer_address}</p>
               </div>
             )}
 
@@ -122,7 +122,7 @@ export function AdminOrderCard({ order, deliveryProfiles, onAdvance, onAssign, o
                 href={order.customer_location_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-1 inline-flex items-center gap-1 text-[11px] text-primary font-bold hover:underline"
+                className="mt-1 inline-flex items-center gap-1 text-xs text-primary font-bold hover:underline"
               >
                 <span
                   className="material-symbols-outlined text-sm"
@@ -142,7 +142,7 @@ export function AdminOrderCard({ order, deliveryProfiles, onAdvance, onAssign, o
                 >
                   info
                 </span>
-                <p className="text-[11px] leading-tight">{order.customer_notes}</p>
+                <p className="text-xs leading-tight">{order.customer_notes}</p>
               </div>
             )}
           </div>
@@ -183,7 +183,7 @@ export function AdminOrderCard({ order, deliveryProfiles, onAdvance, onAssign, o
           <div className="flex gap-3">
             <button
               onClick={() => onAdvance(order.id, "preparando")}
-              className="flex-1 py-3 rounded-xl bg-primary text-on-primary text-[11px] font-bold uppercase tracking-wider shadow-lg shadow-primary/20 transition-all active:scale-95"
+              className="flex-1 py-3 rounded-xl bg-primary text-on-primary text-xs font-bold uppercase tracking-wider shadow-lg shadow-primary/20 transition-all active:scale-95"
             >
               Aceptar y Preparar
             </button>
@@ -220,7 +220,7 @@ export function AdminOrderCard({ order, deliveryProfiles, onAdvance, onAssign, o
                 href={whatsappHref}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 py-3 rounded-xl bg-surface-container-highest text-on-surface-variant text-[11px] font-bold uppercase tracking-wider transition-all active:scale-95"
+                className="flex items-center justify-center gap-2 py-3 rounded-xl bg-surface-container-highest text-on-surface-variant text-xs font-bold uppercase tracking-wider transition-all active:scale-95"
               >
                 <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>
                   chat
@@ -231,7 +231,7 @@ export function AdminOrderCard({ order, deliveryProfiles, onAdvance, onAssign, o
               {order.delivery_type === "delivery" && selectedDelivery ? (
                 <button
                   onClick={() => onAssign(order.id, selectedDelivery)}
-                  className="flex items-center justify-center gap-2 py-3 rounded-xl bg-primary text-on-primary text-[11px] font-bold uppercase tracking-wider shadow-lg shadow-primary/20 transition-all active:scale-95"
+                  className="flex items-center justify-center gap-2 py-3 rounded-xl bg-primary text-on-primary text-xs font-bold uppercase tracking-wider shadow-lg shadow-primary/20 transition-all active:scale-95"
                 >
                   <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>
                     delivery_dining
@@ -241,7 +241,7 @@ export function AdminOrderCard({ order, deliveryProfiles, onAdvance, onAssign, o
               ) : (
                 <button
                   onClick={() => onAdvance(order.id, "listo")}
-                  className="flex items-center justify-center gap-2 py-3 rounded-xl bg-primary text-on-primary text-[11px] font-bold uppercase tracking-wider shadow-lg shadow-primary/20 transition-all active:scale-95"
+                  className="flex items-center justify-center gap-2 py-3 rounded-xl bg-primary text-on-primary text-xs font-bold uppercase tracking-wider shadow-lg shadow-primary/20 transition-all active:scale-95"
                 >
                   Listo
                   <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>
@@ -268,7 +268,7 @@ export function AdminOrderCard({ order, deliveryProfiles, onAdvance, onAssign, o
             <button
               disabled={!selectedDelivery}
               onClick={() => onAssign(order.id, selectedDelivery)}
-              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-primary text-on-primary text-[11px] font-bold uppercase tracking-wider shadow-lg shadow-primary/20 transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-primary text-on-primary text-xs font-bold uppercase tracking-wider shadow-lg shadow-primary/20 transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>
                 delivery_dining
@@ -281,7 +281,7 @@ export function AdminOrderCard({ order, deliveryProfiles, onAdvance, onAssign, o
         {order.status === "listo" && order.delivery_type === "pickup" && (
           <button
             onClick={() => onAdvance(order.id, "entregado")}
-            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-surface-container-highest text-on-surface-variant text-[11px] font-bold uppercase tracking-wider transition-all active:scale-95"
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-surface-container-highest text-on-surface-variant text-xs font-bold uppercase tracking-wider transition-all active:scale-95"
           >
             <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>
               check_circle
@@ -293,7 +293,7 @@ export function AdminOrderCard({ order, deliveryProfiles, onAdvance, onAssign, o
         {order.status === "listo" && order.delivery_type === "dine_in" && (
           <button
             onClick={() => onAdvance(order.id, "entregado")}
-            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-surface-container-highest text-on-surface-variant text-[11px] font-bold uppercase tracking-wider transition-all active:scale-95"
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-surface-container-highest text-on-surface-variant text-xs font-bold uppercase tracking-wider transition-all active:scale-95"
           >
             <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>
               table_restaurant
@@ -303,7 +303,7 @@ export function AdminOrderCard({ order, deliveryProfiles, onAdvance, onAssign, o
         )}
 
         {order.status === "en_camino" && (
-          <div className="flex items-center justify-center gap-2 py-3 text-on-surface-variant text-[11px] font-bold uppercase tracking-wider">
+          <div className="flex items-center justify-center gap-2 py-3 text-on-surface-variant text-xs font-bold uppercase tracking-wider">
             <span className="material-symbols-outlined text-sm text-primary" style={{ fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>
               delivery_dining
             </span>
@@ -318,7 +318,7 @@ export function AdminOrderCard({ order, deliveryProfiles, onAdvance, onAssign, o
               key={type}
               disabled={printing !== null}
               onClick={() => handlePrint(type)}
-              className="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-surface-container-highest text-on-surface-variant text-[11px] font-bold uppercase tracking-wider transition-all active:scale-95 disabled:opacity-40"
+              className="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-surface-container-highest text-on-surface-variant text-xs font-bold uppercase tracking-wider transition-all active:scale-95 disabled:opacity-40"
             >
               <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>
                 {type === "kitchen" ? "soup_kitchen" : "print"}
@@ -336,7 +336,7 @@ export function AdminOrderCard({ order, deliveryProfiles, onAdvance, onAssign, o
 
           if (accepted) {
             return (
-              <div className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-success/30 bg-success/5 text-success text-[11px] font-bold uppercase tracking-wider">
+              <div className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-success/30 bg-success/5 text-success text-xs font-bold uppercase tracking-wider">
                 <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>check_circle</span>
                 {inv?.series}-{String(inv?.number).padStart(8, "0")} · Aceptado
               </div>
@@ -347,7 +347,7 @@ export function AdminOrderCard({ order, deliveryProfiles, onAdvance, onAssign, o
             return (
               <button
                 onClick={() => setInvoiceOpen(true)}
-                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-dashed border-[#e5e5e5] text-[#666666] text-[11px] font-bold uppercase tracking-wider hover:border-primary hover:text-primary active:scale-95 transition-all"
+                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-dashed border-[#e5e5e5] text-[#666666] text-xs font-bold uppercase tracking-wider hover:border-primary hover:text-primary active:scale-95 transition-all"
               >
                 <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>receipt_long</span>
                 Reintentar · {inv?.series}-{String(inv?.number).padStart(8, "0")} (rechazado)
@@ -358,7 +358,7 @@ export function AdminOrderCard({ order, deliveryProfiles, onAdvance, onAssign, o
           return (
             <button
               onClick={() => setInvoiceOpen(true)}
-              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-dashed border-[#e5e5e5] text-[#666666] text-[11px] font-bold uppercase tracking-wider hover:border-primary hover:text-primary active:scale-95 transition-all"
+              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-dashed border-[#e5e5e5] text-[#666666] text-xs font-bold uppercase tracking-wider hover:border-primary hover:text-primary active:scale-95 transition-all"
             >
               <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>
                 receipt_long
