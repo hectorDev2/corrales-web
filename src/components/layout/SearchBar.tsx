@@ -75,7 +75,7 @@ export function SearchBar() {
         .select(`id, name, description, image_src, tag, category_id, product_variants ( id, price, stock )`)
         .eq("is_active", true);
 
-      const orParts = [`name.ilike.${q}`, `description.ilike.${q}`];
+      const orParts = [`name.ilike.${q}`, `description.ilike.${q}`, `search_terms.ilike.${q}`];
       if (matchedIds.length > 0) {
         orParts.push(`category_id.in.(${matchedIds.join(",")})`);
       }

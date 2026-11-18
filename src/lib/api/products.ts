@@ -33,6 +33,7 @@ export interface AdminProduct {
   image_src: string;
   image_alt: string;
   tag: string | null;
+  search_terms: string;
   is_active: boolean;
   station: ProductStation;
   category_id: string;
@@ -66,6 +67,7 @@ export interface ProductInput {
   image_src: string;
   image_alt: string;
   tag: string | null;
+  search_terms: string;
   is_active: boolean;
   station: ProductStation;
   category_id: string;
@@ -89,7 +91,7 @@ export async function getAdminProducts(): Promise<AdminProduct[]> {
   const { data, error } = await supabase
     .from("products")
     .select(`
-      id, name, description, image_src, image_alt, tag, is_active, station, category_id,
+      id, name, description, image_src, image_alt, tag, search_terms, is_active, station, category_id,
       categories ( name ),
       product_variants ( id, label, price, stock, sort_order, is_active )
     `)
@@ -104,6 +106,7 @@ export async function getAdminProducts(): Promise<AdminProduct[]> {
     image_src: row.image_src,
     image_alt: row.image_alt,
     tag: row.tag,
+    search_terms: row.search_terms ?? "",
     is_active: row.is_active,
     station: row.station as ProductStation,
     category_id: row.category_id,
@@ -133,6 +136,7 @@ export async function createProduct(input: ProductInput): Promise<void> {
       image_src: input.image_src,
       image_alt: input.image_alt,
       tag: input.tag || null,
+      search_terms: input.search_terms,
       is_active: input.is_active,
       station: input.station,
       category_id: input.category_id,
@@ -168,6 +172,7 @@ export async function updateProduct(id: string, input: ProductInput): Promise<vo
       image_src: input.image_src,
       image_alt: input.image_alt,
       tag: input.tag || null,
+      search_terms: input.search_terms,
       is_active: input.is_active,
       station: input.station,
       category_id: input.category_id,
@@ -507,7 +512,7 @@ export async function searchProducts(query: string): Promise<Product[]> {
     `)
     .eq("is_active", true)
     .eq("categories.is_active", true)
-    .or(`name.ilike.${q},description.ilike.${q}`)
+    .or(`name.ilike.${q},description.ilike.${q},search_terms.ilike.${q}`)
     .order("name");
 
   if (error) throw error;

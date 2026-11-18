@@ -33,6 +33,7 @@ const productSchema = z.object({
   description: z.string().min(5, "Mínimo 5 caracteres").max(300),
   category_id: z.string().min(1, "Seleccioná una categoría"),
   tag: z.string().max(30).optional(),
+  search_terms: z.string().max(200, "Máximo 200 caracteres").optional(),
   image_src: z.string().min(1, "Ingresá la imagen"),
   image_alt: z.string().min(2, "Ingresá el alt text"),
   is_active: z.boolean(),
@@ -72,6 +73,7 @@ export function ProductForm({ product, categories, onSuccess, onClose }: Props) 
       description: "",
       category_id: "",
       tag: "",
+      search_terms: "",
       image_src: "",
       image_alt: "",
       is_active: true,
@@ -90,6 +92,7 @@ export function ProductForm({ product, categories, onSuccess, onClose }: Props) 
         description: product.description,
         category_id: product.category_id,
         tag: product.tag ?? "",
+        search_terms: product.search_terms,
         image_src: product.image_src,
         image_alt: product.image_alt,
         is_active: product.is_active,
@@ -104,6 +107,7 @@ export function ProductForm({ product, categories, onSuccess, onClose }: Props) 
         description: "",
         category_id: "",
         tag: "",
+        search_terms: "",
         image_src: "",
         image_alt: "",
         is_active: true,
@@ -144,6 +148,7 @@ export function ProductForm({ product, categories, onSuccess, onClose }: Props) 
         image_src: values.image_src,
         image_alt: values.image_alt,
         tag: values.tag || null,
+        search_terms: (values.search_terms ?? "").trim(),
         is_active: values.is_active,
         station: values.station,
         category_id: values.category_id,
@@ -210,6 +215,18 @@ export function ProductForm({ product, categories, onSuccess, onClose }: Props) 
                 className={inputClass(!!errors.description)}
               />
             </Field>
+
+          {/* Otros nombres para buscarlo */}
+          <Field label="Otros nombres para buscarlo (opcional)" error={errors.search_terms?.message}>
+            <input
+              {...register("search_terms")}
+              placeholder="Ej: pollo asado, chicken, pollito"
+              className={inputClass(!!errors.search_terms)}
+            />
+            <p className="text-on-surface-variant mt-1 text-xs">
+              Separa con comas. Si el cliente escribe cualquiera de estos nombres, también encontrará este plato.
+            </p>
+          </Field>
 
             {/* Imagen */}
             <div className="space-y-2">
@@ -310,14 +327,14 @@ export function ProductForm({ product, categories, onSuccess, onClose }: Props) 
             {/* Variantes */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <SectionTitle icon="sell">Variantes y precios</SectionTitle>
+                <SectionTitle icon="sell">Tamaños y precios</SectionTitle>
                 <button
                   type="button"
                   onClick={() => append({ label: "", price: 0, stock: 30 })}
                   className="text-primary flex items-center gap-1 text-xs font-bold"
                 >
                   <span className="material-symbols-outlined text-base">add_circle</span>
-                  Agregar
+                  Agregar tamaño
                 </button>
               </div>
 
@@ -328,28 +345,27 @@ export function ProductForm({ product, categories, onSuccess, onClose }: Props) 
                 <p className="text-error text-xs">{errors.variants.message}</p>
               )}
 
+              <p className="text-on-surface-variant text-xs">
+                Cada fila es una forma de vender este plato. Si tiene tamaños (1/4, 1/2, Entero), agrega uno por cada
+                tamaño. Si es único, deja el nombre vacío.
+              </p>
+
               {fields.map((field, index) => (
-                <div key={field.id} className="bg-surface-container-low space-y-2 rounded-2xl p-3">
-                  <div className="flex items-center gap-2">
-                    <div className="flex-1">
-                      <label className="text-on-surface-variant text-xs font-bold">
-                        Presentación
-                      </label>
+                <div key={field.id} className="bg-surface-container-low rounded-2xl p-3">
+                  <div className="grid grid-cols-[minmax(0,1fr)_5.5rem_5.5rem_auto] items-start gap-2">
+                    <div>
+                      <label className="text-on-surface-variant text-xs font-bold">Tamaño o porción</label>
                       <input
                         {...register(`variants.${index}.label`)}
-                        placeholder="Ej: 1/4, 1/2, Entero (vacío si es única)"
+                        placeholder="Ej: 1/4, Entero"
                         className={inputClass(!!errors.variants?.[index]?.label)}
                       />
                       {errors.variants?.[index]?.label && (
-                        <p className="text-error mt-1 text-xs">
-                          {errors.variants[index]!.label?.message}
-                        </p>
+                        <p className="text-error mt-1 text-xs">{errors.variants[index]!.label?.message}</p>
                       )}
                     </div>
-                    <div className="w-24">
-                      <label className="text-on-surface-variant text-xs font-bold">
-                        Precio
-                      </label>
+                    <div>
+                      <label className="text-on-surface-variant text-xs font-bold">Precio (S/)</label>
                       <input
                         {...register(`variants.${index}.price`, { valueAsNumber: true })}
                         type="number"
@@ -358,37 +374,36 @@ export function ProductForm({ product, categories, onSuccess, onClose }: Props) 
                         className={inputClass(!!errors.variants?.[index]?.price)}
                       />
                       {errors.variants?.[index]?.price && (
-                        <p className="text-error mt-1 text-xs">
-                          {errors.variants[index]!.price?.message}
-                        </p>
+                        <p className="text-error mt-1 text-xs">{errors.variants[index]!.price?.message}</p>
                       )}
                     </div>
-                    <div className="w-20">
-                      <label className="text-on-surface-variant text-xs font-bold">
-                        Cantidad disponible
-                      </label>
+                    <div>
+                      <label className="text-on-surface-variant text-xs font-bold">Disponibles</label>
                       <input
                         {...register(`variants.${index}.stock`, { valueAsNumber: true })}
                         type="number"
                         min="0"
                         step="1"
                         placeholder="0"
+                        title="Cuántas unidades quedan. Al llegar a 0 el cliente ya no puede pedirlo."
                         className={inputClass(!!errors.variants?.[index]?.stock)}
                       />
                       {errors.variants?.[index]?.stock && (
-                        <p className="text-error mt-1 text-xs">
-                          {errors.variants[index]!.stock?.message}
-                        </p>
+                        <p className="text-error mt-1 text-xs">{errors.variants[index]!.stock?.message}</p>
                       )}
                     </div>
-                    {fields.length > 1 && (
+                    {fields.length > 1 ? (
                       <button
                         type="button"
                         onClick={() => handleRemoveVariant(index)}
-                        className="text-error hover:bg-error-container mt-4 flex h-8 w-8 items-center justify-center rounded-full transition active:scale-90"
+                        aria-label="Quitar este tamaño"
+                        title="Quitar este tamaño"
+                        className="text-error hover:bg-error-container mt-6 flex h-11 w-11 items-center justify-center rounded-full transition active:scale-90"
                       >
-                        <span className="material-symbols-outlined text-lg">delete</span>
+                        <span className="material-symbols-outlined text-xl">delete</span>
                       </button>
+                    ) : (
+                      <span className="w-11" />
                     )}
                   </div>
                 </div>

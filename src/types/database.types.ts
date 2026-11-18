@@ -289,6 +289,7 @@ export type Database = {
           image_src: string
           is_active: boolean
           name: string
+          search_terms: string
           station: string
           tag: string | null
         }
@@ -301,6 +302,7 @@ export type Database = {
           image_src: string
           is_active?: boolean
           name: string
+          search_terms?: string
           station?: string
           tag?: string | null
         }
@@ -313,6 +315,7 @@ export type Database = {
           image_src?: string
           is_active?: boolean
           name?: string
+          search_terms?: string
           station?: string
           tag?: string | null
         }
