@@ -1,7 +1,7 @@
 import { supabase } from "@/lib/supabase";
 import type { ProductStation } from "@/types/admin";
 
-export type KitchenStatus = "pendiente" | "preparando";
+export type KitchenStatus = "pendiente" | "preparando" | "listo";
 
 export interface KitchenItem {
   id: string;
@@ -23,7 +23,7 @@ export interface KitchenOrder {
   items: KitchenItem[];
 }
 
-/** Pedidos que cocina debe atender (nuevos y en preparación), del más antiguo al más nuevo. */
+/** Pedidos de cocina: nuevos, en preparación y listos (aún sin recoger), del más antiguo al más nuevo. */
 export async function getKitchenOrders(): Promise<KitchenOrder[]> {
   const { data, error } = await supabase
     .from("orders")
@@ -32,7 +32,7 @@ export async function getKitchenOrders(): Promise<KitchenOrder[]> {
        restaurant_tables ( label ),
        order_items ( id, product_name, variant_label, quantity, products ( station ) )`,
     )
-    .in("status", ["pendiente", "preparando"])
+    .in("status", ["pendiente", "preparando", "listo"])
     .order("created_at", { ascending: true });
 
   if (error) throw error;

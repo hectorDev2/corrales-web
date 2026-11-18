@@ -5,6 +5,7 @@ import { toast } from "sonner";
 
 import {
   type KitchenOrder,
+  type KitchenStatus,
   advanceKitchenOrder,
   getKitchenOrders,
 } from "@/lib/api/kitchen";
@@ -61,6 +62,7 @@ export function KitchenPage() {
   const [orders, setOrders] = useState<KitchenOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [station, setStation] = useState<StationFilter>("todas");
+  const [tab, setTab] = useState<KitchenStatus>("pendiente");
   const [sound, setSound] = useState(false);
   const [now, setNow] = useState(() => Date.now());
   const knownIds = useRef<Set<string> | null>(null);
@@ -135,7 +137,8 @@ export function KitchenPage() {
 
   async function advance(order: KitchenOrder, next: "preparando" | "listo") {
     // Se actualiza al instante; el tiempo real confirma después.
-    setOrders((prev) => (next === "listo" ? prev.filter((o) => o.id !== order.id) : prev.map((o) => (o.id === order.id ? { ...o, status: next } : o))));
+    setOrders((prev) => prev.map((o) => (o.id === order.id ? { ...o, status: next } : o)));
+    if (next === "listo") toast.success(`Pedido #${order.order_number} listo.`);
     try {
       await advanceKitchenOrder(order.id, next);
     } catch {
@@ -152,11 +155,20 @@ export function KitchenPage() {
         .filter((o) => o.items.length > 0),
     [orders, station],
   );
-  const nuevos = visible.filter((o) => o.status === "pendiente");
-  const enCurso = visible.filter((o) => o.status === "preparando");
+  const byStatus = {
+    pendiente: visible.filter((o) => o.status === "pendiente"),
+    preparando: visible.filter((o) => o.status === "preparando"),
+    listo: visible.filter((o) => o.status === "listo"),
+  };
+
+  const columns = (["pendiente", "preparando", "listo"] as const).map((status) => ({
+    status,
+    orders: byStatus[status],
+    onAdvance: (status === "pendiente" ? "preparando" : status === "preparando" ? "listo" : null) as "preparando" | "listo" | null,
+  }));
 
   return (
-    <div className="mx-auto w-full max-w-[110rem] space-y-5 px-4 py-5 md:px-8">
+    <div className="mx-auto w-full max-w-[110rem] space-y-4 px-4 py-4 md:px-8">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div role="radiogroup" aria-label="Estación" className="bg-surface-container-high flex flex-wrap gap-1 rounded-2xl p-1">
           {STATIONS.map((s) => (
@@ -184,118 +196,192 @@ export function KitchenPage() {
           }`}
         >
           <span className="material-symbols-outlined text-xl">{sound ? "volume_up" : "volume_off"}</span>
-          {sound ? "Sonido activado" : "Activar sonido de pedidos nuevos"}
+          {sound ? "Sonido activado" : "Activar sonido"}
         </button>
+      </div>
+
+      {/* En celular y tablet: pestañas con contador. En pantalla grande: tres columnas. */}
+      <div role="tablist" aria-label="Estado de los pedidos" className="grid grid-cols-3 gap-2 lg:hidden">
+        {columns.map(({ status, orders: list }) => {
+          const cfg = STATUS[status];
+          return (
+            <button
+              key={status}
+              type="button"
+              role="tab"
+              aria-selected={tab === status}
+              onClick={() => setTab(status)}
+              className={`flex min-h-16 flex-col items-center justify-center rounded-2xl text-sm font-black transition ${
+                tab === status ? `${cfg.solid} shadow-md` : `${cfg.soft}`
+              }`}
+            >
+              <span className="flex items-center gap-1">
+                <span className="material-symbols-outlined text-xl">{cfg.icon}</span>
+                {cfg.title}
+              </span>
+              <span className="text-lg leading-none">{list.length}</span>
+            </button>
+          );
+        })}
       </div>
 
       {loading ? (
         <div className="flex justify-center py-20">
           <span className="material-symbols-outlined text-outline animate-spin text-5xl">progress_activity</span>
         </div>
-      ) : visible.length === 0 ? (
-        <div className="text-on-surface-variant flex flex-col items-center gap-3 py-24">
-          <span className="material-symbols-outlined text-outline text-7xl">task_alt</span>
-          <p className="text-xl font-black">Todo al día</p>
-          <p className="text-sm">Los pedidos nuevos aparecerán aquí solos.</p>
-        </div>
       ) : (
-        <div className="grid items-start gap-6 lg:grid-cols-2">
-          <Column title="Nuevos" count={nuevos.length} tone="new">
-            {nuevos.map((o) => (
-              <OrderCard key={o.id} order={o} now={now} onAdvance={() => void advance(o, "preparando")} />
-            ))}
-          </Column>
-          <Column title="Preparando" count={enCurso.length} tone="cooking">
-            {enCurso.map((o) => (
-              <OrderCard key={o.id} order={o} now={now} onAdvance={() => void advance(o, "listo")} />
-            ))}
-          </Column>
+        <div className="grid items-start gap-5 lg:grid-cols-3">
+          {columns.map(({ status, orders: list, onAdvance }) => {
+            const cfg = STATUS[status];
+            return (
+              <section key={status} className={`space-y-3 ${tab === status ? "" : "max-lg:hidden"}`}>
+                <h2 className={`hidden items-center gap-2 rounded-2xl px-4 py-3 text-base font-black lg:flex ${cfg.solid}`}>
+                  <span className="material-symbols-outlined text-2xl">{cfg.icon}</span>
+                  {cfg.title}
+                  <span className="ml-auto rounded-full bg-white/25 px-3 py-0.5 text-sm">{list.length}</span>
+                </h2>
+                <p className="text-on-surface-variant px-1 text-sm lg:text-xs">{cfg.hint}</p>
+                {list.length === 0 ? (
+                  <p className="text-on-surface-variant bg-surface-container-low rounded-2xl py-10 text-center text-sm font-bold">
+                    {status === "pendiente" ? "No hay pedidos nuevos" : status === "preparando" ? "Nada en preparación" : "Ningún pedido listo"}
+                  </p>
+                ) : (
+                  <div className="space-y-4">
+                    {list.map((o) => (
+                      <OrderCard
+                        key={o.id}
+                        order={o}
+                        now={now}
+                        onAdvance={onAdvance ? () => void advance(o, onAdvance) : null}
+                      />
+                    ))}
+                  </div>
+                )}
+              </section>
+            );
+          })}
         </div>
       )}
     </div>
   );
 }
 
-function Column({
-  title,
-  count,
-  tone,
-  children,
-}: {
-  title: string;
-  count: number;
-  tone: "new" | "cooking";
-  children: React.ReactNode;
-}) {
-  return (
-    <section className="space-y-3">
-      <h2 className="flex items-center gap-2 text-lg font-black">
-        <span className={`size-3 rounded-full ${tone === "new" ? "bg-yellow-500" : "bg-blue-500"}`} />
-        {title}
-        <span className="bg-surface-container-high text-on-surface-variant rounded-full px-2.5 py-0.5 text-sm">{count}</span>
-      </h2>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">{children}</div>
-      {count === 0 && <p className="text-on-surface-variant py-4 text-sm">Nada por aquí.</p>}
-    </section>
-  );
-}
+const STATUS = {
+  pendiente: {
+    title: "Nuevos",
+    icon: "notifications_active",
+    hint: "Toca «Empezar» cuando comiences a prepararlo.",
+    solid: "bg-yellow-400 text-yellow-950",
+    soft: "bg-yellow-100 text-yellow-900",
+    border: "border-yellow-400",
+    band: "bg-yellow-400 text-yellow-950",
+    label: "NUEVO",
+  },
+  preparando: {
+    title: "Preparando",
+    icon: "skillet",
+    hint: "Toca «Marcar como listo» cuando esté terminado.",
+    solid: "bg-blue-600 text-white",
+    soft: "bg-blue-100 text-blue-900",
+    border: "border-blue-600",
+    band: "bg-blue-600 text-white",
+    label: "PREPARANDO",
+  },
+  listo: {
+    title: "Listos",
+    icon: "check_circle",
+    hint: "Esperan a que los recojan o los sirvan.",
+    solid: "bg-green-600 text-white",
+    soft: "bg-green-100 text-green-900",
+    border: "border-green-600",
+    band: "bg-green-600 text-white",
+    label: "LISTO",
+  },
+} as const;
 
-function OrderCard({ order, now, onAdvance }: { order: KitchenOrder; now: number; onAdvance: () => void }) {
+const STEPS = ["Nuevo", "Preparando", "Listo"] as const;
+const STEP_INDEX = { pendiente: 0, preparando: 1, listo: 2 } as const;
+
+function OrderCard({ order, now, onAdvance }: { order: KitchenOrder; now: number; onAdvance: (() => void) | null }) {
+  const cfg = STATUS[order.status];
   const mins = minutesSince(order.created_at, now);
-  const late = mins >= 20;
-  const warn = mins >= 10 && !late;
+  const waiting = order.status !== "listo";
+  const late = waiting && mins >= 20;
+  const warn = waiting && mins >= 10 && !late;
   const where =
     order.delivery_type === "dine_in" && order.table_label ? `Mesa ${order.table_label}` : TYPE_LABEL[order.delivery_type];
+  const step = STEP_INDEX[order.status];
 
   return (
-    <article
-      className={`bg-surface-container-lowest flex flex-col gap-3 rounded-3xl p-5 shadow-sm ring-2 ${
-        late ? "ring-red-500" : warn ? "ring-amber-400" : "ring-transparent"
-      }`}
-    >
-      <header className="flex items-start justify-between gap-3">
-        <div>
-          <p className="text-3xl leading-none font-black">#{order.order_number}</p>
-          <p className="text-on-surface-variant mt-1 text-sm font-bold">{where}</p>
-        </div>
-        <span
-          className={`flex items-center gap-1 rounded-full px-3 py-1.5 text-sm font-black ${
-            late ? "bg-red-100 text-red-700" : warn ? "bg-amber-100 text-amber-800" : "bg-surface-container-high text-on-surface-variant"
-          }`}
-        >
-          <span className="material-symbols-outlined text-lg">timer</span>
-          {mins} min
+    <article className={`bg-surface-container-lowest overflow-hidden rounded-3xl border-4 shadow-sm ${late ? "border-red-500" : cfg.border}`}>
+      {/* Franja con el estado, siempre visible */}
+      <div className={`flex items-center justify-between px-5 py-2.5 ${cfg.band}`}>
+        <span className="flex items-center gap-2 text-base font-black tracking-wider">
+          <span className="material-symbols-outlined text-2xl">{cfg.icon}</span>
+          {cfg.label}
         </span>
-      </header>
+        <span className="flex items-center gap-1 text-sm font-black">
+          <span className="material-symbols-outlined text-lg">timer</span>
+          {mins} min{late && " · ¡tarda!"}
+          {warn && " · atento"}
+        </span>
+      </div>
 
-      <ul className="space-y-1.5">
-        {order.items.map((i) => (
-          <li key={i.id} className="flex items-baseline gap-3 text-xl leading-snug font-bold">
-            <span className="text-primary min-w-8 text-2xl font-black">{i.quantity}×</span>
-            <span>
-              {i.product_name}
-              {i.variant_label && <span className="text-on-surface-variant font-semibold"> ({i.variant_label})</span>}
-            </span>
-          </li>
-        ))}
-      </ul>
+      <div className="space-y-3 p-5">
+        <header className="flex items-end justify-between gap-3">
+          <p className="text-4xl leading-none font-black">#{order.order_number}</p>
+          <p className="bg-surface-container-high rounded-full px-3 py-1 text-sm font-black">{where}</p>
+        </header>
 
-      {order.customer_notes && (
-        <p className="rounded-xl bg-yellow-50 px-3 py-2 text-base font-bold text-yellow-900">
-          <span className="material-symbols-outlined mr-1 align-middle text-lg">edit_note</span>
-          {order.customer_notes}
-        </p>
-      )}
+        {/* Avance: Nuevo → Preparando → Listo */}
+        <ol className="flex items-center" aria-label="Avance del pedido">
+          {STEPS.map((label, i) => (
+            <li key={label} className="flex flex-1 items-center last:flex-none">
+              <span
+                className={`flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-black ${
+                  i === step ? cfg.solid : i < step ? "bg-surface-container-high text-on-surface" : "text-outline"
+                }`}
+              >
+                {i < step && <span className="material-symbols-outlined text-sm">check</span>}
+                {label}
+              </span>
+              {i < STEPS.length - 1 && <span className={`mx-1 h-0.5 flex-1 ${i < step ? "bg-on-surface/40" : "bg-outline-variant"}`} />}
+            </li>
+          ))}
+        </ol>
 
-      <button
-        type="button"
-        onClick={onAdvance}
-        className={`min-h-14 rounded-2xl text-base font-black tracking-wide uppercase transition active:scale-[0.98] ${
-          order.status === "pendiente" ? "bg-blue-600 text-white" : "bg-green-600 text-white"
-        }`}
-      >
-        {order.status === "pendiente" ? "Empezar a preparar" : "¡Listo!"}
-      </button>
+        <ul className="space-y-1.5 pt-1">
+          {order.items.map((i) => (
+            <li key={i.id} className="flex items-baseline gap-3 text-xl leading-snug font-bold">
+              <span className="text-primary min-w-9 text-3xl font-black">{i.quantity}×</span>
+              <span>
+                {i.product_name}
+                {i.variant_label && <span className="text-on-surface-variant font-semibold"> ({i.variant_label})</span>}
+              </span>
+            </li>
+          ))}
+        </ul>
+
+        {order.customer_notes && (
+          <p className="rounded-xl bg-yellow-50 px-3 py-2 text-base font-bold text-yellow-900">
+            <span className="material-symbols-outlined mr-1 align-middle text-lg">edit_note</span>
+            {order.customer_notes}
+          </p>
+        )}
+
+        {onAdvance && (
+          <button
+            type="button"
+            onClick={onAdvance}
+            className={`flex min-h-16 w-full items-center justify-center gap-2 rounded-2xl text-lg font-black transition active:scale-[0.98] ${
+              order.status === "pendiente" ? "bg-blue-600 text-white" : "bg-green-600 text-white"
+            }`}
+          >
+            <span className="material-symbols-outlined text-2xl">{order.status === "pendiente" ? "play_arrow" : "check_circle"}</span>
+            {order.status === "pendiente" ? "Empezar a preparar" : "Marcar como listo"}
+          </button>
+        )}
+      </div>
     </article>
   );
 }
