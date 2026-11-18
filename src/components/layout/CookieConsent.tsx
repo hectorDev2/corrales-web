@@ -1,11 +1,15 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const COOKIE_CONSENT_KEY = "corrales-cookies-accepted";
 
 export function CookieConsent() {
   const [visible, setVisible] = useState(false);
+  const pathname = usePathname();
+  // Los paneles internos (admin, cocina, delivery) no necesitan el aviso de cookies del sitio público.
+  const internal = /^\/(admin|cocina|delivery|login)(\/|$)/.test(pathname);
 
   useEffect(() => {
     const accepted = localStorage.getItem(COOKIE_CONSENT_KEY);
@@ -22,7 +26,7 @@ export function CookieConsent() {
     setVisible(false);
   }
 
-  if (!visible) return null;
+  if (!visible || internal) return null;
 
   return (
     <div className="fixed inset-0 z-[100] flex items-end justify-center p-4 pointer-events-none md:items-center">

@@ -179,7 +179,7 @@ export function TableMap({
             );
           })}
         </div>
-        <div className="flex gap-2">
+        <div className="flex w-full flex-wrap gap-2 sm:w-auto">
           <div className="bg-surface-container-high flex rounded-xl p-1" role="group" aria-label="Forma de ver las mesas">
             {(["mapa", "lista"] as const).map((v) => (
               <button
@@ -203,7 +203,7 @@ export function TableMap({
             <button
               type="button"
               onClick={() => void addTable()}
-              className="bg-surface-container-high text-on-surface-variant flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold tracking-wider uppercase"
+              className="bg-surface-container-high text-on-surface-variant flex min-h-11 items-center gap-2 rounded-xl px-3 py-2 text-xs font-bold tracking-wider uppercase sm:px-4"
             >
               <span className="material-symbols-outlined text-base">add</span>
               Mesa
@@ -215,7 +215,7 @@ export function TableMap({
             onClick={() => {
               setEditMode((v) => !v);
             }}
-            className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold tracking-wider uppercase ${
+            className={`flex min-h-11 items-center gap-2 rounded-xl px-3 py-2 text-xs font-bold tracking-wider uppercase sm:px-4 ${
               editMode ? "bg-primary text-on-primary" : "bg-surface-container-high text-on-surface-variant"
             }`}
           >
@@ -226,7 +226,7 @@ export function TableMap({
       </div>
 
       {/* Resumen de un vistazo */}
-      <div className="flex flex-wrap gap-2">
+      <div className={`flex flex-wrap gap-2 ${editMode ? "max-lg:hidden" : ""}`}>
         {(Object.keys(STATE_CONFIG) as TableState[]).map((s) => (
           <button
             key={s}
@@ -263,7 +263,7 @@ export function TableMap({
             onSelect={setSelectedId}
           />
         ) : (
-          <div className="border-outline-variant/30 relative aspect-[4/3] w-full overflow-hidden rounded-3xl border bg-[#f4ede4] md:aspect-[16/11]">
+          <div className="border-outline-variant/30 relative h-[min(58dvh,520px)] w-full overflow-hidden rounded-3xl border bg-[#f4ede4] md:aspect-[16/11] md:h-auto">
             <WebGLBoundary
               fallback={
                 <p className="text-on-surface-variant flex h-full items-center justify-center p-6 text-center text-sm font-bold">
@@ -295,7 +295,7 @@ export function TableMap({
         )}
 
         <aside
-          className={`bg-surface-container-lowest space-y-3 p-5 shadow-[0_-12px_40px_rgba(0,0,0,0.18)] max-lg:fixed max-lg:inset-x-0 max-lg:bottom-0 max-lg:z-[60] max-lg:max-h-[75dvh] max-lg:overflow-y-auto max-lg:rounded-t-3xl lg:shadow-card lg:rounded-3xl ${
+          className={`bg-surface-container-lowest space-y-3 p-5 shadow-[0_-12px_40px_rgba(0,0,0,0.18)] max-lg:fixed max-lg:inset-x-0 max-lg:bottom-0 max-lg:z-[60] max-lg:overflow-y-auto ${editMode ? "max-lg:max-h-[30dvh] max-lg:p-3 max-lg:space-y-2" : "max-lg:max-h-[70dvh]"} max-lg:rounded-t-3xl lg:shadow-card lg:rounded-3xl ${
             selected ? "" : "max-lg:hidden"
           }`}
         >
@@ -365,7 +365,7 @@ function TableDetail({
     <>
       <div className="flex items-center gap-3">
         <div
-          className="flex size-16 shrink-0 items-center justify-center rounded-2xl text-3xl font-black text-[#2b2118] shadow-inner"
+          className="flex size-12 shrink-0 items-center justify-center rounded-2xl text-2xl font-black text-[#2b2118] shadow-inner lg:size-16 lg:text-3xl"
           style={{ backgroundColor: cfg.top, boxShadow: `inset 0 -4px 0 ${cfg.edge}` }}
         >
           {table.label}
@@ -384,36 +384,35 @@ function TableDetail({
       </div>
 
       {editMode && (
-        <button
-          type="button"
-          onClick={onRotate}
-          disabled={table.capacity <= 2}
-          title={table.capacity <= 2 ? "Las mesas redondas no necesitan girarse" : undefined}
-          className="bg-surface-container-high text-on-surface flex min-h-12 w-full items-center justify-center gap-2 rounded-xl text-sm font-bold active:scale-95 disabled:opacity-40"
-        >
-          <span className="material-symbols-outlined text-xl">rotate_right</span>
-          Girar mesa
-        </button>
-      )}
-
-      {editMode && (
-        <div className="bg-surface-container-low flex items-center justify-between rounded-xl p-2">
-          <span className="text-on-surface-variant pl-2 text-xs font-bold">Sillas</span>
-          <div className="flex items-center gap-3">
+        <div className="grid grid-cols-2 gap-2">
+          <button
+            type="button"
+            onClick={onRotate}
+            disabled={table.capacity <= 2}
+            title={table.capacity <= 2 ? "Las mesas redondas no necesitan girarse" : undefined}
+            className="bg-surface-container-high text-on-surface flex min-h-12 items-center justify-center gap-2 rounded-xl text-sm font-bold active:scale-95 disabled:opacity-40"
+          >
+            <span className="material-symbols-outlined text-xl">rotate_right</span>
+            Girar
+          </button>
+          <div className="bg-surface-container-low flex min-h-12 items-center justify-between rounded-xl px-2">
             <button
               type="button"
               aria-label="Quitar silla"
               onClick={() => onSeats(-1)}
-              className="bg-surface-container-high flex size-8 items-center justify-center rounded-lg text-lg font-black"
+              className="bg-surface-container-high flex size-10 items-center justify-center rounded-lg text-xl font-black active:scale-90"
             >
               −
             </button>
-            <span className="w-5 text-center text-sm font-black">{table.capacity}</span>
+            <span className="text-center text-sm leading-tight font-black">
+              {table.capacity}
+              <span className="text-on-surface-variant block text-[10px] font-bold">sillas</span>
+            </span>
             <button
               type="button"
               aria-label="Agregar silla"
               onClick={() => onSeats(1)}
-              className="bg-surface-container-high flex size-8 items-center justify-center rounded-lg text-lg font-black"
+              className="bg-surface-container-high flex size-10 items-center justify-center rounded-lg text-xl font-black active:scale-90"
             >
               +
             </button>
@@ -422,7 +421,7 @@ function TableDetail({
       )}
 
       {orders.length === 0 ? (
-        <p className="text-on-surface-variant text-sm">Sin pedidos en curso.</p>
+        <p className={`text-on-surface-variant text-sm ${editMode ? "max-lg:hidden" : ""}`}>Sin pedidos en curso.</p>
       ) : (
         <>
           {orders.map((o) => (
