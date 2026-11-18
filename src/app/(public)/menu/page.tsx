@@ -9,7 +9,7 @@ import {
 
 export const metadata = {
   title: "Carta — Pollería & Fastfood Corrales",
-  description: "Pollo a la brasa, parrillas, fast food y más. Pedí online.",
+  description: "Pollo a la brasa, parrillas, fast food y más. Pide online.",
 };
 
 export default async function Page({

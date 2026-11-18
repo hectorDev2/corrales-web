@@ -31,14 +31,14 @@ const variantSchema = z.object({
 const productSchema = z.object({
   name: z.string().min(2, "Mínimo 2 caracteres").max(100),
   description: z.string().min(5, "Mínimo 5 caracteres").max(300),
-  category_id: z.string().min(1, "Seleccioná una categoría"),
+  category_id: z.string().min(1, "Selecciona una categoría"),
   tag: z.string().max(30).optional(),
   search_terms: z.string().max(200, "Máximo 200 caracteres").optional(),
-  image_src: z.string().min(1, "Ingresá la imagen"),
-  image_alt: z.string().min(2, "Ingresá el alt text"),
+  image_src: z.string().min(1, "Ingresa la imagen"),
+  image_alt: z.string().min(2, "Ingresa el alt text"),
   is_active: z.boolean(),
   station: z.enum(["cocina", "horno", "barra"]),
-  variants: z.array(variantSchema).min(1, "Agregá al menos una variante"),
+  variants: z.array(variantSchema).min(1, "Agrega al menos una variante"),
 });
 
 type ProductFormValues = z.infer<typeof productSchema>;
@@ -265,7 +265,7 @@ export function ProductForm({ product, categories, onSuccess, onClose }: Props) 
             {/* Categoría */}
             <Field label="Categoría" error={errors.category_id?.message}>
               <select {...register("category_id")} className={inputClass(!!errors.category_id)}>
-                <option value="">Seleccioná una categoría...</option>
+                <option value="">Selecciona una categoría...</option>
                 {categories.map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.name}

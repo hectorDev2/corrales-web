@@ -7,7 +7,7 @@ const MAX_RESUME_SIZE = 5 * 1024 * 1024;
 type SubmissionState = "idle" | "submitting" | "success" | "error";
 
 function validateResume(file: File | null): string | null {
-  if (!file || file.size === 0) return "Adjuntá tu CV en formato PDF.";
+  if (!file || file.size === 0) return "Adjunta tu CV en formato PDF.";
 
   const isPdf = file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
   if (!isPdf) return "El CV debe estar en formato PDF.";
@@ -27,7 +27,7 @@ async function getResponseError(response: Response): Promise<string> {
     // The API may return an empty or non-JSON error response.
   }
 
-  return "No pudimos enviar tu postulación. Intentá de nuevo.";
+  return "No pudimos enviar tu postulación. Intenta de nuevo.";
 }
 
 export function CareersForm() {
@@ -78,7 +78,7 @@ export function CareersForm() {
       setErrorMessage(
         error instanceof Error && error.message
           ? error.message
-          : "No pudimos enviar tu postulación. Intentá de nuevo.",
+          : "No pudimos enviar tu postulación. Intenta de nuevo.",
       );
       setSubmissionState("error");
     }

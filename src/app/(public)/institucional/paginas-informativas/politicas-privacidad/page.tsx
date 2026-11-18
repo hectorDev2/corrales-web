@@ -4,7 +4,7 @@ import { InstitutionalPage } from "@/components/institutional";
 
 export const metadata: Metadata = {
   title: "Políticas de privacidad — Corrales",
-  description: "Conocé cómo Corrales trata la información que compartís en sus canales digitales.",
+  description: "Conoce cómo Corrales trata la información que compartes en sus canales digitales.",
 };
 
 export default function Page() {
@@ -15,12 +15,12 @@ export default function Page() {
     >
       <p>
         En Corrales respetamos tu privacidad. Esta política explica, de manera clara, qué
-        información podemos recibir cuando usás nuestros canales digitales y para qué la utilizamos.
+        información podemos recibir cuando usas nuestros canales digitales y para qué la utilizamos.
       </p>
       <section className="space-y-3">
-        <h2 className="text-on-surface text-xl font-black">Información que nos compartís</h2>
+        <h2 className="text-on-surface text-xl font-black">Información que nos compartes</h2>
         <p>
-          Podemos recibir datos que ingresás al realizar un pedido, solicitar información,
+          Podemos recibir datos que ingresas al realizar un pedido, solicitar información,
           participar en una encuesta o contactarnos. También podemos recibir datos técnicos
           necesarios para que el sitio funcione correctamente.
         </p>
@@ -36,8 +36,8 @@ export default function Page() {
       <section className="space-y-3">
         <h2 className="text-on-surface text-xl font-black">Tus consultas</h2>
         <p>
-          Si querés consultar, actualizar o solicitar información sobre tus datos personales,
-          escribinos a{" "}
+          Si quieres consultar, actualizar o solicitar información sobre tus datos personales,
+          escríbenos a{" "}
           <a href="mailto:corrales@contacto.pe" className="text-primary font-bold hover:underline">
             corrales@contacto.pe
           </a>

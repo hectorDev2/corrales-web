@@ -156,7 +156,7 @@ function SlideForm({
           <div className="rounded-xl border border-primary/20 bg-primary/5 p-3 text-sm text-on-surface">
             <p className="font-black text-primary">Guía para una visualización correcta</p>
             <p className="mt-1 text-xs text-on-surface-variant">
-              Subí una versión para cada dispositivo. La imagen móvil evita que el diseño se recorte
+              Sube una versión para cada dispositivo. La imagen móvil evita que el diseño se recorte
               en teléfonos.
             </p>
             <ul className="mt-2 space-y-1 text-xs text-on-surface-variant">
@@ -295,7 +295,7 @@ function SlideForm({
 
           {/* Título */}
           <div>
-            <Label>Título principal <Hint>podés usar dos líneas</Hint></Label>
+            <Label>Título principal <Hint>puedes usar dos líneas</Hint></Label>
             <textarea
               value={data.title ?? ""}
               onChange={(e) => onChange({ ...data, title: e.target.value })}
@@ -418,7 +418,7 @@ function SlideForm({
               />
               <div>
                 <p className="text-sm font-bold text-on-surface">{data.accent_color}</p>
-                <p className="text-xs text-on-surface-variant">Tocá para elegir el color</p>
+                <p className="text-xs text-on-surface-variant">Toca para elegir el color</p>
               </div>
               <div className="ml-auto w-10 h-10 rounded-lg shadow-inner" style={{ background: data.accent_color ?? "#e4002b" }} />
             </div>
@@ -515,7 +515,7 @@ export function AdminSliderPage({ initialSlides }: AdminSliderPageProps) {
   async function handleCreate() {
     if (!creating) return;
     if (creating.type === "image" && !creating.image_url) {
-      toast.error("Subí una imagen primero");
+      toast.error("Sube una imagen primero");
       return;
     }
     setSaving(true);

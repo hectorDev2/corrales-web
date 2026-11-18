@@ -117,7 +117,7 @@ export async function POST(req: NextRequest) {
     console.error("Payment provider request failed:", error);
     await cancelPendingOrder(admin, order.id);
     return NextResponse.json(
-      { error: "No pudimos confirmar el pago. Intentá nuevamente." },
+      { error: "No pudimos confirmar el pago. Intenta nuevamente." },
       { status: 502 },
     );
   }

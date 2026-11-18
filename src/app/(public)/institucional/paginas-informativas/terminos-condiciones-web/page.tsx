@@ -4,7 +4,7 @@ import { InstitutionalPage } from "@/components/institutional";
 
 export const metadata: Metadata = {
   title: "Términos y condiciones de la web — Corrales",
-  description: "Conocé los términos y condiciones de uso del sitio web de Corrales.",
+  description: "Conoce los términos y condiciones de uso del sitio web de Corrales.",
 };
 
 export default function Page() {
@@ -14,7 +14,7 @@ export default function Page() {
       currentPath="/institucional/paginas-informativas/terminos-condiciones-web"
     >
       <p>
-        Al navegar por este sitio y realizar una compra, aceptás los presentes términos y
+        Al navegar por este sitio y realizar una compra, aceptas los presentes términos y
         condiciones. Si no estás de acuerdo, te pedimos que no utilices nuestros canales digitales.
       </p>
       <section className="space-y-3">
@@ -30,7 +30,7 @@ export default function Page() {
         <p>
           Los productos, precios, promociones y zonas de reparto pueden variar según el local y la
           disponibilidad. Un pedido queda confirmado cuando el sistema muestra la confirmación
-          correspondiente. Antes de finalizar, revisá el detalle, la dirección y el medio de pago.
+          correspondiente. Antes de finalizar, revisa el detalle, la dirección y el medio de pago.
         </p>
       </section>
       <section className="space-y-3">

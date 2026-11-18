@@ -45,7 +45,7 @@ export function SurveyForm() {
           defaultValue=""
         >
           <option value="" disabled>
-            Seleccioná una opción
+            Selecciona una opción
           </option>
           <option value="Excelente">Excelente</option>
           <option value="Muy buena">Muy buena</option>
@@ -59,7 +59,7 @@ export function SurveyForm() {
           name="comments"
           rows={5}
           className="border-outline-variant focus:border-primary w-full rounded-xl border bg-white px-4 py-3 font-normal outline-none"
-          placeholder="Contanos más sobre tu visita"
+          placeholder="Cuéntanos más sobre tu visita"
         />
       </label>
       <button
@@ -77,7 +77,7 @@ export function SurveyForm() {
       )}
       {submissionState === "error" && (
         <p role="alert" className="rounded-xl bg-red-50 p-4 text-sm font-semibold text-red-800">
-          No pudimos enviar tu encuesta. Intentá nuevamente.
+          No pudimos enviar tu encuesta. Intenta nuevamente.
         </p>
       )}
     </form>

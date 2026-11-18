@@ -230,7 +230,7 @@ export function Footer() {
               )}
               {newsletterState === "error" && (
                 <p role="alert" className="text-sm text-red-300">
-                  No pudimos completar la suscripción. Intentá nuevamente.
+                  No pudimos completar la suscripción. Intenta nuevamente.
                 </p>
               )}
             </form>

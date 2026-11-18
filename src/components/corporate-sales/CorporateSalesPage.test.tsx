@@ -13,7 +13,7 @@ describe("CorporateSalesPage", () => {
     render(<CorporateSalesPage />);
 
     expect(
-      screen.getByRole("heading", { name: "Contactá a nuestro equipo de Ventas Corporativas" }),
+      screen.getByRole("heading", { name: "Contacta a nuestro equipo de Ventas Corporativas" }),
     ).toBeInTheDocument();
     expect(screen.getByLabelText("Nombres")).toBeInTheDocument();
     expect(screen.getByLabelText("Apellidos")).toBeInTheDocument();

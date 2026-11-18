@@ -208,7 +208,7 @@ export function OptionGroupsForm({ productId, onSaved }: Props) {
           <p className="text-xs text-on-surface-variant mt-0.5">
             {hasGroups
               ? `${groups.length} grupo${groups.length !== 1 ? "s" : ""}`
-              : "Agregá complementos, bebidas, extras..."}
+              : "Agrega complementos, bebidas, extras..."}
           </p>
         </div>
         <span

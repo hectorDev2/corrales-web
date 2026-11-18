@@ -61,14 +61,14 @@ describe("AdminHomeSavingsPage", () => {
     );
 
     await user.clear(screen.getByLabelText("Título de la sección"));
-    await user.type(screen.getByLabelText("Título de la sección"), "Elegí tu favorito");
+    await user.type(screen.getByLabelText("Título de la sección"), "Elige tu favorito");
     await user.click(screen.getByRole("button", { name: "Mover Para Compartir hacia abajo" }));
     await user.click(screen.getByLabelText("Mostrar Para Compartir en el inicio"));
     await user.click(screen.getByRole("button", { name: "Guardar cambios" }));
 
     expect(updateHomeSavingsSettings).toHaveBeenCalledWith(
       expect.objectContaining({
-        title: "Elegí tu favorito",
+        title: "Elige tu favorito",
         tiles: expect.arrayContaining([
           expect.objectContaining({ label: "Para Compartir", sortOrder: 1, isActive: false }),
         ]),
@@ -153,7 +153,7 @@ describe("AdminHomeSavingsPage", () => {
     );
 
     expect(screen.getAllByLabelText("Categoría del menú")[0]).toHaveDisplayValue(
-      "Enlace anterior (elegí una categoría)",
+      "Enlace anterior (elige una categoría)",
     );
     await user.click(screen.getByRole("button", { name: "Guardar cambios" }));
 
@@ -202,6 +202,6 @@ describe("AdminHomeSavingsPage", () => {
     });
 
     expect(uploadProductImage).not.toHaveBeenCalled();
-    expect(toast.error).toHaveBeenCalledWith("Subí una imagen JPG, PNG o WebP.");
+    expect(toast.error).toHaveBeenCalledWith("Sube una imagen JPG, PNG o WebP.");
   });
 });

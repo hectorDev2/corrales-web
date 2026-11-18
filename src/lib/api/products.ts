@@ -449,7 +449,7 @@ export async function deleteCategory(id: string): Promise<void> {
   if (error) {
     if (error.code === "23503") {
       throw new Error(
-        "No podés eliminar esta categoría porque tiene productos asociados.",
+        "No puedes eliminar esta categoría porque tiene productos asociados.",
       );
     }
     throw error;

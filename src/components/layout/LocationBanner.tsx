@@ -33,7 +33,7 @@ export function LocationBanner() {
       setAddress(address ?? "", loc.lat, loc.lng);
       toast.success("¡Ubicación guardada! Se usará en tu próximo pedido.");
     } else {
-      toast.error("No se pudo obtener la ubicación. Verificá los permisos del navegador.");
+      toast.error("No se pudo obtener la ubicación. Verifica los permisos del navegador.");
       dismiss();
     }
   }
@@ -58,7 +58,7 @@ export function LocationBanner() {
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-sm leading-tight font-black text-[#111111]">
-                ¿Compartís tu ubicación?
+                ¿Compartes tu ubicación?
               </p>
               <p className="text-on-surface-variant mt-0.5 text-[11px] leading-snug">
                 La usamos para coordinar tu delivery más rápido.

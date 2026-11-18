@@ -89,7 +89,7 @@ export function ReelBuilder() {
             {STAGES[stage].label}
           </h1>
           <p className="mt-3 max-w-lg text-sm leading-relaxed text-white/55">
-            Construcción progresiva aislada. Usá los controles o las flechas del teclado para
+            Construcción progresiva aislada. Usa los controles o las flechas del teclado para
             avanzar sin depender de APIs ni datos reales.
           </p>
 

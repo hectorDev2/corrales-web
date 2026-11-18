@@ -119,7 +119,7 @@ export function AdminFooterPage({ initial }: Props) {
           Editar Footer
         </h1>
         <p className="text-sm text-on-surface-variant mt-1">
-          Configurá la información que aparece en el pie de página.
+          Configura la información que aparece en el pie de página.
         </p>
       </header>
 

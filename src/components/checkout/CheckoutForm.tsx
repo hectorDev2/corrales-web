@@ -24,14 +24,14 @@ function openCulqiModal(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const CulqiCheckout = (window as any).CulqiCheckout;
   if (!CulqiCheckout) {
-    toast.error("Cargando pasarela de pago, intentá en un momento.");
+    toast.error("Cargando pasarela de pago, intenta en un momento.");
     return;
   }
 
   const publicKey = process.env.NEXT_PUBLIC_CULQI_PUBLIC_KEY;
   if (!publicKey) {
     toast.error(
-      "⚠️ La llave pública de Culqi no está configurada. Agregá NEXT_PUBLIC_CULQI_PUBLIC_KEY en las variables de entorno.",
+      "⚠️ La llave pública de Culqi no está configurada. Agrega NEXT_PUBLIC_CULQI_PUBLIC_KEY en las variables de entorno.",
       { duration: 8000 },
     );
     return;
@@ -46,7 +46,7 @@ function openCulqiModal(
     });
   } catch {
     toast.error(
-      "⚠️ La llave pública de Culqi no es válida. Verificá el valor de NEXT_PUBLIC_CULQI_PUBLIC_KEY.",
+      "⚠️ La llave pública de Culqi no es válida. Verifica el valor de NEXT_PUBLIC_CULQI_PUBLIC_KEY.",
       { duration: 8000 },
     );
     return;
@@ -62,7 +62,7 @@ function openCulqiModal(
         msg.toLowerCase().includes("pública") ||
         msg.toLowerCase().includes("válida")
       ) {
-        toast.error(`⚠️ Culqi: ${msg} — Verificá la llave pública en las variables de entorno.`, {
+        toast.error(`⚠️ Culqi: ${msg} — Verifica la llave pública en las variables de entorno.`, {
           duration: 8000,
         });
       } else {
@@ -128,7 +128,7 @@ export function CheckoutForm() {
         toast.success("Ubicación capturada correctamente.");
       }
     } else {
-      toast.error("No se pudo obtener la ubicación. Verificá los permisos.");
+      toast.error("No se pudo obtener la ubicación. Verifica los permisos.");
     }
   }
 
@@ -389,7 +389,7 @@ export function CheckoutForm() {
                     )}
                   </div>
                   <p className="text-on-surface-variant text-sm leading-relaxed">
-                    Usaremos estos datos para confirmar tu pedido y comunicarnos con vos.
+                    Usaremos estos datos para confirmar tu pedido y comunicarnos contigo.
                   </p>
                 </>
               )}
@@ -458,7 +458,7 @@ export function CheckoutForm() {
                             className="bg-surface-container-high text-on-surface focus:ring-primary/20 w-16 rounded-lg px-2 py-1.5 text-center text-sm font-bold focus:ring-2 focus:outline-none"
                           />
                           <span className="text-outline text-[11px]">
-                            Sin número → dejalo vacío
+                            Sin número → déjalo vacío
                           </span>
                         </div>
                       )}
@@ -479,7 +479,7 @@ export function CheckoutForm() {
                           </span>
                         </p>
                         <p className="text-on-surface-variant ml-1 text-[11px] leading-relaxed">
-                          Compartí tu ubicación para que podamos orientarte o coordinar el acceso.
+                          Comparte tu ubicación para que podamos orientarte o coordinar el acceso.
                         </p>
                       </div>
 
@@ -543,7 +543,7 @@ export function CheckoutForm() {
 
               {activeStep === 3 && (
                 <p className="text-on-surface-variant leading-relaxed">
-                  Revisá el resumen de tu pedido y elegí una forma de pago segura para confirmar la
+                  Revisa el resumen de tu pedido y elige una forma de pago segura para confirmar la
                   compra.
                 </p>
               )}

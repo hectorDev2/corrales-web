@@ -188,7 +188,7 @@ export function PromotionsPage({ products, tags, activeTag }: PromotionsPageProp
             </span>
             <h1 className="text-on-surface mt-4 text-2xl font-black">No encontramos promociones</h1>
             <p className="text-on-surface-variant mt-2 max-w-md text-sm">
-              Volvé a probar con otra promoción o revisá la carta completa.
+              Vuelve a probar con otra promoción o revisa la carta completa.
             </p>
             <Link
               href="/menu"

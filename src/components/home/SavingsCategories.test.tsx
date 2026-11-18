@@ -60,7 +60,7 @@ describe("SavingsCategories", () => {
   it("renders the saved title, route, and active tiles in their configured order", () => {
     const settings = {
       ...DEFAULT_HOME_SAVINGS_SETTINGS,
-      title: "Elegí tu favorito",
+      title: "Elige tu favorito",
       allHref: "/menu?tag=ahorro",
       tiles: [
         { ...DEFAULT_HOME_SAVINGS_SETTINGS.tiles[2], label: "Tercero", sortOrder: 2 },
@@ -77,7 +77,7 @@ describe("SavingsCategories", () => {
 
     render(<SavingsCategories settings={settings} />);
 
-    expect(screen.getByRole("heading", { name: "Elegí tu favorito" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Elige tu favorito" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Ver todos" })).toHaveAttribute(
       "href",
       "/menu?tag=ahorro",

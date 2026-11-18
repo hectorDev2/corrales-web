@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 export default function Page() {
   return (
     <InstitutionalPage title="Contáctanos" currentPath="/institucional/formularios/contactanos">
-      <p>Estamos para ayudarte. Escribinos o llamanos y nuestro equipo te atenderá con gusto.</p>
+      <p>Estamos para ayudarte. Escríbenos o llámanos y nuestro equipo te atenderá con gusto.</p>
       <div className="grid gap-4 md:grid-cols-3">
         <a
           href="tel:5050505"
@@ -22,7 +22,7 @@ export default function Page() {
           >
             call
           </span>
-          Llamanos
+          Llámanos
           <span className="text-on-surface-variant mt-1 block text-sm font-normal">505-0505</span>
         </a>
         <a
@@ -35,7 +35,7 @@ export default function Page() {
           >
             mail
           </span>
-          Escribinos
+          Escríbenos
           <span className="text-on-surface-variant mt-1 block text-sm font-normal">
             corrales@contacto.pe
           </span>

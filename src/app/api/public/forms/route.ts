@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
       const email = recordValue(fields, "email").toLowerCase();
 
       if (name.length < 2 || name.length > 120 || !isEmail(email)) {
-        return jsonError("Ingresá un nombre y un correo electrónico válidos.");
+        return jsonError("Ingresa un nombre y un correo electrónico válidos.");
       }
 
       const { error } = await admin
@@ -89,7 +89,7 @@ export async function POST(request: NextRequest) {
       const comments = recordValue(fields, "comments");
 
       if (!VALID_RATINGS.includes(rating as (typeof VALID_RATINGS)[number])) {
-        return jsonError("Seleccioná una calificación válida.");
+        return jsonError("Selecciona una calificación válida.");
       }
       if (comments.length > 2000) return jsonError("El comentario es demasiado largo.");
 
@@ -124,7 +124,7 @@ export async function POST(request: NextRequest) {
         additionalInformation.length > 2000 ||
         !privacyPolicyAccepted
       ) {
-        return jsonError("Revisá los datos ingresados e intentá nuevamente.");
+        return jsonError("Revisa los datos ingresados e intenta nuevamente.");
       }
 
       const { error } = await admin.from("corporate_sales_requests").insert({
@@ -154,7 +154,7 @@ export async function POST(request: NextRequest) {
       !acceptedTerms ||
       !(resume instanceof File)
     ) {
-      return jsonError("Completá los datos, aceptá la política y adjuntá tu CV.");
+      return jsonError("Completa los datos, acepta la política y adjunta tu CV.");
     }
 
     const isPdf = resume.type === "application/pdf" || resume.name.toLowerCase().endsWith(".pdf");
@@ -189,7 +189,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("Public form submission failed:", error);
     return NextResponse.json(
-      { message: "No pudimos recibir tu solicitud. Intentá nuevamente en unos minutos." },
+      { message: "No pudimos recibir tu solicitud. Intenta nuevamente en unos minutos." },
       { status: 500 },
     );
   }

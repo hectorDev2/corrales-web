@@ -392,7 +392,7 @@ export function MenuPage({
             </span>
             <h1 className="text-on-surface mt-4 text-2xl font-black">No encontramos productos</h1>
             <p className="text-on-surface-variant mt-2 max-w-md text-sm">
-              Probá otra búsqueda o explorá la carta completa.
+              Prueba otra búsqueda o explora la carta completa.
             </p>
             <Link
               href="/menu"

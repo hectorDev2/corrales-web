@@ -40,7 +40,7 @@ export function LocationModal() {
       toast.success("¡Ubicación guardada!");
       closeModal();
     } else {
-      toast.error("No pudimos obtener tu ubicación. Verificá los permisos.");
+      toast.error("No pudimos obtener tu ubicación. Verifica los permisos.");
     }
   }
 

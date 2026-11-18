@@ -4,7 +4,7 @@ import { InstitutionalPage } from "@/components/institutional";
 
 export const metadata: Metadata = {
   title: "Libro de Reclamaciones — Corrales",
-  description: "Accedé al Libro de Reclamaciones Virtual de Corrales.",
+  description: "Accede al Libro de Reclamaciones Virtual de Corrales.",
 };
 
 export default function Page() {

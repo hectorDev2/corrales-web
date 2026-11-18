@@ -19,7 +19,7 @@ export function LoginForm() {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
 
     if (error) {
-      toast.error("Credenciales incorrectas. Verificá tu email y contraseña.");
+      toast.error("Credenciales incorrectas. Verifica tu email y contraseña.");
       setLoading(false);
       return;
     }

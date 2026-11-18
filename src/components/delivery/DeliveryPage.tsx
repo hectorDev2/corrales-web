@@ -59,7 +59,7 @@ export function DeliveryPage({ userId, fullName }: Props) {
       await takeOrder(orderId, userId);
       toast.success("¡Pedido tomado! Ya está en tus entregas.");
     } catch {
-      toast.error("No se pudo tomar el pedido. Intentá de nuevo.");
+      toast.error("No se pudo tomar el pedido. Intenta de nuevo.");
     } finally {
       setTakingId(null);
     }
@@ -163,7 +163,7 @@ export function DeliveryPage({ userId, fullName }: Props) {
                 >
                   moped
                 </span>
-                <p className="text-xs font-bold">No tenés pedidos en curso</p>
+                <p className="text-xs font-bold">No tienes pedidos en curso</p>
               </div>
             ) : (
               <div className="space-y-4">

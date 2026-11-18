@@ -100,7 +100,7 @@ export async function sendToNubefact(
   params: BuildPayloadParams,
 ): Promise<NubefactResult> {
   if (!API_KEY) throw new Error("NUBEFACT_API_KEY no está configurado");
-  if (!API_URL) throw new Error("NUBEFACT_API_URL no está configurado. Obtené tu URL desde www.nubefact.com → Api-Integración");
+  if (!API_URL) throw new Error("NUBEFACT_API_URL no está configurado. Obtén tu URL desde www.nubefact.com → Api-Integración");
 
   const payload = buildPayload(params);
 

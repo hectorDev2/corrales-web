@@ -357,7 +357,7 @@ export function ProductDetailPage({ product }: Props) {
 
             {product.variants.length > 1 && (
               <fieldset className="mt-6 space-y-2" aria-label="Variante del producto">
-                <legend className="text-sm font-black text-on-surface">Elegí una opción</legend>
+                <legend className="text-sm font-black text-on-surface">Elige una opción</legend>
                 <div className="grid gap-2 sm:grid-cols-2">
                   {product.variants.map((productVariant, index) => {
                     const unavailable = productVariant.stock <= 0;

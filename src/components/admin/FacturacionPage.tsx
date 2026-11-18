@@ -231,7 +231,7 @@ export function FacturacionPage() {
           <br />- <strong>FDEV</strong> para Facturas (delivery)
         </p>
         <p className="text-xs text-on-surface-variant leading-relaxed">
-          Para emitir un comprobante, andá a la orden correspondiente y hacé clic en
+          Para emitir un comprobante, ve a la orden correspondiente y haz clic en
           &quot;Emitir comprobante&quot;.
         </p>
       </div>

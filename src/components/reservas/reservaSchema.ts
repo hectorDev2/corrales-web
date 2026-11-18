@@ -15,13 +15,13 @@ export const reservaSchema = z.object({
   phone: z.string().regex(/^\d{9}$/, "Ingresa un número de 9 dígitos"),
   date: z
     .string()
-    .min(1, "Seleccioná una fecha")
+    .min(1, "Selecciona una fecha")
     .refine((val) => new Date(val) >= new Date(new Date().toDateString()), {
       message: "La fecha debe ser hoy o en el futuro",
     }),
-  time: z.enum(TIME_SLOTS, { message: "Seleccioná un horario" }),
+  time: z.enum(TIME_SLOTS, { message: "Selecciona un horario" }),
   guests: z
-    .number({ error: "Ingresá un número válido" })
+    .number({ error: "Ingresa un número válido" })
     .int()
     .min(1, "Mínimo 1 persona")
     .max(20, "Máximo 20 personas"),

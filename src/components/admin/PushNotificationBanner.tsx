@@ -17,7 +17,7 @@ export function PushNotificationBanner() {
           notifications_off
         </span>
         <p className="text-xs text-on-surface-variant">
-          Notificaciones bloqueadas. Habilitá desde la configuración del navegador.
+          Notificaciones bloqueadas. Habilita desde la configuración del navegador.
         </p>
       </div>
     );
@@ -60,7 +60,7 @@ export function PushNotificationBanner() {
       </span>
       <div className="text-left flex-1">
         <p className="text-sm font-bold">Activar alertas de pedidos</p>
-        <p className="text-xs opacity-70">Recibí notificaciones aunque el tab esté cerrado</p>
+        <p className="text-xs opacity-70">Recibe notificaciones aunque el tab esté cerrado</p>
       </div>
       <span
         className={`material-symbols-outlined text-xl shrink-0 ${loading ? "animate-spin" : ""}`}

@@ -6,13 +6,13 @@ import { SurveyForm } from "./SurveyForm";
 
 export const metadata: Metadata = {
   title: "Encuesta — Corrales",
-  description: "Compartí tu experiencia y ayudanos a mejorar en Corrales.",
+  description: "Comparte tu experiencia y ayúdanos a mejorar en Corrales.",
 };
 
 export default function Page() {
   return (
     <InstitutionalPage title="Encuesta" currentPath="/institucional/formularios/encuesta">
-      <p>Tu opinión nos ayuda a seguir mejorando. Contanos cómo fue tu experiencia en Corrales.</p>
+      <p>Tu opinión nos ayuda a seguir mejorando. Cuéntanos cómo fue tu experiencia en Corrales.</p>
       <SurveyForm />
     </InstitutionalPage>
   );

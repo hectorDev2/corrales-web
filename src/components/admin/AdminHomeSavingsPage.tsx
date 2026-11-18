@@ -20,7 +20,7 @@ const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
 
 export function getHomeSavingsImageUploadError(file: File): string | null {
   if (!ACCEPTED_IMAGE_TYPES.has(file.type)) {
-    return "Subí una imagen JPG, PNG o WebP.";
+    return "Sube una imagen JPG, PNG o WebP.";
   }
 
   if (file.size > MAX_IMAGE_SIZE_BYTES) {
@@ -95,7 +95,7 @@ export function AdminHomeSavingsPage({ initial, currentFooter, categories }: Pro
       // Do not delete the current image yet: this upload is persisted only when the admin saves.
       const publicUrl = await uploadProductImage(file);
       updateTile(index, "imageSrc", publicUrl);
-      toast.success("Imagen subida. Guardá los cambios para publicarla.");
+      toast.success("Imagen subida. Guarda los cambios para publicarla.");
     } catch {
       toast.error("No se pudo subir la imagen.");
     } finally {
@@ -154,7 +154,7 @@ export function AdminHomeSavingsPage({ initial, currentFooter, categories }: Pro
       <header>
         <h1 className="text-on-surface text-2xl font-black tracking-tight">Inicio</h1>
         <p className="text-on-surface-variant mt-1 text-sm">
-          Configurá la sección de categorías que aparece en la página principal.
+          Configura la sección de categorías que aparece en la página principal.
         </p>
       </header>
 
@@ -203,7 +203,7 @@ export function AdminHomeSavingsPage({ initial, currentFooter, categories }: Pro
             Categorías destacadas
           </h2>
           <p className="text-on-surface-variant mt-1 text-xs">
-            Administrá las cuatro tarjetas, su orden y visibilidad. La ruta se genera
+            Administra las cuatro tarjetas, su orden y visibilidad. La ruta se genera
             automáticamente a partir de una categoría activa del menú.
           </p>
         </div>
@@ -274,7 +274,7 @@ export function AdminHomeSavingsPage({ initial, currentFooter, categories }: Pro
                 >
                   {!getSelectedCategoryId(tile) && (
                     <option value={`legacy-${index}`} disabled>
-                      Enlace anterior (elegí una categoría)
+                      Enlace anterior (elige una categoría)
                     </option>
                   )}
                   {categories.map((category) => (
@@ -324,7 +324,7 @@ export function AdminHomeSavingsPage({ initial, currentFooter, categories }: Pro
                   {uploadingIndex === index ? "Subiendo..." : "Subir imagen"}
                 </button>
                 <p className="text-on-surface-variant text-xs">
-                  JPG, PNG o WebP · Máx. 5 MB. También podés usar una URL.
+                  JPG, PNG o WebP · Máx. 5 MB. También puedes usar una URL.
                 </p>
                 {(localPreviews[index] ?? tile.imageSrc) && (
                   // eslint-disable-next-line @next/next/no-img-element

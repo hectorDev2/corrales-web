@@ -16,7 +16,7 @@ async function getResponseError(response: Response): Promise<string> {
     // The API may return an empty or non-JSON error response.
   }
 
-  return "No pudimos enviar la solicitud. Intentá de nuevo.";
+  return "No pudimos enviar la solicitud. Intenta de nuevo.";
 }
 
 export function CorporateSalesPage() {
@@ -57,7 +57,7 @@ export function CorporateSalesPage() {
       setErrorMessage(
         error instanceof Error && error.message
           ? error.message
-          : "No pudimos enviar la solicitud. Intentá de nuevo.",
+          : "No pudimos enviar la solicitud. Intenta de nuevo.",
       );
       setSubmissionState("error");
     }
@@ -74,10 +74,10 @@ export function CorporateSalesPage() {
               Corrales para empresas
             </p>
             <h1 className="text-4xl leading-tight font-black tracking-tight md:text-5xl">
-              Celebrá en grande con nosotros
+              Celebra en grande con nosotros
             </h1>
             <p className="mt-6 leading-7 text-white/85">
-              Organizá tus reuniones, celebraciones y eventos corporativos con el sabor de la
+              Organiza tus reuniones, celebraciones y eventos corporativos con el sabor de la
               familia Corrales.
             </p>
           </div>
@@ -92,10 +92,10 @@ export function CorporateSalesPage() {
         <form className="space-y-6 p-6 md:p-12" onSubmit={handleSubmit}>
           <div>
             <h2 className="text-on-surface text-2xl font-black tracking-tight">
-              Contactá a nuestro equipo de Ventas Corporativas
+              Contacta a nuestro equipo de Ventas Corporativas
             </h2>
             <p className="text-on-surface-variant mt-2 text-sm">
-              Dejanos tus datos y un asesor se pondrá en contacto con vos.
+              Déjanos tus datos y un asesor se pondrá en contacto contigo.
             </p>
           </div>
 
@@ -149,7 +149,7 @@ export function CorporateSalesPage() {
               name="additionalInformation"
               rows={4}
               className="border-outline-variant focus:border-primary focus:ring-primary/20 w-full resize-y rounded-xl border bg-white px-4 py-3 font-normal outline-none focus:ring-2"
-              placeholder="Contanos sobre tu evento"
+              placeholder="Cuéntanos sobre tu evento"
             />
           </label>
 

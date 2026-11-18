@@ -50,7 +50,7 @@ export function ReservaForm() {
       window.open(url, "_blank");
       toast.success("¡Reserva enviada! Te confirmamos por WhatsApp.");
     } catch {
-      toast.error("No pudimos registrar tu reserva. Intentá de nuevo.");
+      toast.error("No pudimos registrar tu reserva. Intenta de nuevo.");
     }
   }
 
@@ -61,7 +61,7 @@ export function ReservaForm() {
           Hacer una Reserva
         </h1>
         <p className="text-on-surface-variant leading-relaxed">
-          Reservá tu mesa y viví la experiencia Corrales. Te confirmamos por WhatsApp.
+          Reserva tu mesa y vive la experiencia Corrales. Te confirmamos por WhatsApp.
         </p>
       </header>
 
@@ -118,7 +118,7 @@ export function ReservaForm() {
                 {...register("time")}
                 className="bg-surface-container-high focus:ring-primary/20 text-on-surface w-full rounded-xl border-none px-4 py-4 transition-all focus:ring-2 focus:outline-none"
               >
-                <option value="">Elegí</option>
+                <option value="">Elige</option>
                 {TIME_SLOTS.map((slot) => (
                   <option key={slot} value={slot}>
                     {slot}

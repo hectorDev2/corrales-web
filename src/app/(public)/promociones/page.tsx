@@ -3,7 +3,7 @@ import { getProducts } from "@/lib/api/products";
 
 export const metadata = {
   title: "Promociones — Pollería & Fastfood Corrales",
-  description: "Encontrá las promociones vigentes de Corrales.",
+  description: "Encuentra las promociones vigentes de Corrales.",
 };
 
 export default async function Page({ searchParams }: { searchParams: Promise<{ tag?: string }> }) {

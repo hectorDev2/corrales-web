@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
       .single();
 
     if (seriesErr || !seriesRow) {
-      return NextResponse.json({ error: `Serie ${seriesCode} no encontrada. Creala en /admin/facturacion` }, { status: 500 });
+      return NextResponse.json({ error: `Serie ${seriesCode} no encontrada. Créala en /admin/facturacion` }, { status: 500 });
     }
 
     const nextNumber = seriesRow.current_number + 1;

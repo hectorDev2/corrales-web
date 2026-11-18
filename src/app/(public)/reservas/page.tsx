@@ -4,7 +4,7 @@ import { ReservaForm } from "@/components/reservas";
 
 export const metadata: Metadata = {
   title: "Reservas — Pollería & Fastfood Corrales",
-  description: "Reservá tu mesa y viví la experiencia Corrales.",
+  description: "Reserva tu mesa y vive la experiencia Corrales.",
 };
 
 export default function Page() {

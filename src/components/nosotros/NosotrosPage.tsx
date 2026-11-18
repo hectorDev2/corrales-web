@@ -51,7 +51,7 @@ const HISTORY = [
   {
     year: "2024",
     title: "Corrales digital",
-    body: "Lanzamos nuestra plataforma online para que podés pedir desde donde estés, sin perder el trato cercano de siempre.",
+    body: "Lanzamos nuestra plataforma online para que puedes pedir desde donde estés, sin perder el trato cercano de siempre.",
   },
 ] as const;
 
@@ -174,7 +174,7 @@ export function NosotrosPage() {
             ¿Listo para probar el sabor Corrales?
           </h3>
           <p className="text-sm text-on-surface-variant">
-            Pedí online o hacé una reserva. Siempre hay un lugar para vos.
+            Pide online o haz una reserva. Siempre hay un lugar para ti.
           </p>
         </div>
         <div className="flex gap-3 justify-center flex-wrap">
