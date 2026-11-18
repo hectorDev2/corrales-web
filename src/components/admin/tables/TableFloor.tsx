@@ -64,9 +64,11 @@ function TableGraphic({
   edge,
   muted,
   halo,
+  rotated = false,
 }: {
   label: string;
   seats: number;
+  rotated?: boolean;
   top: string;
   edge: string;
   muted: boolean;
@@ -75,10 +77,20 @@ function TableGraphic({
   const n = clamp(seats, 1, 12);
   // Forma según capacidad: redonda (1-2), ovalada (3-6), larga (7+).
   const shape: "round" | "oval" | "long" = n <= 2 ? "round" : n <= 6 ? "oval" : "long";
-  const rx = shape === "round" ? 24 : shape === "oval" ? 36 : 50;
-  const ry = shape === "round" ? 14 : shape === "oval" ? 18 : 15;
+  // Girada 90°: la mesa se alarga hacia el fondo del salón en vez de a lo ancho.
+  const turn = rotated && shape !== "round";
+  const rx = shape === "round" ? 24 : shape === "oval" ? (turn ? 26 : 36) : turn ? 18 : 50;
+  const ry = shape === "round" ? 14 : shape === "oval" ? (turn ? 22 : 18) : turn ? 27 : 15;
   const chairs =
-    shape === "long"
+    shape === "long" && turn
+      ? Array.from({ length: n }, (_, i) => {
+          const left = i % 2 === 0;
+          const perSide = Math.ceil(n / 2);
+          const k = Math.floor(i / 2);
+          const y = perSide === 1 ? 53 : 53 - ry + 6 + ((ry * 2 - 12) / (perSide - 1)) * k;
+          return { x: left ? 60 - rx - 9 : 60 + rx + 9, y, back: y < 53 };
+        })
+      : shape === "long"
       ? Array.from({ length: n }, (_, i) => {
           const top = i % 2 === 0;
           const perSide = Math.ceil(n / 2);
@@ -236,6 +248,15 @@ export function TableMap({
       toast.success(`Mesa ${label} agregada. Arrástrala a su lugar.`);
     } catch {
       toast.error("No se pudo agregar la mesa.");
+    }
+  }
+
+  async function rotateTable(table: RestaurantTable) {
+    try {
+      await updateTable(table.id, { rotation: table.rotation === 90 ? 0 : 90 });
+      await onChanged();
+    } catch {
+      toast.error("No se pudo girar la mesa. ¿Ya aplicaste la migración de Supabase?");
     }
   }
 
@@ -464,6 +485,7 @@ export function TableMap({
                       edge={cfg.edge}
                       muted={!t.is_active}
                       halo={t.is_active && state !== "libre" ? cfg.halo : undefined}
+                      rotated={t.rotation === 90}
                     />
                   </span>
                   {t.is_active && state !== "libre" && (
@@ -511,6 +533,7 @@ export function TableMap({
               orders={ordersByTable.get(selected.id) ?? []}
               editMode={editMode}
               onSeats={(d) => void changeSeats(selected, d)}
+              onRotate={() => void rotateTable(selected)}
               onChanged={onChanged}
             />
           ) : (
@@ -532,12 +555,14 @@ function TableDetail({
   orders,
   editMode,
   onSeats,
+  onRotate,
   onChanged,
 }: {
   table: RestaurantTable;
   orders: TableActiveOrder[];
   editMode: boolean;
   onSeats: (delta: number) => void;
+  onRotate: () => void;
   onChanged: () => Promise<void>;
 }) {
   const state = table.is_active ? getTableState(orders) : "libre";
@@ -575,6 +600,19 @@ function TableDetail({
           </span>
         </div>
       </div>
+
+      {editMode && (
+        <button
+          type="button"
+          onClick={onRotate}
+          disabled={table.capacity <= 2}
+          title={table.capacity <= 2 ? "Las mesas redondas no necesitan girarse" : undefined}
+          className="bg-surface-container-high text-on-surface flex min-h-12 w-full items-center justify-center gap-2 rounded-xl text-sm font-bold active:scale-95 disabled:opacity-40"
+        >
+          <span className="material-symbols-outlined text-xl">rotate_right</span>
+          Girar mesa
+        </button>
+      )}
 
       {editMode && (
         <div className="bg-surface-container-low flex items-center justify-between rounded-xl p-2">

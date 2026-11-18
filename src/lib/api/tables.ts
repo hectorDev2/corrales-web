@@ -8,6 +8,8 @@ export interface RestaurantTable {
   capacity: number;
   pos_x: number;
   pos_y: number;
+  /** 0 = a lo ancho, 90 = girada. */
+  rotation: 0 | 90;
   qr_token: string;
   is_active: boolean;
 }
@@ -26,7 +28,7 @@ export interface TableActiveOrder {
 
 export type TableInput = Pick<RestaurantTable, "label" | "zone" | "capacity">;
 
-const TABLE_COLUMNS = "id, label, zone, capacity, pos_x, pos_y, qr_token, is_active";
+const TABLE_COLUMNS = "id, label, zone, capacity, pos_x, pos_y, rotation, qr_token, is_active";
 
 export async function getTables(): Promise<RestaurantTable[]> {
   const { data, error } = await supabase
@@ -36,7 +38,7 @@ export async function getTables(): Promise<RestaurantTable[]> {
     .order("label", { ascending: true });
 
   if (error) throw error;
-  return data as RestaurantTable[];
+  return data as unknown as RestaurantTable[];
 }
 
 export async function createTable(input: TableInput): Promise<void> {

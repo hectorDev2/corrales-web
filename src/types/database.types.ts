@@ -215,6 +215,7 @@ export type Database = {
           pos_x: number
           pos_y: number
           qr_token: string
+          rotation: number
           zone: string
         }
         Insert: {
@@ -226,6 +227,7 @@ export type Database = {
           pos_x?: number
           pos_y?: number
           qr_token?: string
+          rotation?: number
           zone?: string
         }
         Update: {
@@ -237,6 +239,7 @@ export type Database = {
           pos_x?: number
           pos_y?: number
           qr_token?: string
+          rotation?: number
           zone?: string
         }
         Relationships: []
