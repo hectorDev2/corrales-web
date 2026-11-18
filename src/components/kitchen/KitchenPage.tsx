@@ -192,7 +192,7 @@ export function KitchenPage() {
           onClick={toggleSound}
           aria-pressed={sound}
           className={`flex min-h-12 items-center gap-2 rounded-xl px-4 text-sm font-bold ${
-            sound ? "bg-green-100 text-green-800" : "bg-surface-container-high text-on-surface-variant"
+            sound ? "bg-[#dff1e6] text-[#1d5a38]" : "bg-surface-container-high text-on-surface-variant"
           }`}
         >
           <span className="material-symbols-outlined text-xl">{sound ? "volume_up" : "volume_off"}</span>
@@ -266,35 +266,36 @@ export function KitchenPage() {
   );
 }
 
+// Paleta de estados alineada con la marca: rojo Corrales (nuevo), ámbar (en el fuego) y verde (listo).
 const STATUS = {
   pendiente: {
     title: "Nuevos",
     icon: "notifications_active",
     hint: "Toca «Empezar» cuando comiences a prepararlo.",
-    solid: "bg-yellow-400 text-yellow-950",
-    soft: "bg-yellow-100 text-yellow-900",
-    border: "border-yellow-400",
-    band: "bg-yellow-400 text-yellow-950",
+    solid: "bg-[#e4002b] text-white",
+    soft: "bg-[#fde7ea] text-[#9b0020]",
+    border: "border-[#e4002b]",
+    band: "bg-[#e4002b] text-white",
     label: "NUEVO",
   },
   preparando: {
     title: "Preparando",
     icon: "skillet",
     hint: "Toca «Marcar como listo» cuando esté terminado.",
-    solid: "bg-blue-600 text-white",
-    soft: "bg-blue-100 text-blue-900",
-    border: "border-blue-600",
-    band: "bg-blue-600 text-white",
+    solid: "bg-[#f5a623] text-[#3a2400]",
+    soft: "bg-[#fdf1d6] text-[#7a4b00]",
+    border: "border-[#f5a623]",
+    band: "bg-[#f5a623] text-[#3a2400]",
     label: "PREPARANDO",
   },
   listo: {
     title: "Listos",
     icon: "check_circle",
     hint: "Esperan a que los recojan o los sirvan.",
-    solid: "bg-green-600 text-white",
-    soft: "bg-green-100 text-green-900",
-    border: "border-green-600",
-    band: "bg-green-600 text-white",
+    solid: "bg-[#2e8b57] text-white",
+    soft: "bg-[#dff1e6] text-[#1d5a38]",
+    border: "border-[#2e8b57]",
+    band: "bg-[#2e8b57] text-white",
     label: "LISTO",
   },
 } as const;
@@ -313,7 +314,7 @@ function OrderCard({ order, now, onAdvance }: { order: KitchenOrder; now: number
   const step = STEP_INDEX[order.status];
 
   return (
-    <article className={`bg-surface-container-lowest overflow-hidden rounded-3xl border-4 shadow-sm ${late ? "border-red-500" : cfg.border}`}>
+    <article className={`bg-surface-container-lowest overflow-hidden rounded-3xl border-4 shadow-sm ${late ? "border-[#2b2118]" : cfg.border}`}>
       {/* Franja con el estado, siempre visible */}
       <div className={`flex items-center justify-between px-5 py-2.5 ${cfg.band}`}>
         <span className="flex items-center gap-2 text-base font-black tracking-wider">
@@ -322,7 +323,7 @@ function OrderCard({ order, now, onAdvance }: { order: KitchenOrder; now: number
         </span>
         <span className="flex items-center gap-1 text-sm font-black">
           <span className="material-symbols-outlined text-lg">timer</span>
-          {mins} min{late && " · ¡tarda!"}
+          {mins} min{late && " · ¡TARDA!"}
           {warn && " · atento"}
         </span>
       </div>
@@ -363,7 +364,7 @@ function OrderCard({ order, now, onAdvance }: { order: KitchenOrder; now: number
         </ul>
 
         {order.customer_notes && (
-          <p className="rounded-xl bg-yellow-50 px-3 py-2 text-base font-bold text-yellow-900">
+          <p className="rounded-xl bg-[#fdf1d6] px-3 py-2 text-base font-bold text-[#7a4b00]">
             <span className="material-symbols-outlined mr-1 align-middle text-lg">edit_note</span>
             {order.customer_notes}
           </p>
@@ -374,7 +375,7 @@ function OrderCard({ order, now, onAdvance }: { order: KitchenOrder; now: number
             type="button"
             onClick={onAdvance}
             className={`flex min-h-16 w-full items-center justify-center gap-2 rounded-2xl text-lg font-black transition active:scale-[0.98] ${
-              order.status === "pendiente" ? "bg-blue-600 text-white" : "bg-green-600 text-white"
+              order.status === "pendiente" ? STATUS.preparando.solid : STATUS.listo.solid
             }`}
           >
             <span className="material-symbols-outlined text-2xl">{order.status === "pendiente" ? "play_arrow" : "check_circle"}</span>

@@ -7,9 +7,9 @@ export const STATE_CONFIG: Record<
   { label: string; chip: string; dot: string; top: string; edge: string; halo: string; icon: string }
 > = {
   libre:      { label: "Libre",             chip: "bg-surface-container-high text-on-surface-variant", dot: "bg-outline",    top: "#e0c49a", edge: "#b8925c", halo: "",        icon: "check_circle" },
-  pendiente:  { label: "Pedido nuevo",      chip: "bg-yellow-100 text-yellow-800",                      dot: "bg-yellow-500", top: "#fcd34d", edge: "#d99a06", halo: "#f59e0b", icon: "notifications_active" },
-  preparando: { label: "En preparación",    chip: "bg-blue-100 text-blue-700",                          dot: "bg-blue-500",   top: "#93c5fd", edge: "#3b82f6", halo: "#2563eb", icon: "skillet" },
-  listo:      { label: "Listo para servir", chip: "bg-green-100 text-green-700",                        dot: "bg-green-500",  top: "#86efac", edge: "#22a05a", halo: "#16a34a", icon: "room_service" },
+  pendiente:  { label: "Pedido nuevo",      chip: "bg-[#fde7ea] text-[#9b0020]", dot: "bg-[#e4002b]", top: "#f4909c", edge: "#c4152f", halo: "#e4002b", icon: "notifications_active" },
+  preparando: { label: "En preparación",    chip: "bg-[#fdf1d6] text-[#7a4b00]", dot: "bg-[#f5a623]", top: "#f8cf7a", edge: "#d18a00", halo: "#f5a623", icon: "skillet" },
+  listo:      { label: "Listo para servir", chip: "bg-[#dff1e6] text-[#1d5a38]", dot: "bg-[#2e8b57]", top: "#8fd3ab", edge: "#2e8b57", halo: "#2e8b57", icon: "room_service" },
 };
 
 const STATE_PRIORITY: TableState[] = ["pendiente", "preparando", "listo"];
