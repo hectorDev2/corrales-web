@@ -76,7 +76,7 @@ export function AdminReservationsPage() {
   const cancelled = reservations.filter((r) => r.status === "cancelada");
 
   return (
-    <div className={PAGE_CONTAINER}>
+    <div className={PAGE_CONTAINER.replace("max-w-7xl", "max-w-[110rem]")}>
       <PageHeader eyebrow="Operación" title="Reservas" stat={{ label: "Pendientes", value: pending.length }} />
 
       {loading ? (
@@ -99,7 +99,7 @@ export function AdminReservationsPage() {
           <p className="font-bold text-sm">Sin reservas</p>
         </div>
       ) : (
-        <div className="space-y-6 md:space-y-0 md:grid md:grid-cols-3 md:gap-6 md:items-start">
+        <div className="space-y-8">
           <ReservationSection
             title="Pendientes"
             items={pending}
@@ -144,14 +144,16 @@ function ReservationSection({
       <p className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant">
         {title} ({items.length})
       </p>
-      {items.map((r) => (
-        <ReservationCard
-          key={r.id}
-          reservation={r}
-          updating={updatingId === r.id}
-          onStatus={onStatus}
-        />
-      ))}
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 items-start">
+        {items.map((r) => (
+          <ReservationCard
+            key={r.id}
+            reservation={r}
+            updating={updatingId === r.id}
+            onStatus={onStatus}
+          />
+        ))}
+      </div>
     </section>
   );
 }

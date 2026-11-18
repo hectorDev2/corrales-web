@@ -142,7 +142,7 @@ export function AdminProductsPage() {
             className="fixed inset-0 bg-scrim/40 z-[60]"
             onClick={closeForm}
           />
-          <div className="fixed inset-x-0 bottom-0 z-[60] max-h-[92dvh] overflow-hidden bg-surface rounded-t-3xl flex flex-col shadow-[0_-16px_60px_rgba(0,0,0,0.2)] md:inset-x-auto md:left-1/2 md:-translate-x-1/2 md:top-1/2 md:-translate-y-1/2 md:max-h-[90vh] md:rounded-3xl md:max-w-xl md:w-full">
+          <div className="fixed inset-x-0 bottom-0 z-[60] max-h-[92dvh] overflow-hidden bg-surface rounded-t-3xl flex flex-col shadow-[0_-16px_60px_rgba(0,0,0,0.2)] md:inset-x-auto md:left-1/2 md:-translate-x-1/2 md:top-1/2 md:bottom-auto md:-translate-y-1/2 md:max-h-[92vh] md:rounded-3xl md:max-w-5xl md:w-[calc(100%-3rem)]">
             <div className="flex justify-center pt-3 pb-1">
               <div className="w-10 h-1 rounded-full bg-outline-variant" />
             </div>
