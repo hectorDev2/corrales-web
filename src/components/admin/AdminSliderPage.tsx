@@ -536,14 +536,7 @@ export function AdminSliderPage({ initialSlides }: AdminSliderPageProps) {
       {confirmDialog}
       <div className="py-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <a
-            href="/admin"
-            className="flex items-center justify-center w-10 h-10 rounded-xl bg-surface-container-high text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest transition-all"
-            aria-label="Volver a pedidos"
-          >
-            <span className="material-symbols-outlined text-lg">arrow_back</span>
-          </a>
-          <h1 className="text-xl font-black text-on-surface">Slider</h1>
+          <h2 className="text-lg font-black text-on-surface">Slides del inicio</h2>
         </div>
         {!creating && (
           <button

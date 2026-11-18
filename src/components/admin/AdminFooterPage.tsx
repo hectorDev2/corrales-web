@@ -267,17 +267,21 @@ export function AdminFooterPage({ initial }: Props) {
 
             <div className="space-y-2 pl-2 border-l-2 border-outline-variant">
               {section.links.map((link, li) => (
-                <div key={li} className="flex items-center gap-2">
+                <div key={li} className="flex items-center gap-2 max-sm:flex-wrap">
+                  <div className="min-w-0 flex-1 max-sm:basis-[calc(100%-3rem)]">
                   <Input
                     value={link.label}
                     onChange={(v) => updateLink(si, li, "label", v)}
                     placeholder="Texto del link"
                   />
+                  </div>
+                  <div className="min-w-0 flex-1 max-sm:order-last max-sm:basis-full">
                   <Input
                     value={link.href}
                     onChange={(v) => updateLink(si, li, "href", v)}
                     placeholder="/ruta"
                   />
+                  </div>
                   <button
                     type="button"
                     onClick={() => removeLink(si, li)}

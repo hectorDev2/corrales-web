@@ -211,7 +211,7 @@ function ReservationCard({
       {/* Details */}
       <div className="px-4 pb-3 grid grid-cols-3 gap-2">
         <Detail icon="calendar_month" label="Fecha" value={formatDate(r.date)} />
-        <Detail icon="schedule" label="Hora" value={r.time} />
+        <Detail icon="schedule" label="Hora" value={r.time.slice(0, 5)} />
         <Detail icon="group" label="Personas" value={String(r.guests)} />
       </div>
 
@@ -258,7 +258,7 @@ function Detail({ icon, label, value }: { icon: string; label: string; value: st
         {icon}
       </span>
       <p className="text-xs font-bold uppercase tracking-widest text-on-surface-variant mt-0.5">{label}</p>
-      <p className="text-xs font-black text-on-surface leading-tight mt-0.5 capitalize">{value}</p>
+      <p className="text-xs font-black text-on-surface leading-tight mt-0.5 first-letter:uppercase">{value}</p>
     </div>
   );
 }
