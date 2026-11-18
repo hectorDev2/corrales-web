@@ -80,10 +80,24 @@ function shapeFor(seats: number): Shape {
   return seats <= 2 ? "round" : seats <= 6 ? "oval" : "long";
 }
 
-/** Convierte la posición en % del editor plano a coordenadas del piso 3D. */
+const Z_OFFSET = 0.45;
+const X_MIN = (0.05 - 0.5) * FLOOR_W;
+const X_MAX = (0.95 - 0.5) * FLOOR_W;
+const Z_MIN = (0.12 - 0.5) * FLOOR_D - Z_OFFSET;
+const Z_MAX = (0.94 - 0.5) * FLOOR_D - Z_OFFSET;
+
+/** Coordenadas del piso 3D → posición en % que se guarda en la base de datos. */
+function toPercent(x: number, z: number) {
+  return {
+    pos_x: Math.round((x / FLOOR_W + 0.5) * 10000) / 100,
+    pos_y: Math.round(((z + Z_OFFSET) / FLOOR_D + 0.5) * 10000) / 100,
+  };
+}
+
+/** Convierte la posición en % guardada a coordenadas del piso 3D. */
 function toWorld(t: RestaurantTable): [number, number] {
   // En el editor, pos_y marca el pie del dibujo; el centro de la mesa queda un poco más al fondo.
-  return [(t.pos_x / 100 - 0.5) * FLOOR_W, (t.pos_y / 100 - 0.5) * FLOOR_D - 0.45];
+  return [(t.pos_x / 100 - 0.5) * FLOOR_W, (t.pos_y / 100 - 0.5) * FLOOR_D - Z_OFFSET];
 }
 
 // ─── Piso de madera generado (sin descargar imágenes) ────────────────────────
@@ -282,34 +296,79 @@ interface TableModelProps {
   minutes: number | null;
   dimmed: boolean;
   selected: boolean;
+  editMode: boolean;
   onSelect: () => void;
+  onDragChange: (dragging: boolean) => void;
+  onMove: (pos: { pos_x: number; pos_y: number }) => void;
 }
 
-function TableModel({ table, state, minutes, dimmed, selected, onSelect }: TableModelProps) {
+const FLOOR_PLANE = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+const HIT = new THREE.Vector3();
+
+type Capturable = { setPointerCapture(id: number): void; releasePointerCapture(id: number): void };
+
+function TableModel({ table, state, minutes, dimmed, selected, editMode, onSelect, onDragChange, onMove }: TableModelProps) {
   const [hovered, setHovered] = useState(false);
+  // Posición mientras se arrastra. Se descarta sola cuando llega la posición guardada.
+  const [drag, setDrag] = useState<{ x: number; z: number; fromX: number; fromY: number; moving: boolean } | null>(null);
+  const liveDrag = drag && drag.fromX === table.pos_x && drag.fromY === table.pos_y ? drag : null;
   const cfg = STATE_CONFIG[state];
   const active = table.is_active;
   const shape = shapeFor(table.capacity);
   const seats = Math.min(12, Math.max(1, table.capacity));
   const { chairs, plates } = useMemo(() => layout(shape, seats), [shape, seats]);
-  const [x, z] = toWorld(table);
+  const [x, z] = liveDrag ? [liveDrag.x, liveDrag.z] : toWorld(table);
   const color = dimmed || !active ? DIMMED : state === "libre" ? "#d8b07a" : cfg.top;
-  const lift = selected ? 0.12 : hovered ? 0.05 : 0;
+  const lift = liveDrag?.moving ? 0.3 : selected ? 0.12 : hovered ? 0.05 : 0;
 
   function handleClick(e: ThreeEvent<MouseEvent>) {
     e.stopPropagation();
-    if (e.delta > 6) return; // fue un arrastre de cámara, no un toque
+    if (editMode || e.delta > 6) return; // fue un arrastre, no un toque
     onSelect();
+  }
+
+  function handlePointerDown(e: ThreeEvent<PointerEvent>) {
+    if (!editMode) return;
+    e.stopPropagation();
+    (e.target as unknown as Capturable).setPointerCapture(e.pointerId);
+    onSelect();
+    onDragChange(true);
+    setDrag({ x, z, fromX: table.pos_x, fromY: table.pos_y, moving: true });
+  }
+
+  function handlePointerMove(e: ThreeEvent<PointerEvent>) {
+    if (!liveDrag?.moving) return;
+    e.stopPropagation();
+    if (!e.ray.intersectPlane(FLOOR_PLANE, HIT)) return;
+    setDrag({
+      ...liveDrag,
+      x: Math.min(X_MAX, Math.max(X_MIN, HIT.x)),
+      z: Math.min(Z_MAX, Math.max(Z_MIN, HIT.z)),
+    });
+  }
+
+  function handlePointerUp(e: ThreeEvent<PointerEvent>) {
+    if (!liveDrag?.moving) return;
+    e.stopPropagation();
+    (e.target as unknown as Capturable).releasePointerCapture(e.pointerId);
+    onDragChange(false);
+    setDrag({ ...liveDrag, moving: false });
+    const pos = toPercent(liveDrag.x, liveDrag.z);
+    if (pos.pos_x !== table.pos_x || pos.pos_y !== table.pos_y) onMove(pos);
+    else setDrag(null);
   }
 
   return (
     <group
       position={[x, 0, z]}
       onClick={handleClick}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
       onPointerOver={(e) => {
         e.stopPropagation();
         setHovered(true);
-        document.body.style.cursor = "pointer";
+        document.body.style.cursor = editMode ? "grab" : "pointer";
       }}
       onPointerOut={() => {
         setHovered(false);
@@ -359,10 +418,22 @@ export interface TableScene3DProps {
   filter: TableState | null;
   now: number;
   selectedId: string | null;
+  editMode: boolean;
   onSelect: (id: string) => void;
+  onMove: (id: string, pos: { pos_x: number; pos_y: number }) => void;
 }
 
-export default function TableScene3D({ tables, ordersByTable, filter, now, selectedId, onSelect }: TableScene3DProps) {
+export default function TableScene3D({
+  tables,
+  ordersByTable,
+  filter,
+  now,
+  selectedId,
+  editMode,
+  onSelect,
+  onMove,
+}: TableScene3DProps) {
+  const [dragging, setDragging] = useState(false);
   return (
     <Canvas
       shadows
@@ -389,6 +460,13 @@ export default function TableScene3D({ tables, ordersByTable, filter, now, selec
       <pointLight position={[0, 4, 0]} intensity={8} distance={14} color="#ffd9a8" />
 
       <Room />
+      {editMode && (
+        <gridHelper
+          args={[FLOOR_W, 32, "#8a6a48", "#c9ab84"]}
+          position={[0, 0.008, 0]}
+          scale={[1, 1, FLOOR_D / FLOOR_W]}
+        />
+      )}
 
       {tables.map((t) => {
         const orders = ordersByTable.get(t.id) ?? [];
@@ -403,13 +481,17 @@ export default function TableScene3D({ tables, ordersByTable, filter, now, selec
             minutes={minutes}
             dimmed={dimmed}
             selected={selectedId === t.id}
+            editMode={editMode}
             onSelect={() => onSelect(t.id)}
+            onDragChange={setDragging}
+            onMove={(pos) => onMove(t.id, pos)}
           />
         );
       })}
 
       <OrbitControls
         makeDefault
+        enabled={!dragging}
         target={[0, 0, 0.3]}
         enableDamping
         minDistance={6}

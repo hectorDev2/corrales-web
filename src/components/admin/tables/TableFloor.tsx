@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { Component, type ReactNode, useEffect, useId, useMemo, useRef, useState } from "react";
+import { Component, type ReactNode, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 import { updateOrderStatus } from "@/lib/api/admin";
@@ -54,192 +54,7 @@ function useNow(intervalMs: number) {
   return now;
 }
 
-// ─── Mesa dibujada (SVG) ──────────────────────────────────────────────────────
-
-/** Mesa vista en perspectiva, con sillas repartidas según la capacidad. */
-function TableGraphic({
-  label,
-  seats,
-  top,
-  edge,
-  muted,
-  halo,
-  rotated = false,
-}: {
-  label: string;
-  seats: number;
-  rotated?: boolean;
-  top: string;
-  edge: string;
-  muted: boolean;
-  halo?: string;
-}) {
-  const n = clamp(seats, 1, 12);
-  // Forma según capacidad: redonda (1-2), ovalada (3-6), larga (7+).
-  const shape: "round" | "oval" | "long" = n <= 2 ? "round" : n <= 6 ? "oval" : "long";
-  // Girada 90°: la mesa se alarga hacia el fondo del salón en vez de a lo ancho.
-  const turn = rotated && shape !== "round";
-  const rx = shape === "round" ? 24 : shape === "oval" ? (turn ? 26 : 36) : turn ? 18 : 50;
-  const ry = shape === "round" ? 14 : shape === "oval" ? (turn ? 22 : 18) : turn ? 27 : 15;
-  const chairs =
-    shape === "long" && turn
-      ? Array.from({ length: n }, (_, i) => {
-          const left = i % 2 === 0;
-          const perSide = Math.ceil(n / 2);
-          const k = Math.floor(i / 2);
-          const y = perSide === 1 ? 53 : 53 - ry + 6 + ((ry * 2 - 12) / (perSide - 1)) * k;
-          return { x: left ? 60 - rx - 9 : 60 + rx + 9, y, back: y < 53 };
-        })
-      : shape === "long"
-      ? Array.from({ length: n }, (_, i) => {
-          const top = i % 2 === 0;
-          const perSide = Math.ceil(n / 2);
-          const k = Math.floor(i / 2);
-          const x = perSide === 1 ? 60 : 60 - 38 + (76 / (perSide - 1)) * k;
-          return { x, y: top ? 53 - ry - 6 : 53 + ry + 12, back: top };
-        })
-      : Array.from({ length: n }, (_, i) => {
-          const a = (-90 + (360 / n) * i) * (Math.PI / 180);
-          const dx = rx + 7;
-          const dy = ry + 6;
-          return { x: 60 + Math.cos(a) * dx, y: 52 + Math.sin(a) * dy, back: Math.sin(a) < 0 };
-        });
-
-  const uid = useId().replace(/:/g, "");
-  const topLight = mix(top, "#ffffff", 0.45);
-  const edgeDark = mix(edge, "#000000", 0.18);
-
-  const chair = (c: { x: number; y: number }, i: number) => (
-    <g key={i}>
-      <ellipse cx={c.x} cy={c.y + 5} rx={8.5} ry={3.6} fill="#000" opacity={0.16} />
-      {/* respaldo */}
-      <rect x={c.x - 7} y={c.y - 11} width={14} height={7} rx={3} fill="#5a4030" />
-      <rect x={c.x - 5.5} y={c.y - 10} width={11} height={2} rx={1} fill="#fff" opacity={0.14} />
-      {/* asiento acolchado */}
-      <rect x={c.x - 7.5} y={c.y - 6} width={15} height={11} rx={5} fill="#a8322b" />
-      <rect x={c.x - 7.5} y={c.y - 6} width={15} height={11} rx={5} fill={`url(#${uid}-cush)`} />
-    </g>
-  );
-
-  // Platos puestos delante de cada silla, para que se lea como una mesa servida.
-  const plates = chairs.map((c) => {
-    const vx = c.x - 60;
-    const vy = c.y - 53;
-    const len = Math.hypot(vx / (rx + 8), vy / (ry + 6)) || 1;
-    const k = 0.58 / len;
-    return { x: 60 + (vx / (rx + 8)) * (rx + 8) * k * 0.9, y: 53 + (vy / (ry + 6)) * (ry + 6) * k * 0.9 };
-  });
-
-  return (
-    <svg
-      viewBox="0 0 120 96"
-      className={muted ? "grayscale" : ""}
-      aria-hidden="true"
-      style={{ overflow: "visible" }}
-    >
-      <defs>
-        <linearGradient id={`${uid}-top`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor={topLight} />
-          <stop offset="1" stopColor={top} />
-        </linearGradient>
-        <linearGradient id={`${uid}-edge`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor={edge} />
-          <stop offset="1" stopColor={edgeDark} />
-        </linearGradient>
-        <linearGradient id={`${uid}-cush`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#fff" stopOpacity="0.28" />
-          <stop offset="1" stopColor="#000" stopOpacity="0.12" />
-        </linearGradient>
-        <radialGradient id={`${uid}-shadow`}>
-          <stop offset="0" stopColor="#000" stopOpacity="0.32" />
-          <stop offset="1" stopColor="#000" stopOpacity="0" />
-        </radialGradient>
-        <clipPath id={`${uid}-clip`}>
-          <ellipse cx={60} cy={53} rx={rx} ry={ry} />
-        </clipPath>
-      </defs>
-
-      {halo && (
-        <ellipse
-          cx={60}
-          cy={72}
-          rx={rx + 22}
-          ry={ry + 14}
-          fill={halo}
-          opacity={0.22}
-          stroke={halo}
-          strokeWidth={2.5}
-          strokeOpacity={0.85}
-          strokeDasharray="5 4"
-        />
-      )}
-      <ellipse cx={60} cy={82} rx={rx + 14} ry={11} fill={`url(#${uid}-shadow)`} />
-
-      {chairs.filter((c) => c.back).map(chair)}
-
-      {/* patas */}
-      <rect x={60 - rx * 0.7} y={58} width={5} height={22} rx={2} fill="#4e3a2b" />
-      <rect x={60 + rx * 0.7 - 5} y={58} width={5} height={22} rx={2} fill="#4e3a2b" />
-
-      {/* canto y tapa */}
-      <ellipse cx={60} cy={60} rx={rx} ry={ry} fill={`url(#${uid}-edge)`} />
-      <ellipse cx={60} cy={53} rx={rx} ry={ry} fill={`url(#${uid}-top)`} stroke={edge} strokeWidth={1.2} />
-      {/* veta de la madera */}
-      <g clipPath={`url(#${uid}-clip)`} opacity={0.16} stroke={edgeDark} strokeWidth={0.8} fill="none">
-        <path d={`M${60 - rx} ${53 - ry * 0.35} Q60 ${53 - ry * 0.7} ${60 + rx} ${53 - ry * 0.3}`} />
-        <path d={`M${60 - rx} ${53 + ry * 0.1} Q60 ${53 - ry * 0.2} ${60 + rx} ${53 + ry * 0.15}`} />
-        <path d={`M${60 - rx} ${53 + ry * 0.55} Q60 ${53 + ry * 0.3} ${60 + rx} ${53 + ry * 0.6}`} />
-      </g>
-      <ellipse cx={60} cy={53} rx={rx - 3} ry={ry - 2} fill="none" stroke="#fff" strokeOpacity={0.35} strokeWidth={0.8} />
-
-      {/* platos */}
-      {plates.map((pl, i) => (
-        <g key={i}>
-          <ellipse cx={pl.x} cy={pl.y + 0.8} rx={4.6} ry={2.2} fill="#000" opacity={0.15} />
-          <ellipse cx={pl.x} cy={pl.y} rx={4.6} ry={2.2} fill="#fff" />
-          <ellipse cx={pl.x} cy={pl.y} rx={2.6} ry={1.2} fill="#e9e4dc" />
-        </g>
-      ))}
-
-      {/* número de mesa en una placa legible */}
-      <ellipse cx={60} cy={54} rx={11.5} ry={7.5} fill="#fff" opacity={0.92} stroke={edge} strokeWidth={0.8} />
-      <text
-        x={60}
-        y={59.2}
-        textAnchor="middle"
-        fontSize={label.length > 2 ? 11 : 14}
-        fontWeight={900}
-        fill="#2b2118"
-        style={{ fontFamily: "inherit" }}
-      >
-        {label}
-      </text>
-
-      {chairs.filter((c) => !c.back).map(chair)}
-    </svg>
-  );
-}
-
-/** Mezcla dos colores hex: amount=0 devuelve `a`, 1 devuelve `b`. */
-function mix(a: string, b: string, amount: number) {
-  const p = (h: string, i: number) => parseInt(h.slice(1 + i * 2, 3 + i * 2), 16);
-  const c = (i: number) =>
-    Math.round(p(a, i) + (p(b, i) - p(a, i)) * amount)
-      .toString(16)
-      .padStart(2, "0");
-  return `#${c(0)}${c(1)}${c(2)}`;
-}
-
 // ─── Mapa ─────────────────────────────────────────────────────────────────────
-
-/** Ancho en pantalla según la capacidad: mesas chicas ocupan menos y no se pisan entre sí. */
-function tableWidth(seats: number) {
-  if (seats <= 2) return "clamp(48px, 8cqw, 84px)";
-  if (seats <= 6) return "clamp(56px, 10.5cqw, 98px)";
-  return "clamp(80px, 14cqw, 132px)";
-}
-
-const TILT = 50; // grados de inclinación del piso en vista 3D
 
 export function TableMap({
   tables,
@@ -260,8 +75,6 @@ export function TableMap({
   const [filter, setFilter] = useState<TableState | null>(null);
   const [view, setView] = useState<"mapa" | "lista">("mapa");
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [drag, setDrag] = useState<{ id: string; x: number; y: number } | null>(null);
-  const floorRef = useRef<HTMLDivElement>(null);
   const now = useNow(30_000);
 
   const visible = tables.filter((t) => t.zone === activeZone);
@@ -290,21 +103,9 @@ export function TableMap({
     return m;
   }, [zones, tables, ordersByTable]);
 
-  function pointFromEvent(e: React.PointerEvent) {
-    const rect = floorRef.current?.getBoundingClientRect();
-    if (!rect) return null;
-    return {
-      x: clamp(((e.clientX - rect.left) / rect.width) * 100, 5, 95),
-      y: clamp(((e.clientY - rect.top) / rect.height) * 100, 12, 94),
-    };
-  }
-
-  async function finishDrag() {
-    if (!drag) return;
-    const { id, x, y } = drag;
-    setDrag(null);
+  async function moveTable(id: string, pos: { pos_x: number; pos_y: number }) {
     try {
-      await updateTable(id, { pos_x: Math.round(x * 100) / 100, pos_y: Math.round(y * 100) / 100 });
+      await updateTable(id, pos);
       await onChanged();
     } catch {
       toast.error("No se pudo guardar la posición.");
@@ -413,7 +214,6 @@ export function TableMap({
             hidden={view === "lista"}
             onClick={() => {
               setEditMode((v) => !v);
-              setDrag(null);
             }}
             className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold tracking-wider uppercase ${
               editMode ? "bg-primary text-on-primary" : "bg-surface-container-high text-on-surface-variant"
@@ -462,7 +262,7 @@ export function TableMap({
             selectedId={selectedId}
             onSelect={setSelectedId}
           />
-        ) : !editMode ? (
+        ) : (
           <div className="border-outline-variant/30 relative aspect-[4/3] w-full overflow-hidden rounded-3xl border bg-[#f4ede4] md:aspect-[16/11]">
             <WebGLBoundary
               fallback={
@@ -477,133 +277,21 @@ export function TableMap({
                 filter={filter}
                 now={now}
                 selectedId={selectedId}
+                editMode={editMode}
                 onSelect={setSelectedId}
+                onMove={(id, pos) => void moveTable(id, pos)}
               />
             </WebGLBoundary>
-            <p className="pointer-events-none absolute bottom-3 left-3 rounded-full bg-white/85 px-3 py-1 text-[11px] font-bold text-[#5b4636] shadow">
-              Arrastra para girar · rueda o pellizco para acercar
+            <p
+              className={`pointer-events-none absolute bottom-3 left-3 rounded-full px-3 py-1 text-[11px] font-bold shadow ${
+                editMode ? "bg-primary text-on-primary" : "bg-white/85 text-[#5b4636]"
+              }`}
+            >
+              {editMode
+                ? "Arrastra cada mesa a su lugar · tócala para girarla o cambiar sillas"
+                : "Arrastra para girar la vista · rueda o pellizco para acercar"}
             </p>
           </div>
-        ) : (
-        <div
-          className="bg-surface-container-low border-outline-variant/30 relative aspect-[16/11] w-full overflow-hidden rounded-3xl border"
-          style={{ perspective: "1400px", containerType: "inline-size" }}
-        >
-          <div
-            ref={floorRef}
-            role="application"
-            aria-label={`Salón ${activeZone ?? ""}${editMode ? ", modo acomodar" : ""}`}
-            className="absolute inset-0 touch-none transition-transform duration-500 ease-out motion-reduce:transition-none"
-            style={{
-              transformStyle: "preserve-3d",
-              transform: editMode ? "none" : `translateY(-2%) rotateX(${TILT}deg) scale(0.84)`,
-              transformOrigin: "50% 55%",
-              borderRadius: "1.25rem",
-              backgroundColor: "#e9d8bd",
-              backgroundImage: editMode
-                ? "linear-gradient(to right, rgba(0,0,0,0.07) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,0.07) 1px, transparent 1px)"
-                : "repeating-linear-gradient(90deg, rgba(0,0,0,0) 0 56px, rgba(120,80,30,0.14) 56px 58px)",
-              backgroundSize: editMode ? "5% 7%" : undefined,
-              boxShadow: "0 18px 0 #b99a6b, 0 30px 40px rgba(0,0,0,0.25)",
-            }}
-            onPointerMove={(e) => {
-              if (!drag) return;
-              const p = pointFromEvent(e);
-              if (p) setDrag({ id: drag.id, ...p });
-            }}
-            onPointerUp={() => void finishDrag()}
-            onPointerCancel={() => setDrag(null)}
-          >
-            {/* Pared del fondo y entrada: ayudan a ubicarse en el salón */}
-            {!editMode && (
-              <>
-                <div
-                  aria-hidden="true"
-                  className="pointer-events-none absolute inset-x-0 top-0 h-[7%] rounded-t-[1.25rem]"
-                  style={{ background: "linear-gradient(#a98458, #c9a876)", boxShadow: "inset 0 -4px 6px rgba(0,0,0,0.18)" }}
-                />
-                <div
-                  aria-hidden="true"
-                  className="pointer-events-none absolute bottom-0 left-1/2 flex h-[6%] w-[22%] -translate-x-1/2 items-center justify-center rounded-t-lg bg-[#7a5a36] text-[10px] font-black tracking-widest text-white/90 uppercase"
-                >
-                  Entrada
-                </div>
-              </>
-            )}
-            {visible.map((t) => {
-              const tableOrders = ordersByTable.get(t.id) ?? [];
-              const state = t.is_active ? getTableState(tableOrders) : "libre";
-              const cfg = STATE_CONFIG[state];
-              const x = drag?.id === t.id ? drag.x : t.pos_x;
-              const y = drag?.id === t.id ? drag.y : t.pos_y;
-              const isSelected = selectedId === t.id;
-              const oldest = tableOrders[0];
-              const dimmed = filter !== null && (!t.is_active || state !== filter);
-              const mins = oldest ? minutesSince(oldest.created_at, now) : null;
-              return (
-                <button
-                  key={t.id}
-                  type="button"
-                  aria-label={`Mesa ${t.label}, ${t.is_active ? cfg.label : "inactiva"}`}
-                  onClick={() => setSelectedId(t.id)}
-                  onPointerDown={(e) => {
-                    if (!editMode) return;
-                    e.currentTarget.setPointerCapture(e.pointerId);
-                    setSelectedId(t.id);
-                    setDrag({ id: t.id, x: t.pos_x, y: t.pos_y });
-                  }}
-                  className={`absolute flex flex-col items-center transition-transform duration-500 ease-out motion-reduce:transition-none ${
-                    editMode ? "cursor-grab active:cursor-grabbing" : "cursor-pointer"
-                  }`}
-                  style={{
-                    left: `${x}%`,
-                    top: `${y}%`,
-                    width: tableWidth(t.capacity),
-                    transformOrigin: "50% 100%",
-                    // De pie respecto al piso: contrarresta la inclinación para mirar al frente.
-                    transform: `translate(-50%, -100%) rotateX(${editMode ? 0 : -TILT}deg)`,
-                    filter: isSelected ? "drop-shadow(0 0 6px rgba(0,0,0,0.45))" : undefined,
-                    opacity: dimmed ? 0.25 : 1,
-                    zIndex: isSelected ? 2 : 1,
-                  }}
-                >
-                  <span
-                    className={`relative block w-full ${
-                      state === "pendiente" ? "motion-safe:animate-pulse" : ""
-                    }`}
-                  >
-                    <TableGraphic
-                      label={t.label}
-                      seats={t.capacity}
-                      top={cfg.top}
-                      edge={cfg.edge}
-                      muted={!t.is_active}
-                      halo={t.is_active && state !== "libre" ? cfg.halo : undefined}
-                      rotated={t.rotation === 90}
-                    />
-                  </span>
-                  {t.is_active && state !== "libre" && (
-                    <span
-                      className={`-mt-1 flex items-center gap-0.5 rounded-full px-2 py-0.5 text-xs leading-none font-black shadow ${cfg.chip}`}
-                    >
-                      <span className="material-symbols-outlined text-xs">{cfg.icon}</span>
-                      {mins !== null && mins > 0 ? `${mins} min` : cfg.label}
-                    </span>
-                  )}
-                  {isSelected && (
-                    <span className="bg-primary mt-0.5 h-1 w-8 rounded-full" aria-hidden="true" />
-                  )}
-                </button>
-              );
-            })}
-          </div>
-
-          {editMode && (
-            <p className="bg-surface-container-lowest/90 pointer-events-none absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full px-4 py-1.5 text-xs font-bold shadow">
-              Arrastra las mesas a su lugar
-            </p>
-          )}
-        </div>
         )}
 
         <aside
