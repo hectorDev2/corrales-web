@@ -17,7 +17,7 @@ export function BentoStats({ orders }: Props) {
         >
           local_fire_department
         </span>
-        <p className="text-[10px] font-black uppercase tracking-widest text-on-tertiary-fixed">
+        <p className="text-xs font-black uppercase tracking-widest text-on-tertiary-fixed">
           Pollos en Horno
         </p>
         <p className="text-4xl font-black text-on-tertiary-fixed">
@@ -32,7 +32,7 @@ export function BentoStats({ orders }: Props) {
         >
           delivery_dining
         </span>
-        <p className="text-[10px] font-black uppercase tracking-widest text-on-secondary-fixed">
+        <p className="text-xs font-black uppercase tracking-widest text-on-secondary-fixed">
           En Camino
         </p>
         <p className="text-4xl font-black text-on-secondary-fixed">

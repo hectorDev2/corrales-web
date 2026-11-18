@@ -1,0 +1,13 @@
+{
+  "port": 9101,
+  "allowedOrigins": ["http://localhost:3000", "https://TU-DOMINIO.com"],
+  "token": "cambia-este-token",
+  "businessName": "CORRALES",
+  "columns": 48,
+  "printers": {
+    "caja":   { "type": "network", "host": "192.168.1.50", "port": 9100 },
+    "cocina": { "type": "network", "host": "192.168.1.51", "port": 9100 },
+    "horno":  { "type": "network", "host": "192.168.1.52", "port": 9100 },
+    "barra":  { "type": "network", "host": "192.168.1.53", "port": 9100 }
+  }
+}

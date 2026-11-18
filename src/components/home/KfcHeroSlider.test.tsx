@@ -1,0 +1,66 @@
+import { fireEvent, render, screen } from "@testing-library/react";
+import { describe, expect, it } from "vitest";
+
+import { KfcHeroSlider } from "./KfcHeroSlider";
+
+const slides = [
+  {
+    id: "hero-1",
+    type: "image" as const,
+    sort_order: 0,
+    is_active: true,
+    image_url: "/hero-1.jpg",
+    image_url_mobile: null,
+    eyebrow: null,
+    title: "Promoción Corrales",
+    subtitle: null,
+    cta_label: null,
+    cta_href: null,
+    bg_gradient: null,
+    accent_color: null,
+    icon: null,
+  },
+];
+
+describe("KfcHeroSlider", () => {
+  it("renders a rounded banner and accessible side navigation for multiple slides", () => {
+    const { container } = render(<KfcHeroSlider slides={slides} />);
+
+    expect(container.querySelector("section")).toHaveClass("rounded-xl");
+    expect(container.querySelector("section")).not.toHaveClass("mt-4");
+    expect(screen.queryByRole("button", { name: "Anterior" })).not.toBeInTheDocument();
+  });
+
+  it("moves between image and custom slides", () => {
+    const customSlide = {
+      ...slides[0],
+      id: "custom-1",
+      type: "custom" as const,
+      image_url: null,
+      title: "Promoción especial",
+    };
+    const { container } = render(<KfcHeroSlider slides={[slides[0], customSlide]} />);
+
+    expect(screen.getByRole("button", { name: "Anterior" })).toHaveClass("rounded-r-lg");
+    expect(screen.getByRole("button", { name: "Siguiente" })).toHaveClass("rounded-l-lg");
+    expect(screen.getAllByRole("button", { name: /Ir a slide/ })).toHaveLength(2);
+
+    fireEvent.click(screen.getByRole("button", { name: "Siguiente" }));
+
+    expect(container.querySelector("[style*='translateX']")).toHaveStyle(
+      "transform: translateX(-100%)",
+    );
+    expect(screen.getByRole("heading", { name: "Promoción especial" })).toBeInTheDocument();
+  });
+
+  it("uses a taller aspect ratio when a mobile creative is available", () => {
+    const mobileSlide = { ...slides[0], image_url_mobile: "/hero-1-mobile.jpg" };
+
+    render(<KfcHeroSlider slides={[mobileSlide]} />);
+
+    expect(screen.getByRole("img", { name: "Promoción Corrales" })).toHaveClass(
+      "aspect-[1.3]",
+      "md:aspect-[4.56]",
+    );
+  });
+});

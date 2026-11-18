@@ -19,7 +19,9 @@ export async function getActiveOrders(): Promise<AdminOrder[]> {
       assigned_to,
       created_at,
       profiles!orders_assigned_to_fkey ( full_name ),
-      order_items ( id, product_name, variant_label, quantity, unit_price )
+      restaurant_tables ( label ),
+      order_items ( id, product_name, variant_label, quantity, unit_price, products ( station ) ),
+      invoices ( id, series, number, sunat_status, pdf_url )
     `)
     .not("status", "in", '("entregado","cancelado")')
     .order("created_at", { ascending: false });
@@ -29,7 +31,11 @@ export async function getActiveOrders(): Promise<AdminOrder[]> {
   return data.map((row) => ({
     ...row,
     assigned_profile: row.profiles as { full_name: string } | null,
-    items: (row.order_items as AdminOrder["items"]) ?? [],
+    table_label: (row.restaurant_tables as { label: string } | null)?.label ?? null,
+    items: ((row.order_items as unknown as Array<Omit<AdminOrder["items"][number], "station"> & { products: { station: AdminOrder["items"][number]["station"] } | null }>) ?? []).map(
+      ({ products, ...item }) => ({ ...item, station: products?.station ?? "cocina" }),
+    ),
+    invoice: ((row.invoices as AdminOrder["invoice"][]) ?? [])[0] ?? null,
   }));
 }
 
@@ -55,6 +61,48 @@ export async function assignDelivery(
     .eq("id", orderId);
 
   if (error) throw error;
+}
+
+export async function getOrderHistory(
+  from: string,
+  to: string,
+  statuses: AdminOrderStatus[],
+): Promise<AdminOrder[]> {
+  const { data, error } = await supabase
+    .from("orders")
+    .select(`
+      id,
+      order_number,
+      status,
+      delivery_type,
+      customer_name,
+      customer_phone,
+      customer_address,
+      customer_notes,
+      customer_location_url,
+      payment_method,
+      total,
+      assigned_to,
+      created_at,
+      profiles!orders_assigned_to_fkey ( full_name ),
+      restaurant_tables ( label ),
+      order_items ( id, product_name, variant_label, quantity, unit_price ),
+      invoices ( id, series, number, sunat_status, pdf_url )
+    `)
+    .in("status", statuses)
+    .gte("created_at", `${from}T00:00:00`)
+    .lte("created_at", `${to}T23:59:59`)
+    .order("created_at", { ascending: false });
+
+  if (error) throw error;
+
+  return data.map((row) => ({
+    ...row,
+    assigned_profile: row.profiles as { full_name: string } | null,
+    table_label: (row.restaurant_tables as { label: string } | null)?.label ?? null,
+    items: (row.order_items as AdminOrder["items"]) ?? [],
+    invoice: ((row.invoices as AdminOrder["invoice"][]) ?? [])[0] ?? null,
+  }));
 }
 
 export async function getDeliveryProfiles(): Promise<DeliveryProfile[]> {

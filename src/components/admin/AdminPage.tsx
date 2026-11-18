@@ -13,7 +13,8 @@ import { supabase } from "@/lib/supabase";
 import type { AdminOrder, AdminOrderStatus, DeliveryProfile } from "@/types/admin";
 
 import { AdminOrderCard } from "./AdminOrderCard";
-import { BentoStats } from "./BentoStats";
+import { PAGE_CONTAINER, PageHeader } from "./PageHeader";
+import { PushNotificationBanner } from "./PushNotificationBanner";
 
 export function AdminPage() {
   const [orders, setOrders] = useState<AdminOrder[]>([]);
@@ -78,27 +79,14 @@ export function AdminPage() {
   );
 
   return (
-    <div className="w-full max-w-[390px] mx-auto px-4 space-y-6 py-4">
-      {/* Dashboard header */}
-      <div className="flex justify-between items-end py-2">
-        <div>
-          <p className="text-xs font-bold uppercase tracking-widest text-secondary">
-            Panel de Control
-          </p>
-          <h2 className="text-2xl font-black tracking-tighter text-on-surface">
-            Admin de Pedidos
-          </h2>
-        </div>
-        <div className="bg-surface-container-high rounded-xl p-2 px-3 text-right">
-          <p className="text-[10px] font-bold text-secondary uppercase">Hoy</p>
-          <p className="text-sm font-black text-primary">
-            {activeOrders.length} Pedidos
-          </p>
-        </div>
-      </div>
+    <div className={PAGE_CONTAINER}>
+      <PageHeader eyebrow="Operación" title="Pedidos" help="Pedidos que están entrando. Avanza cada uno con su botón hasta entregarlo." stat={{ label: "Activos", value: activeOrders.length }} />
+
+      {/* Push notifications */}
+      <PushNotificationBanner />
 
       {/* Orders */}
-      <section className="space-y-4">
+      <section>
         {loading ? (
           <div className="flex justify-center py-16">
             <span
@@ -119,20 +107,21 @@ export function AdminPage() {
             <p className="font-bold text-sm">Sin pedidos activos</p>
           </div>
         ) : (
-          activeOrders.map((order) => (
-            <AdminOrderCard
-              key={order.id}
-              order={order}
-              deliveryProfiles={deliveryProfiles}
-              onAdvance={handleAdvance}
-              onAssign={handleAssign}
-              onCancel={handleCancel}
-            />
-          ))
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {activeOrders.map((order) => (
+              <AdminOrderCard
+                key={order.id}
+                order={order}
+                deliveryProfiles={deliveryProfiles}
+                onAdvance={handleAdvance}
+                onAssign={handleAssign}
+                onCancel={handleCancel}
+              />
+            ))}
+          </div>
         )}
       </section>
 
-      <BentoStats orders={activeOrders} />
     </div>
   );
 }

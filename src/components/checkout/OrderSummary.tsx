@@ -3,15 +3,17 @@
 import Image from "next/image";
 
 import { useCartStore } from "@/store/cart";
+import { useTableSession } from "@/store/table-session";
 
 export function OrderSummary() {
   const { items, subtotal, total, deliveryCost } = useCartStore();
+  const isTable = useTableSession((s) => s.table !== null);
 
   return (
-    <div className="bg-surface-container-lowest p-8 rounded-[2rem] shadow-[0_12px_40px_rgba(89,65,61,0.08)]">
+    <div className="bg-white p-8 rounded-[2rem] shadow-card">
       <h2 className="text-2xl font-black tracking-tighter mb-6 flex items-center justify-between">
         Tu Pedido
-        <span className="text-sm font-bold bg-tertiary-fixed text-on-tertiary-fixed px-3 py-1 rounded-full">
+        <span className="text-sm font-bold bg-[#e5e7eb] text-[#111827] px-3 py-1 rounded-full">
           {items.reduce((sum, i) => sum + i.quantity, 0)} items
         </span>
       </h2>
@@ -53,10 +55,12 @@ export function OrderSummary() {
           <span>Subtotal</span>
           <span>S/ {subtotal().toFixed(2)}</span>
         </div>
-        <div className="flex justify-between text-on-surface-variant">
-          <span>Delivery</span>
-          <span>S/ {deliveryCost.toFixed(2)}</span>
-        </div>
+        {!isTable && (
+          <div className="flex justify-between text-on-surface-variant">
+            <span>Delivery</span>
+            <span>S/ {deliveryCost.toFixed(2)}</span>
+          </div>
+        )}
         <div className="flex justify-between text-xl font-black text-on-surface pt-2">
           <span>Total</span>
           <span className="text-primary">S/ {total().toFixed(2)}</span>

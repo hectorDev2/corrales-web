@@ -1,0 +1,277 @@
+/* ── Capas ───────────────────────────────────────────────────────────── */
+.seasonal-root {
+  position: fixed;
+  inset: 0;
+  z-index: 55; /* sobre el header (50), bajo carrito, modales y barra inferior móvil */
+  pointer-events: none;
+  overflow: hidden;
+  animation: seasonal-in 1.2s ease both;
+}
+.seasonal-root.seasonal-contained {
+  position: absolute;
+  z-index: 0;
+}
+.seasonal-hang {
+  position: absolute;
+  left: 0;
+  right: 0;
+  /* Cuelga justo debajo del header + subheader del sitio público */
+  top: calc(var(--public-mobile-header-height, 7rem) + var(--public-subheader-height, 41px));
+}
+@media (min-width: 768px) {
+  .seasonal-hang {
+    top: calc(65px + var(--public-subheader-height, 41px));
+  }
+}
+.seasonal-contained .seasonal-hang {
+  top: 0;
+}
+.seasonal-ground {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 76px; /* por encima de la barra inferior móvil */
+}
+@media (min-width: 768px) {
+  .seasonal-ground {
+    bottom: 0;
+  }
+}
+.seasonal-contained .seasonal-ground {
+  bottom: 0;
+}
+
+/* ── Halloween ───────────────────────────────────────────────────────── */
+.spider-thread {
+  position: absolute;
+  top: 0;
+  width: 1.5px;
+  background: linear-gradient(#9ca3af, #4b5563);
+  animation: spider-drop var(--dur, 7s) ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+}
+.spider-thread > svg {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translate(-50%, 70%);
+  filter: drop-shadow(0 3px 3px rgba(0, 0, 0, 0.25));
+}
+@keyframes spider-drop {
+  0%,
+  100% {
+    height: var(--len-min, 40px);
+  }
+  50% {
+    height: var(--len-max, 120px);
+  }
+}
+
+.ghost {
+  position: absolute;
+  left: -90px;
+  animation: ghost-cross var(--dur, 30s) linear infinite;
+  animation-delay: var(--delay, 0s);
+}
+.ghost > svg {
+  animation: ghost-bob 3.2s ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+  filter: drop-shadow(0 0 10px rgba(167, 139, 250, 0.85));
+  opacity: 0.88;
+}
+@keyframes ghost-cross {
+  from {
+    left: -90px;
+  }
+  to {
+    left: calc(100% + 90px);
+  }
+}
+@keyframes ghost-bob {
+  0%,
+  100% {
+    transform: translateY(-10px) rotate(-3deg);
+  }
+  50% {
+    transform: translateY(12px) rotate(3deg);
+  }
+}
+
+.bat {
+  position: absolute;
+  left: -70px;
+  animation: ghost-cross var(--dur, 12s) linear infinite;
+  animation-delay: var(--delay, 0s);
+}
+.bat > svg {
+  animation: bat-flap 0.35s ease-in-out infinite alternate, bat-wave 2.4s ease-in-out infinite;
+}
+@keyframes bat-flap {
+  from {
+    transform: scaleY(1);
+  }
+  to {
+    transform: scaleY(0.55);
+  }
+}
+@keyframes bat-wave {
+  0%,
+  100% {
+    translate: 0 -14px;
+  }
+  50% {
+    translate: 0 14px;
+  }
+}
+
+.pumpkin {
+  position: absolute;
+  bottom: 0;
+  animation: pumpkin-glow 3s ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+}
+.pumpkin .pumpkin-face {
+  animation: pumpkin-flicker 2.2s steps(1, end) infinite;
+  animation-delay: var(--delay, 0s);
+}
+@keyframes pumpkin-glow {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 5px rgba(249, 115, 22, 0.7));
+  }
+  50% {
+    filter: drop-shadow(0 0 16px rgba(251, 146, 60, 1));
+  }
+}
+@keyframes pumpkin-flicker {
+  0% {
+    opacity: 1;
+  }
+  18% {
+    opacity: 0.7;
+  }
+  24% {
+    opacity: 1;
+  }
+  61% {
+    opacity: 0.82;
+  }
+  67% {
+    opacity: 1;
+  }
+}
+
+/* ── Navidad ─────────────────────────────────────────────────────────── */
+.snowflake {
+  position: absolute;
+  top: -12px;
+  border-radius: 9999px;
+  background: #fff;
+  box-shadow: 0 0 0 1px rgba(147, 197, 253, 0.55), 0 0 4px rgba(147, 197, 253, 0.8);
+  animation: snow-fall var(--dur, 12s) linear infinite;
+  animation-delay: var(--delay, 0s);
+}
+@keyframes snow-fall {
+  from {
+    transform: translate3d(0, -4vh, 0);
+  }
+  50% {
+    transform: translate3d(var(--drift, 20px), 52vh, 0);
+  }
+  to {
+    transform: translate3d(calc(var(--drift, 20px) * -0.6), 108vh, 0);
+  }
+}
+.seasonal-contained .snowflake {
+  animation-name: snow-fall-contained;
+}
+@keyframes snow-fall-contained {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(var(--drift, 20px), 170px, 0);
+  }
+}
+
+.bulb {
+  position: absolute;
+  width: 9px;
+  height: 13px;
+  margin-left: -4.5px;
+  border-radius: 50% 50% 45% 45% / 35% 35% 65% 65%;
+  background: var(--c, #ef4444);
+  box-shadow: 0 0 8px 2px var(--c, #ef4444);
+  animation: bulb-twinkle 1.8s ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+}
+@keyframes bulb-twinkle {
+  0%,
+  100% {
+    opacity: 1;
+    box-shadow: 0 0 10px 3px var(--c, #ef4444);
+  }
+  50% {
+    opacity: 0.45;
+    box-shadow: 0 0 3px 0 var(--c, #ef4444);
+  }
+}
+
+.ornament {
+  position: absolute;
+  top: 0;
+  transform-origin: 50% 0;
+  animation: ornament-swing var(--dur, 4s) ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+}
+.ornament-line {
+  margin: 0 auto;
+  width: 1px;
+  background: #d4af37;
+}
+@keyframes ornament-swing {
+  0%,
+  100% {
+    transform: rotate(-7deg);
+  }
+  50% {
+    transform: rotate(7deg);
+  }
+}
+
+.tree-light {
+  animation: bulb-twinkle 1.6s ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+}
+
+/* ── Transversales ───────────────────────────────────────────────────── */
+@keyframes seasonal-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Quien pide menos movimiento ve las decoraciones quietas y sin partículas. */
+@media (prefers-reduced-motion: reduce) {
+  .seasonal-root *,
+  .seasonal-root {
+    animation: none !important;
+  }
+  .snowflake,
+  .ghost,
+  .bat {
+    display: none;
+  }
+  .spider-thread {
+    height: var(--len-min, 40px);
+  }
+}
+
+@media print {
+  .seasonal-root {
+    display: none !important;
+  }
+}

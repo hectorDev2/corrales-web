@@ -1,0 +1,820 @@
+"use client";
+
+import { useEffect, useMemo, useRef, useState } from "react";
+
+import { useCartStore } from "@/store/cart";
+import type { SelectedOptionsMap } from "@/types/cart";
+import { calcOptionsTotal } from "@/types/cart";
+import type { Product, ProductOption, ProductOptionGroup } from "@/types/product";
+
+interface Props {
+  product: Product;
+}
+
+function ChevronDown() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="1em"
+      height="1em"
+      fill="currentColor"
+      viewBox="0 0 24 24"
+      aria-label="chevron down"
+      role="img"
+    >
+      <path fill="currentColor" d="M12 16.5 4.5 9l1.05-1.05L12 14.4l6.45-6.45L19.5 9z" />
+    </svg>
+  );
+}
+
+function MinusIcon({ decorative = false }: { decorative?: boolean } = {}) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="1em"
+      height="1em"
+      fill="currentColor"
+      viewBox="0 0 16 16"
+      aria-label={decorative ? undefined : "minus"}
+      role={decorative ? undefined : "img"}
+      aria-hidden={decorative ? "true" : undefined}
+    >
+      <path fill="currentColor" d="M14 8a.5.5 0 0 1-.5.5h-11a.5.5 0 1 1 0-1h11a.5.5 0 0 1 .5.5" />
+    </svg>
+  );
+}
+
+function PlusIcon() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="1em"
+      height="1em"
+      fill="currentColor"
+      viewBox="0 0 16 16"
+      aria-label="plus"
+      role="img"
+    >
+      <path
+        fill="currentColor"
+        d="M14 8a.5.5 0 0 1-.5.5h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 1 1 0-1h5v-5a.5.5 0 1 1 1 0v5h5a.5.5 0 0 1 .5.5"
+      />
+    </svg>
+  );
+}
+
+function TrashIcon() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="1em"
+      height="1em"
+      fill="currentColor"
+      viewBox="0 0 16 16"
+      aria-label="trash"
+      role="img"
+    >
+      <path
+        fill="currentColor"
+        d="M5.5 5.5a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"
+      />
+      <path
+        fill="currentColor"
+        d="M14.5 3a1 1 0 0 1-1 1H13v9.5a1.5 1.5 0 0 1-1.5 1.5h-7A1.5 1.5 0 0 1 3 13.5V4h-.5a1 1 0 1 1 0-2h3.25A1.5 1.5 0 0 1 7.25.5h1.5A1.5 1.5 0 0 1 10.25 2h3.25a1 1 0 0 1 1 1M6.75 2h2.5a.5.5 0 0 0-.5-.5h-1.5a.5.5 0 0 0-.5.5M4 4v9.5a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5V4z"
+      />
+    </svg>
+  );
+}
+
+function WarningCircleIcon() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="1em"
+      height="1em"
+      fill="currentColor"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+    >
+      <path
+        fill="currentColor"
+        fillRule="evenodd"
+        d="M12 2.25A9.75 9.75 0 1 0 21.75 12 9.76 9.76 0 0 0 12 2.25m-.75 5.25a.75.75 0 1 1 1.5 0v5.25a.75.75 0 1 1-1.5 0zm.75 9.75A1.125 1.125 0 1 1 12 15a1.125 1.125 0 0 1 0 2.25"
+        clipRule="evenodd"
+      />
+    </svg>
+  );
+}
+
+function PencilIcon() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="1em"
+      height="1em"
+      fill="currentColor"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+    >
+      <path d="m14.06 9.02.92.92L5.92 19H5v-.92l9.06-9.06M17.66 3c-.25 0-.51.1-.7.29l-1.83 1.83 3.75 3.75 1.83-1.83a.996.996 0 0 0 0-1.41l-2.34-2.34c-.2-.2-.45-.29-.71-.29zm-3.6 3.19L3 17.25V21h3.75L17.81 9.94l-3.75-3.75z" />
+    </svg>
+  );
+}
+
+export function ProductDetailPage({ product }: Props) {
+  const { addItem, openDrawer } = useCartStore();
+
+  const [selectedVariantId, setSelectedVariantId] = useState(product.variants[0]?.id ?? "");
+  const variant = product.variants.find((item) => item.id === selectedVariantId) ?? product.variants[0];
+  const isOutOfStock = !variant || variant.stock <= 0;
+  const groups = useMemo(() => product.optionGroups ?? [], [product.optionGroups]);
+
+  const [selections, setSelections] = useState<Record<string, Record<string, number>>>(() => {
+    const init: Record<string, Record<string, number>> = {};
+    for (const g of groups) {
+      init[g.id] = {};
+      for (const o of g.options) {
+        init[g.id][o.id] = 0;
+      }
+    }
+    return init;
+  });
+
+  const [expanded, setExpanded] = useState<Record<string, boolean>>(() => {
+    const init: Record<string, boolean> = {};
+    for (const g of groups) {
+      init[g.id] = true;
+    }
+    return init;
+  });
+  const optionGroupRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const [validationErrorGroupId, setValidationErrorGroupId] = useState<string | null>(null);
+
+  const selectedOptionsMap: SelectedOptionsMap = useMemo(() => {
+    const map: SelectedOptionsMap = {};
+    for (const g of groups) {
+      const groupSelections = selections[g.id] ?? {};
+      const entries = Object.entries(groupSelections)
+        .filter(([, qty]) => qty > 0)
+        .map(([optionId, qty]) => ({ optionId, quantity: qty }));
+      if (entries.length > 0) {
+        map[g.id] = entries;
+      }
+    }
+    return map;
+  }, [groups, selections]);
+
+  const optionsExtra = useMemo(
+    () => calcOptionsTotal(product, selectedOptionsMap),
+    [product, selectedOptionsMap],
+  );
+
+  const unitPrice = (variant?.price ?? 0) + optionsExtra;
+  const [quantity, setQuantity] = useState(1);
+  const maxQuantity = variant?.stock ?? 0;
+
+  const isComplete = useMemo(() => {
+    for (const g of groups) {
+      if (!g.isRequired) continue;
+      const groupSel = selections[g.id] ?? {};
+      const total = Object.values(groupSel).reduce((s, q) => s + q, 0);
+      if (total < g.minSelect) return false;
+    }
+    return true;
+  }, [groups, selections]);
+
+  function updateOption(groupId: string, optionId: string, delta: number) {
+    setValidationErrorGroupId(null);
+    setSelections((prev) => {
+      const group = prev[groupId];
+      if (!group) return prev;
+      const current = group[optionId] ?? 0;
+      const next = Math.max(0, current + delta);
+      const nextGroup = { ...group, [optionId]: next };
+
+      const targetGroup = groups.find((g) => g.id === groupId);
+      if (targetGroup?.maxSelect != null && delta > 0) {
+        const nextTotal = Object.values(nextGroup).reduce((sum, q) => sum + q, 0);
+        if (nextTotal >= targetGroup.maxSelect) {
+          setExpanded((e) => ({ ...e, [groupId]: false }));
+        }
+      }
+
+      return { ...prev, [groupId]: nextGroup };
+    });
+  }
+
+  function selectSingle(groupId: string, optionId: string) {
+    setValidationErrorGroupId(null);
+    setSelections((prev) => {
+      const cleared: Record<string, number> = {};
+      for (const key of Object.keys(prev[groupId] ?? {})) {
+        cleared[key] = 0;
+      }
+      cleared[optionId] = 1;
+      return { ...prev, [groupId]: cleared };
+    });
+    setExpanded((prev) => ({ ...prev, [groupId]: false }));
+  }
+
+  function toggleGroup(id: string) {
+    setExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
+  }
+
+  function handleAdd() {
+    if (!variant) return;
+    if (!isComplete) {
+      focusFirstIncompleteGroup();
+      return;
+    }
+    addItem(product, variant, selectedOptionsMap, quantity);
+    openDrawer();
+  }
+
+  function handleBuyNow() {
+    if (!variant || !isComplete) return;
+    addItem(product, variant, selectedOptionsMap, quantity);
+  }
+
+  function focusFirstIncompleteGroup() {
+    const incompleteGroup = groups.find((g) => {
+      if (!g.isRequired) return false;
+      const groupSel = selections[g.id] ?? {};
+      const total = Object.values(groupSel).reduce((sum, q) => sum + q, 0);
+      return total < g.minSelect;
+    });
+
+    if (!incompleteGroup) return;
+
+    setExpanded((prev) => ({ ...prev, [incompleteGroup.id]: true }));
+    const target = optionGroupRefs.current[incompleteGroup.id];
+    target?.scrollIntoView({ behavior: "smooth", block: "center" });
+    target?.querySelector<HTMLButtonElement>("button")?.focus({ preventScroll: true });
+    setValidationErrorGroupId(incompleteGroup.id);
+  }
+
+  function groupStatus(g: ProductOptionGroup): {
+    label: string;
+    color: "success" | "neutral";
+    variant: "completed" | "required" | "optional";
+  } {
+    const groupSel = selections[g.id] ?? {};
+    const total = Object.values(groupSel).reduce((s, q) => s + q, 0);
+    if (g.isRequired) {
+      if (total >= g.minSelect) {
+        return { label: "Completado", color: "success", variant: "completed" };
+      }
+      return { label: "Requerido", color: "neutral", variant: "required" };
+    }
+    if (total > 0) {
+      return { label: "Completado", color: "success", variant: "completed" };
+    }
+    return { label: "Opcional", color: "neutral", variant: "optional" };
+  }
+
+  function groupSummary(g: ProductOptionGroup): string {
+    const groupSel = selections[g.id] ?? {};
+    const selected = Object.entries(groupSel).filter(([, q]) => q > 0);
+    if (selected.length === 0) {
+      if (g.selectionType === "single") {
+        const count = g.minSelect || 1;
+        return `Elige ${count} ${count === 1 ? "opción" : "opciones"}`;
+      }
+      if (g.selectionType === "quantity") {
+        if (g.maxSelect != null) {
+          return `Elige ${g.maxSelect} ${g.maxSelect === 1 ? "opción" : "opciones"}`;
+        }
+        if (g.minSelect > 0) {
+          return `Elige ${g.minSelect} ${g.minSelect === 1 ? "opción" : "opciones"}`;
+        }
+        return "Elige opciones";
+      }
+      return "Elige 1 opción";
+    }
+    if (g.selectionType === "single") {
+      const opt = g.options.find((o) => o.id === selected[0][0]);
+      return opt?.name ?? "Seleccionado";
+    }
+    if (g.selectionType === "quantity") {
+      return selected
+        .map(([optId, qty]) => {
+          const opt = g.options.find((o) => o.id === optId);
+          return `${opt?.name ?? ""} x ${qty} un`;
+        })
+        .join(", ");
+    }
+    return "";
+  }
+
+  function handleEditGroup(groupId: string) {
+    setExpanded((prev) => ({ ...prev, [groupId]: true }));
+    const target = optionGroupRefs.current[groupId];
+    target?.scrollIntoView({ behavior: "smooth", block: "center" });
+    target?.querySelector<HTMLButtonElement>("button")?.focus({ preventScroll: true });
+  }
+
+  return (
+    <div className="pb-48 md:pb-24" style={{ backgroundColor: "#ffffff" }}>
+      <main className="mx-auto grid max-w-7xl grid-cols-1 gap-12 px-4 py-8 md:px-6 lg:grid-cols-2 lg:items-stretch lg:px-8">
+        {/* ── Left Panel ──────────────────────────────────────────── */}
+        <section>
+          <div data-testid="product-detail-sticky-panel" className="mb-6 lg:sticky lg:top-[121px]">
+            <h1 className="mb-6 text-3xl font-black">{product.name}</h1>
+            <div
+              data-testid="product-detail-image-panel"
+              className="mb-6 overflow-hidden rounded-lg"
+              style={{ backgroundColor: "#e4002b", aspectRatio: "16/10" }}
+            >
+              <img
+                alt={product.image.alt}
+                className="h-full w-full object-cover"
+                src={product.image.src}
+              />
+            </div>
+
+            <div className="mb-6">
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl leading-none font-black">S/ {unitPrice.toFixed(2)}</span>
+              </div>
+              <p className={`mt-2 text-sm font-bold ${isOutOfStock ? "text-error" : "text-on-surface-variant"}`}>
+                {isOutOfStock ? "Agotado" : `${variant?.stock ?? 0} disponibles`}
+              </p>
+              {product.tag && (
+                <div className="mt-1 flex items-center gap-2">
+                  <span className="text-sm font-bold" style={{ color: "#16a34a" }}>
+                    {product.tag}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            <p
+              className="border-b pb-6 font-medium"
+              style={{ color: "#6b7280", borderColor: "#f0f0f0" }}
+            >
+              {product.description}
+            </p>
+
+            {product.variants.length > 1 && (
+              <fieldset className="mt-6 space-y-2" aria-label="Variante del producto">
+                <legend className="text-sm font-black text-on-surface">Elige una opción</legend>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {product.variants.map((productVariant, index) => {
+                    const unavailable = productVariant.stock <= 0;
+                    const selected = productVariant.id === variant?.id;
+                    return (
+                      <button
+                        key={productVariant.id}
+                        type="button"
+                        disabled={unavailable}
+                        onClick={() => {
+                          setSelectedVariantId(productVariant.id);
+                          setQuantity(1);
+                        }}
+                        className={`rounded-xl border px-3 py-3 text-left transition-colors ${
+                          selected ? "border-primary bg-primary/5" : "border-[#d9d9d9]"
+                        } disabled:cursor-not-allowed disabled:opacity-45`}
+                      >
+                        <span className="block text-sm font-bold">
+                          {productVariant.label || `Opción ${index + 1}`}
+                        </span>
+                        <span className="mt-1 block text-xs text-on-surface-variant">
+                          {unavailable ? "Agotado" : `${productVariant.stock} disponibles`} · S/ {productVariant.price.toFixed(2)}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </fieldset>
+            )}
+
+            {groups.length > 0 && (
+              <div className="pt-6" data-testid="product-customize-summary">
+                <h2 className="mb-4 text-xl sm:text-2xl font-black text-on-surface">
+                  Personaliza tu pedido
+                </h2>
+                <ul className="space-y-4" aria-label="Lista de personalización del pedido">
+                  {groups.map((g) => {
+                    const status = groupStatus(g);
+                    const summary = groupSummary(g);
+                    return (
+                      <li
+                        key={g.id}
+                        className="group flex cursor-pointer items-center justify-between gap-4 py-1"
+                        onClick={() => handleEditGroup(g.id)}
+                      >
+                        <div className="min-w-0 flex-1">
+                          <p className="text-base font-black text-on-surface transition-colors group-hover:text-primary">
+                            {g.name}
+                          </p>
+                          <p className="text-xs font-medium text-neutral-500 sm:text-sm">
+                            {summary}
+                          </p>
+                        </div>
+                        <div className="flex shrink-0 items-center gap-2.5">
+                          <span
+                            className={`rounded-md border px-2.5 py-1 text-xs font-bold leading-none ${
+                              status.variant === "completed"
+                                ? "border-green-600 bg-green-50 text-green-700"
+                                : "border-black bg-transparent text-black"
+                            }`}
+                          >
+                            {status.label}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEditGroup(g.id);
+                            }}
+                            aria-label={`Editar ${g.name}`}
+                            className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-black text-white transition-opacity hover:opacity-80 active:scale-95"
+                          >
+                            <PencilIcon />
+                          </button>
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* ── Right Panel: Option Groups (KFC-style accordion) ──────── */}
+        <section className="space-y-4">
+          {groups.map((g) => {
+            const groupSel = selections[g.id] ?? {};
+            const status = groupStatus(g);
+            return (
+              <div
+                key={g.id}
+                className="overflow-hidden rounded-xl border shadow-sm"
+                style={{ borderColor: "#e0e0e0" }}
+                aria-label={`Accordion item ${groups.indexOf(g)}`}
+                data-testid={`product-option-group-${g.id}`}
+                ref={(node) => {
+                  optionGroupRefs.current[g.id] = node;
+                }}
+              >
+                {/* ── Accordion Header ─────────────────────────────── */}
+                <div>
+                  <button
+                    className="flex w-full cursor-pointer flex-col gap-1 p-4 transition-colors hover:bg-gray-50"
+                    onClick={() => toggleGroup(g.id)}
+                    type="button"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-base font-black">{g.name}</span>
+                      </div>
+                      <span
+                        className="text-lg"
+                        style={{
+                          color: "#9ca3af",
+                          transform: expanded[g.id] ? "rotate(180deg)" : "rotate(0deg)",
+                          transition: "transform 0.2s",
+                        }}
+                      >
+                        <ChevronDown />
+                      </span>
+                    </div>
+
+                    {/* ── Subheader ────────────────────────────────── */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-xs" style={{ color: "#6b7280" }}>
+                        {groupSummary(g)}
+                      </div>
+                      <span
+                        className="rounded px-2 py-0.5 text-[10px] leading-normal font-bold uppercase"
+                        style={
+                          status.color === "success"
+                            ? { backgroundColor: "#dcfce7", color: "#15803d" }
+                            : { backgroundColor: "#f3f4f6", color: "#374151" }
+                        }
+                      >
+                        {status.label}
+                      </span>
+                    </div>
+                  </button>
+
+                  {validationErrorGroupId === g.id && (
+                    <div
+                      role="alert"
+                      className="flex items-center gap-2 border-t border-[#fecaca] bg-[#fff1f2] px-4 py-3 text-sm font-semibold text-[#b42318]"
+                    >
+                      <WarningCircleIcon />
+                      <span>Falta completar esta sección</span>
+                    </div>
+                  )}
+
+                  {/* ── Accordion Content ──────────────────────────── */}
+                  {expanded[g.id] && (
+                    <div>
+                      <div className="divide-y" style={{ borderColor: "#e0e0e0" }}>
+                        {g.options.map((opt) => (
+                          <OptionRow
+                            key={opt.id}
+                            option={opt}
+                            group={g}
+                            selectedQty={groupSel[opt.id] ?? 0}
+                            onUpdate={(delta) => updateOption(g.id, opt.id, delta)}
+                            onSelect={() => selectSingle(g.id, opt.id)}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </section>
+      </main>
+
+      {/* ── Sticky Bottom Bar ──────────────────────────────────────── */}
+      <footer
+        className="fixed right-0 bottom-0 left-0 z-[110] border-t bg-white p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] md:p-4"
+        style={{
+          borderColor: "#e0e0e0",
+          boxShadow: "0 -4px 10px rgba(0, 0, 0, 0.05)",
+        }}
+      >
+        <div className="mx-auto grid max-w-7xl grid-cols-2 gap-3 md:flex md:items-center md:gap-4">
+          <fieldset
+            className="flex h-14 sm:h-16 items-center justify-between rounded-xl border border-[#8a8a8a] bg-white px-2.5 sm:px-3 md:w-auto md:shrink-0 md:gap-3"
+            aria-label="Cantidad del producto"
+          >
+            <button
+              type="button"
+              onClick={() => setQuantity((current) => Math.max(1, current - 1))}
+              disabled={quantity === 1}
+              aria-label="Disminuir cantidad del producto"
+              className="flex size-9 sm:size-11 items-center justify-center rounded-lg bg-[#dedede] text-[#666] transition-transform active:scale-90 disabled:cursor-not-allowed disabled:opacity-70"
+            >
+              <MinusIcon decorative />
+            </button>
+            <output
+              className="min-w-6 text-center text-lg sm:text-2xl font-black text-on-surface"
+              aria-live="polite"
+            >
+              {quantity}
+            </output>
+            <button
+              type="button"
+              onClick={() => setQuantity((current) => Math.min(maxQuantity, current + 1))}
+              aria-label="Incrementar cantidad del producto"
+              disabled={isOutOfStock || quantity >= maxQuantity}
+              className={`flex size-9 sm:size-11 items-center justify-center rounded-lg transition-transform active:scale-90 ${
+                isComplete
+                  ? "bg-primary text-white hover:bg-primary/90"
+                  : "bg-[#fee2e2] text-neutral-900 hover:bg-[#fecdd3]"
+              }`}
+            >
+              <PlusIcon />
+            </button>
+          </fieldset>
+
+          <button
+            onClick={handleAdd}
+            disabled={isOutOfStock}
+            aria-disabled={!isComplete || isOutOfStock}
+            className={`flex h-14 sm:h-16 items-center justify-center rounded-xl px-2 text-center text-sm sm:text-base font-black leading-tight tracking-wide transition-all active:scale-[0.98] md:flex-1 ${
+              isComplete && !isOutOfStock
+                ? "border-2 border-primary bg-white text-primary hover:bg-primary/5"
+                : "cursor-not-allowed border border-[#8a8a8a] bg-white text-[#737373]"
+            }`}
+          >
+            Agregar al carrito
+          </button>
+
+          <a
+            href="/checkout"
+            onClick={(event) => {
+              if (!isComplete) {
+                event.preventDefault();
+                focusFirstIncompleteGroup();
+                return;
+              }
+              if (isOutOfStock) {
+                event.preventDefault();
+                return;
+              }
+              handleBuyNow();
+            }}
+            aria-disabled={!isComplete || isOutOfStock}
+            tabIndex={isComplete && !isOutOfStock ? undefined : -1}
+            className={`col-span-2 flex h-14 sm:h-16 items-center justify-center rounded-xl px-3 text-center text-base sm:text-lg font-black transition-all active:scale-[0.98] md:col-span-1 md:flex-1 ${
+              isComplete && !isOutOfStock
+                ? "bg-primary text-white shadow-lg hover:bg-primary/90"
+                : "cursor-not-allowed bg-[#dedede] text-[#737373]"
+            }`}
+            style={{
+              boxShadow: isComplete && !isOutOfStock ? "0 10px 15px -3px rgba(228, 0, 43, 0.3)" : "none",
+            }}
+          >
+            {isOutOfStock ? "Agotado" : `Comprar ahora (S/ ${(unitPrice * quantity).toFixed(2)})`}
+          </a>
+        </div>
+      </footer>
+    </div>
+  );
+}
+
+// ── Option Row Component (KFC-style) ──────────────────────────────────
+
+function OptionRow({
+  option,
+  group,
+  selectedQty,
+  onUpdate,
+  onSelect,
+}: {
+  option: ProductOption;
+  group: ProductOptionGroup;
+  selectedQty: number;
+  onUpdate: (delta: number) => void;
+  onSelect: () => void;
+}) {
+  const isActive = selectedQty > 0;
+  const [isRemoving, setIsRemoving] = useState(false);
+  const removalTimeoutRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (removalTimeoutRef.current !== null) window.clearTimeout(removalTimeoutRef.current);
+    };
+  }, []);
+
+  function handleDecrement() {
+    if (selectedQty !== 1) {
+      onUpdate(-1);
+      return;
+    }
+
+    setIsRemoving(true);
+    removalTimeoutRef.current = window.setTimeout(() => {
+      onUpdate(-1);
+      removalTimeoutRef.current = null;
+    }, 180);
+  }
+
+  if (group.selectionType === "single") {
+    return (
+      <div>
+        <button
+          className="flex w-full cursor-pointer items-center justify-between p-4 transition-colors hover:bg-gray-50"
+          onClick={onSelect}
+          type="button"
+        >
+          <div className="flex items-center gap-3">
+            {option.imageUrl && (
+              <picture>
+                <img
+                  alt={option.name}
+                  width={48}
+                  height={48}
+                  className="h-12 w-12 rounded border object-cover shadow-sm"
+                  style={{ borderColor: "#d1d5db" }}
+                  src={option.imageUrl}
+                  loading="lazy"
+                  decoding="async"
+                />
+              </picture>
+            )}
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-bold">{option.name}</span>
+              {option.priceDelta > 0 && (
+                <span className="text-xs font-bold" style={{ color: "#6b7280" }}>
+                  + S/ {option.priceDelta.toFixed(2)}
+                </span>
+              )}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            {option.priceDelta > 0 && (
+              <span className="text-xs font-bold" style={{ color: "#6b7280" }}>
+                + S/ {option.priceDelta.toFixed(2)}
+              </span>
+            )}
+            <label
+              className="flex cursor-pointer items-center"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div
+                className="flex h-5 w-5 items-center justify-center rounded-full border-2 transition-all"
+                style={{
+                  borderColor: isActive ? "#e4002b" : "#d1d5db",
+                }}
+              >
+                {isActive && (
+                  <div
+                    className="h-2.5 w-2.5 rounded-full"
+                    style={{ backgroundColor: "#e4002b" }}
+                  />
+                )}
+              </div>
+              <input
+                className="sr-only"
+                type="radio"
+                name={group.id}
+                checked={isActive}
+                onChange={onSelect}
+              />
+            </label>
+          </div>
+        </button>
+        <div style={{ borderTop: "1px solid #e0e0e0", marginLeft: 0 }} />
+      </div>
+    );
+  }
+
+  // selectionType === "quantity" — KFC-style counter
+  return (
+    <div>
+      <div className="flex items-center justify-between p-4 transition-colors hover:bg-gray-50">
+        <div className="flex items-center gap-3">
+          {option.imageUrl && (
+            <picture>
+              <img
+                alt={option.name}
+                width={48}
+                height={48}
+                className={`h-12 w-12 rounded border object-cover shadow-sm ${
+                  isActive ? "" : "opacity-50 grayscale"
+                }`}
+                style={{ borderColor: "#d1d5db" }}
+                src={option.imageUrl}
+                loading="lazy"
+                decoding="async"
+              />
+            </picture>
+          )}
+          <div>
+            <span className="text-sm font-bold" style={{ color: isActive ? "#111" : "#9ca3af" }}>
+              {option.name}
+            </span>
+            {option.priceDelta > 0 && (
+              <div className="text-xs font-bold" style={{ color: "#6b7280" }}>
+                + S/ {option.priceDelta.toFixed(2)}
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="flex items-center">
+          {isActive ? (
+            <fieldset
+              className="flex items-center overflow-hidden rounded-lg border bg-white"
+              style={{ borderColor: "#d1d5db" }}
+              aria-label={`Contador de ${option.name}`}
+            >
+              <button
+                onClick={handleDecrement}
+                className={`flex h-8 w-8 items-center justify-center transition-all duration-150 hover:bg-gray-100 active:scale-75 ${
+                  isRemoving ? "scale-75" : ""
+                }`}
+                style={{ color: "#e4002b" }}
+                type="button"
+                aria-label={
+                  selectedQty === 1
+                    ? `Eliminar ${option.name}`
+                    : `Disminuir cantidad de ${option.name}`
+                }
+                disabled={isRemoving}
+              >
+                {selectedQty === 1 ? <TrashIcon /> : <MinusIcon />}
+              </button>
+              <div className="w-10 text-center text-sm font-bold" style={{ color: "#111" }}>
+                {selectedQty}
+              </div>
+              <button
+                onClick={() => onUpdate(1)}
+                className="flex h-8 w-8 items-center justify-center transition-all duration-150 hover:bg-gray-100 active:scale-75"
+                style={{ color: "#e4002b" }}
+                type="button"
+                aria-label={`Incrementar cantidad de ${option.name}`}
+                disabled={false}
+              >
+                <PlusIcon />
+              </button>
+            </fieldset>
+          ) : (
+            <button
+              onClick={() => onUpdate(1)}
+              className="flex h-8 w-8 items-center justify-center rounded-lg text-white shadow-md transition-all duration-150 hover:opacity-90 active:scale-90"
+              style={{ backgroundColor: "#e4002b" }}
+              type="button"
+              aria-label={`Incrementar cantidad de ${option.name}`}
+            >
+              <PlusIcon />
+            </button>
+          )}
+        </div>
+      </div>
+      <div style={{ borderTop: "1px solid #e0e0e0", marginLeft: 0 }} />
+    </div>
+  );
+}

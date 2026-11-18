@@ -59,7 +59,7 @@ export function DeliveryPage({ userId, fullName }: Props) {
       await takeOrder(orderId, userId);
       toast.success("¡Pedido tomado! Ya está en tus entregas.");
     } catch {
-      toast.error("No se pudo tomar el pedido. Intentá de nuevo.");
+      toast.error("No se pudo tomar el pedido. Intenta de nuevo.");
     } finally {
       setTakingId(null);
     }
@@ -163,7 +163,7 @@ export function DeliveryPage({ userId, fullName }: Props) {
                 >
                   moped
                 </span>
-                <p className="text-xs font-bold">No tenés pedidos en curso</p>
+                <p className="text-xs font-bold">No tienes pedidos en curso</p>
               </div>
             ) : (
               <div className="space-y-4">
@@ -193,7 +193,7 @@ function AvailableOrderCard({
   onTake: (id: string) => void;
 }) {
   return (
-    <div className="bg-surface-container-lowest rounded-3xl shadow-[0_12px_40px_rgba(89,65,61,0.08)] overflow-hidden border border-outline-variant/20">
+    <div className="bg-white rounded-3xl shadow-card overflow-hidden border border-[#e5e5e5]">
       <div className="p-5 flex justify-between items-start">
         <div>
           <span className="text-xs font-black tracking-tighter text-on-surface">
@@ -265,7 +265,7 @@ function DeliveryOrderCard({
   const whatsappHref = `https://wa.me/51${order.customer_phone.replace(/\s/g, "")}`;
 
   return (
-    <div className="bg-surface-container-lowest rounded-3xl shadow-[0_12px_40px_rgba(89,65,61,0.08)] overflow-hidden">
+    <div className="bg-white rounded-3xl shadow-card overflow-hidden">
       {/* Header */}
       <div className="p-5 border-b border-outline-variant/15 flex justify-between items-start">
         <div>

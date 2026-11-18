@@ -2,7 +2,29 @@ export interface ProductVariant {
   id: string;
   label: string | null;
   price: number;
+  stock: number;
   sort_order: number;
+}
+
+export interface ProductOption {
+  id: string;
+  name: string;
+  imageUrl: string | null;
+  priceDelta: number;
+  /** true cuando no quedan existencias. La cantidad solo la ve el administrador. */
+  soldOut?: boolean;
+  sortOrder: number;
+}
+
+export interface ProductOptionGroup {
+  id: string;
+  name: string;
+  selectionType: "single" | "quantity";
+  minSelect: number;
+  maxSelect: number | null;
+  isRequired: boolean;
+  sortOrder: number;
+  options: ProductOption[];
 }
 
 export interface Product {
@@ -16,4 +38,5 @@ export interface Product {
   tag?: string | null;
   category: string;
   variants: ProductVariant[];
+  optionGroups?: ProductOptionGroup[];
 }

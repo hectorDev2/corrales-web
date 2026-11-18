@@ -1,4 +1,15 @@
-export { AdminHeader } from "./AdminHeader";
-export { AdminBottomNav } from "./AdminBottomNav";
+export { AdminShell } from "./AdminShell";
+export { PAGE_CONTAINER, PageHeader } from "./PageHeader";
 export { AdminPage } from "./AdminPage";
+export { AdminCategoriesPage } from "./AdminCategoriesPage";
+export { AdminUsersPage } from "./AdminUsersPage";
 export { AdminProductsPage } from "./AdminProductsPage";
+export { AdminReservationsPage } from "./AdminReservationsPage";
+export { AdminTablesPage } from "./AdminTablesPage";
+export { AdminSliderPage } from "./AdminSliderPage";
+export { AdminOrderHistoryPage } from "./AdminOrderHistoryPage";
+export { FacturacionPage } from "./FacturacionPage";
+export { PushNotificationBanner } from "./PushNotificationBanner";
+export { AdminFooterPage } from "./AdminFooterPage";
+export { AdminHomeSavingsPage } from "./AdminHomeSavingsPage";
+export { AdminContentPage } from "./AdminContentPage";

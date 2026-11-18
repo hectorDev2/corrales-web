@@ -13,6 +13,7 @@ import {
 } from "@/lib/api/products";
 import { supabase } from "@/lib/supabase";
 
+import { PAGE_CONTAINER, PageHeader } from "./PageHeader";
 import { ProductForm } from "./ProductForm";
 
 export function AdminProductsPage() {
@@ -82,20 +83,8 @@ export function AdminProductsPage() {
   }
 
   return (
-    <div className="w-full max-w-[390px] mx-auto px-4 space-y-6 py-4 pb-24">
-      {/* Header */}
-      <div className="flex justify-between items-end py-2">
-        <div>
-          <p className="text-xs font-bold uppercase tracking-widest text-secondary">
-            Administración
-          </p>
-          <h2 className="text-2xl font-black tracking-tighter text-on-surface">Productos</h2>
-        </div>
-        <div className="bg-surface-container-high rounded-xl p-2 px-3 text-right">
-          <p className="text-[10px] font-bold text-secondary uppercase">Total</p>
-          <p className="text-sm font-black text-primary">{products.length} items</p>
-        </div>
-      </div>
+    <div className={PAGE_CONTAINER}>
+      <PageHeader eyebrow="Catálogo" title="Productos" help="Aquí agregas, editas y activas lo que vendes. Toca «Editar» para cambiar precio, foto o cantidad disponible." stat={{ label: "Total", value: `${products.length} items` }} />
 
       {/* Lista */}
       <section className="space-y-3">
@@ -119,22 +108,24 @@ export function AdminProductsPage() {
             <p className="font-bold text-sm">Sin productos</p>
           </div>
         ) : (
-          products.map((product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              toggling={togglingId === product.id}
-              onEdit={() => openEdit(product)}
-              onToggle={() => handleToggle(product)}
-            />
-          ))
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {products.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                toggling={togglingId === product.id}
+                onEdit={() => openEdit(product)}
+                onToggle={() => handleToggle(product)}
+              />
+            ))}
+          </div>
         )}
       </section>
 
       {/* FAB */}
       <button
         onClick={openCreate}
-        className="fixed bottom-24 right-4 w-14 h-14 rounded-full bg-primary text-on-primary shadow-xl shadow-primary/30 flex items-center justify-center transition active:scale-90 z-40"
+        className="fixed bottom-24 right-4 h-14 gap-2 pl-4 pr-5 rounded-full bg-primary text-on-primary text-sm font-bold shadow-xl shadow-primary/30 flex items-center justify-center transition active:scale-90 z-40"
       >
         <span
           className="material-symbols-outlined text-2xl"
@@ -142,6 +133,7 @@ export function AdminProductsPage() {
         >
           add
         </span>
+        Nuevo producto
       </button>
 
       {/* Bottom Sheet */}
@@ -151,7 +143,7 @@ export function AdminProductsPage() {
             className="fixed inset-0 bg-scrim/40 z-[60]"
             onClick={closeForm}
           />
-          <div className="fixed inset-x-0 bottom-0 z-[60] max-h-[92dvh] overflow-hidden bg-surface rounded-t-3xl flex flex-col shadow-[0_-16px_60px_rgba(0,0,0,0.2)]">
+          <div className="fixed inset-x-0 bottom-0 z-[60] max-h-[92dvh] overflow-hidden bg-surface rounded-t-3xl flex flex-col shadow-[0_-16px_60px_rgba(0,0,0,0.2)] md:inset-x-auto md:left-1/2 md:-translate-x-1/2 md:top-1/2 md:bottom-auto md:-translate-y-1/2 md:max-h-[92vh] md:rounded-3xl md:max-w-5xl md:w-[calc(100%-3rem)]">
             <div className="flex justify-center pt-3 pb-1">
               <div className="w-10 h-1 rounded-full bg-outline-variant" />
             </div>
@@ -189,6 +181,9 @@ function ProductCard({ product, toggling, onEdit, onToggle }: CardProps) {
       : minPrice === maxPrice
         ? `S/ ${minPrice.toFixed(2)}`
         : `S/ ${minPrice.toFixed(2)} – ${maxPrice.toFixed(2)}`;
+  const stockLabel = activeVariants
+    .map((variant) => `${variant.label || "Único"}: ${variant.stock}`)
+    .join(" · ");
 
   return (
     <div
@@ -220,7 +215,7 @@ function ProductCard({ product, toggling, onEdit, onToggle }: CardProps) {
             </p>
             <span
               className={[
-                "shrink-0 text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full",
+                "shrink-0 text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-full",
                 product.is_active
                   ? "bg-green-100 text-green-700"
                   : "bg-surface-container-high text-on-surface-variant",
@@ -229,12 +224,15 @@ function ProductCard({ product, toggling, onEdit, onToggle }: CardProps) {
               {product.is_active ? "Activo" : "Inactivo"}
             </span>
           </div>
-          <p className="text-[10px] text-secondary font-bold uppercase tracking-wider mt-0.5">
+          <p className="text-xs text-secondary font-bold uppercase tracking-wider mt-0.5">
             {product.category_name}
           </p>
           <p className="text-xs font-bold text-primary mt-1">{priceLabel}</p>
+          <p className={["text-xs font-bold mt-1", activeVariants.some((v) => v.stock > 0) ? "text-on-surface-variant" : "text-error"].join(" ")}>
+            Stock: {stockLabel || "Sin variantes"}
+          </p>
           {product.tag && (
-            <span className="inline-block mt-1 text-[9px] font-bold uppercase tracking-wider bg-tertiary-container text-on-tertiary-container px-2 py-0.5 rounded-full">
+            <span className="inline-block mt-1 text-xs font-bold uppercase tracking-wider bg-tertiary-container text-on-tertiary-container px-2 py-0.5 rounded-full">
               {product.tag}
             </span>
           )}
@@ -245,7 +243,7 @@ function ProductCard({ product, toggling, onEdit, onToggle }: CardProps) {
       <div className="px-4 pb-4 flex gap-2">
         <button
           onClick={onEdit}
-          className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-surface-container-high text-on-surface text-[11px] font-bold uppercase tracking-wider transition active:scale-95"
+          className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-surface-container-high text-on-surface text-xs font-bold uppercase tracking-wider transition active:scale-95"
         >
           <span className="material-symbols-outlined text-sm">edit</span>
           Editar
@@ -254,7 +252,7 @@ function ProductCard({ product, toggling, onEdit, onToggle }: CardProps) {
           onClick={onToggle}
           disabled={toggling}
           className={[
-            "flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-[11px] font-bold uppercase tracking-wider transition active:scale-95 disabled:opacity-40",
+            "flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition active:scale-95 disabled:opacity-40",
             product.is_active
               ? "bg-error-container text-error"
               : "bg-primary/10 text-primary",

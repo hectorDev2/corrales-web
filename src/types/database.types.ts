@@ -12,23 +12,72 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.5"
   }
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
       categories: {
         Row: {
           created_at: string
           id: string
+          is_active: boolean
           name: string
         }
         Insert: {
           created_at?: string
           id?: string
+          is_active?: boolean
           name: string
         }
         Update: {
           created_at?: string
           id?: string
+          is_active?: boolean
           name?: string
+        }
+        Relationships: []
+      }
+      newsletter_subscriptions: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          name: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          name?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string | null
         }
         Relationships: []
       }
@@ -101,6 +150,7 @@ export type Database = {
           order_number: number
           payment_method: Database["public"]["Enums"]["payment_method"]
           status: Database["public"]["Enums"]["order_status"]
+          table_id: string | null
           total: number
           updated_at: string
         }
@@ -117,6 +167,7 @@ export type Database = {
           order_number?: never
           payment_method: Database["public"]["Enums"]["payment_method"]
           status?: Database["public"]["Enums"]["order_status"]
+          table_id?: string | null
           total: number
           updated_at?: string
         }
@@ -133,6 +184,7 @@ export type Database = {
           order_number?: never
           payment_method?: Database["public"]["Enums"]["payment_method"]
           status?: Database["public"]["Enums"]["order_status"]
+          table_id?: string | null
           total?: number
           updated_at?: string
         }
@@ -144,7 +196,53 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "orders_table_id_fkey"
+            columns: ["table_id"]
+            isOneToOne: false
+            referencedRelation: "restaurant_tables"
+            referencedColumns: ["id"]
+          },
         ]
+      }
+      restaurant_tables: {
+        Row: {
+          capacity: number
+          created_at: string
+          id: string
+          is_active: boolean
+          label: string
+          pos_x: number
+          pos_y: number
+          qr_token: string
+          rotation: number
+          zone: string
+        }
+        Insert: {
+          capacity?: number
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          label: string
+          pos_x?: number
+          pos_y?: number
+          qr_token?: string
+          rotation?: number
+          zone?: string
+        }
+        Update: {
+          capacity?: number
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          label?: string
+          pos_x?: number
+          pos_y?: number
+          qr_token?: string
+          rotation?: number
+          zone?: string
+        }
+        Relationships: []
       }
       product_variants: {
         Row: {
@@ -154,6 +252,7 @@ export type Database = {
           price: number
           product_id: string
           sort_order: number
+          stock: number
         }
         Insert: {
           id?: string
@@ -162,6 +261,7 @@ export type Database = {
           price: number
           product_id: string
           sort_order?: number
+          stock?: number
         }
         Update: {
           id?: string
@@ -170,6 +270,7 @@ export type Database = {
           price?: number
           product_id?: string
           sort_order?: number
+          stock?: number
         }
         Relationships: [
           {
@@ -191,6 +292,8 @@ export type Database = {
           image_src: string
           is_active: boolean
           name: string
+          search_terms: string
+          station: string
           tag: string | null
         }
         Insert: {
@@ -202,6 +305,8 @@ export type Database = {
           image_src: string
           is_active?: boolean
           name: string
+          search_terms?: string
+          station?: string
           tag?: string | null
         }
         Update: {
@@ -213,6 +318,8 @@ export type Database = {
           image_src?: string
           is_active?: boolean
           name?: string
+          search_terms?: string
+          station?: string
           tag?: string | null
         }
         Relationships: [
@@ -252,6 +359,105 @@ export type Database = {
         }
         Relationships: []
       }
+      push_subscriptions: {
+        Row: {
+          auth_key: string
+          created_at: string | null
+          endpoint: string
+          id: string
+          p256dh: string
+          user_id: string
+        }
+        Insert: {
+          auth_key: string
+          created_at?: string | null
+          endpoint: string
+          id?: string
+          p256dh: string
+          user_id: string
+        }
+        Update: {
+          auth_key?: string
+          created_at?: string | null
+          endpoint?: string
+          id?: string
+          p256dh?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      corporate_sales_requests: {
+        Row: {
+          additional_information: string | null
+          created_at: string
+          email: string
+          first_name: string
+          id: string
+          last_name: string
+          phone: string
+          privacy_policy_accepted: boolean
+        }
+        Insert: {
+          additional_information?: string | null
+          created_at?: string
+          email: string
+          first_name: string
+          id?: string
+          last_name: string
+          phone: string
+          privacy_policy_accepted?: boolean
+        }
+        Update: {
+          additional_information?: string | null
+          created_at?: string
+          email?: string
+          first_name?: string
+          id?: string
+          last_name?: string
+          phone?: string
+          privacy_policy_accepted?: boolean
+        }
+        Relationships: []
+      }
+      job_applications: {
+        Row: {
+          created_at: string
+          cv_content_type: string
+          cv_file_name: string
+          cv_size_bytes: number
+          cv_storage_path: string
+          email: string
+          full_name: string
+          id: string
+          phone: string | null
+          privacy_policy_accepted: boolean
+        }
+        Insert: {
+          created_at?: string
+          cv_content_type?: string
+          cv_file_name: string
+          cv_size_bytes: number
+          cv_storage_path: string
+          email: string
+          full_name: string
+          id?: string
+          phone?: string | null
+          privacy_policy_accepted?: boolean
+        }
+        Update: {
+          created_at?: string
+          cv_content_type?: string
+          cv_file_name?: string
+          cv_size_bytes?: number
+          cv_storage_path?: string
+          email?: string
+          full_name?: string
+          id?: string
+          phone?: string | null
+          privacy_policy_accepted?: boolean
+        }
+        Relationships: []
+      }
       reservations: {
         Row: {
           created_at: string
@@ -288,6 +494,87 @@ export type Database = {
         }
         Relationships: []
       }
+      complaints: {
+        Row: {
+          address: string
+          amount: number | null
+          consumer_request: string
+          created_at: string
+          detail: string
+          document_number: string
+          document_type: string
+          email: string
+          full_name: string
+          id: string
+          item_description: string
+          item_type: string
+          kind: string
+          number: number
+          phone: string
+          privacy_policy_accepted: boolean
+          status: string
+        }
+        Insert: {
+          address: string
+          amount?: number | null
+          consumer_request: string
+          created_at?: string
+          detail: string
+          document_number: string
+          document_type: string
+          email: string
+          full_name: string
+          id?: string
+          item_description: string
+          item_type: string
+          kind: string
+          number?: number
+          phone: string
+          privacy_policy_accepted: boolean
+          status?: string
+        }
+        Update: {
+          address?: string
+          amount?: number | null
+          consumer_request?: string
+          created_at?: string
+          detail?: string
+          document_number?: string
+          document_type?: string
+          email?: string
+          full_name?: string
+          id?: string
+          item_description?: string
+          item_type?: string
+          kind?: string
+          number?: number
+          phone?: string
+          privacy_policy_accepted?: boolean
+          status?: string
+        }
+        Relationships: []
+      }
+      survey_responses: {
+        Row: {
+          comments: string | null
+          created_at: string
+          id: string
+          rating: string
+        }
+        Insert: {
+          comments?: string | null
+          created_at?: string
+          id?: string
+          rating: string
+        }
+        Update: {
+          comments?: string | null
+          created_at?: string
+          id?: string
+          rating?: string
+        }
+        Relationships: []
+      }
       restaurant_info: {
         Row: {
           id: number
@@ -315,6 +602,152 @@ export type Database = {
         }
         Relationships: []
       }
+      invoice_series: {
+        Row: {
+          id: string
+          type: string
+          series: string
+          current_number: number
+          is_active: boolean
+        }
+        Insert: {
+          id?: string
+          type: string
+          series: string
+          current_number?: number
+          is_active?: boolean
+        }
+        Update: {
+          id?: string
+          type?: string
+          series?: string
+          current_number?: number
+          is_active?: boolean
+        }
+        Relationships: []
+      }
+      invoices: {
+        Row: {
+          id: string
+          order_id: string
+          invoice_type: string
+          series: string
+          number: number
+          customer_doc_type: string
+          customer_doc_number: string
+          customer_business_name: string | null
+          customer_address: string | null
+          total: number
+          sunat_status: string
+          sunat_code: string | null
+          sunat_message: string | null
+          sunat_response: unknown | null
+          pdf_url: string | null
+          xml_url: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          order_id: string
+          invoice_type: string
+          series: string
+          number: number
+          customer_doc_type: string
+          customer_doc_number: string
+          customer_business_name?: string | null
+          customer_address?: string | null
+          total: number
+          sunat_status: string
+          sunat_code?: string | null
+          sunat_message?: string | null
+          sunat_response?: unknown | null
+          pdf_url?: string | null
+          xml_url?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          order_id?: string
+          invoice_type?: string
+          series?: string
+          number?: number
+          customer_doc_type?: string
+          customer_doc_number?: string
+          customer_business_name?: string | null
+          customer_address?: string | null
+          total?: number
+          sunat_status?: string
+          sunat_code?: string | null
+          sunat_message?: string | null
+          sunat_response?: unknown | null
+          pdf_url?: string | null
+          xml_url?: string | null
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoices_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      slider_slides: {
+        Row: {
+          accent_color: string | null
+          bg_gradient: string | null
+          created_at: string | null
+          cta_href: string | null
+          cta_label: string | null
+          eyebrow: string | null
+          icon: string | null
+          id: string
+          image_url: string | null
+          image_url_mobile: string | null
+          is_active: boolean
+          sort_order: number
+          subtitle: string | null
+          title: string | null
+          type: string
+        }
+        Insert: {
+          accent_color?: string | null
+          bg_gradient?: string | null
+          created_at?: string | null
+          cta_href?: string | null
+          cta_label?: string | null
+          eyebrow?: string | null
+          icon?: string | null
+          id?: string
+          image_url?: string | null
+          image_url_mobile?: string | null
+          is_active?: boolean
+          sort_order?: number
+          subtitle?: string | null
+          title?: string | null
+          type?: string
+        }
+        Update: {
+          accent_color?: string | null
+          bg_gradient?: string | null
+          created_at?: string | null
+          cta_href?: string | null
+          cta_label?: string | null
+          eyebrow?: string | null
+          icon?: string | null
+          id?: string
+          image_url?: string | null
+          image_url_mobile?: string | null
+          is_active?: boolean
+          sort_order?: number
+          subtitle?: string | null
+          title?: string | null
+          type?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -334,13 +767,33 @@ export type Database = {
         }
         Returns: number
       }
+      get_table_by_token: {
+        Args: { p_token: string }
+        Returns: { id: string; label: string; zone: string }[]
+      }
+      create_table_order: {
+        Args: {
+          p_table_token: string
+          p_customer_name: string
+          p_customer_notes: string
+          p_items: Json
+        }
+        Returns: number
+      }
+      calculate_order_total: {
+        Args: {
+          p_delivery_type: string
+          p_items: Json
+        }
+        Returns: number
+      }
       current_user_role: {
         Args: never
         Returns: Database["public"]["Enums"]["user_role"]
       }
     }
     Enums: {
-      delivery_type: "delivery" | "pickup"
+      delivery_type: "delivery" | "pickup" | "dine_in"
       order_status:
         | "pendiente"
         | "preparando"
@@ -476,9 +929,12 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {
-      delivery_type: ["delivery", "pickup"],
+      delivery_type: ["delivery", "pickup", "dine_in"],
       order_status: [
         "pendiente",
         "preparando",
@@ -487,7 +943,7 @@ export const Constants = {
         "entregado",
         "cancelado",
       ],
-      payment_method: ["yape", "cash"],
+      payment_method: ["yape", "cash", "culqi"],
       reservation_status: ["pendiente", "confirmada", "cancelada"],
       user_role: ["admin", "delivery"],
     },

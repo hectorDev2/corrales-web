@@ -1,0 +1,241 @@
+"use client";
+
+import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
+
+import { DateRangePicker } from "@/components/ui/date-range-picker";
+import { getOrderHistory } from "@/lib/api/admin";
+import { addDaysISO, todayISO } from "@/lib/dates";
+import type { AdminOrder, AdminOrderStatus } from "@/types/admin";
+
+import { PAGE_CONTAINER, PageHeader } from "./PageHeader";
+
+type StatusFilter = "all" | AdminOrderStatus;
+
+const ALL_STATUSES: AdminOrderStatus[] = [
+  "pendiente",
+  "preparando",
+  "listo",
+  "en_camino",
+  "entregado",
+  "cancelado",
+];
+
+const STATUS_CONFIG: Record<AdminOrderStatus, { label: string; bg: string; text: string }> = {
+  pendiente:  { label: "Por aceptar", bg: "bg-yellow-100", text: "text-yellow-800" },
+  preparando: { label: "Preparando",  bg: "bg-blue-100",   text: "text-blue-700"   },
+  listo:      { label: "Listo",       bg: "bg-green-100",  text: "text-green-700"  },
+  en_camino:  { label: "En Camino",   bg: "bg-purple-100", text: "text-purple-700" },
+  entregado:  { label: "Entregado",   bg: "bg-gray-100",   text: "text-gray-600"   },
+  cancelado:  { label: "Cancelado",   bg: "bg-red-100",    text: "text-red-600"    },
+};
+
+const FILTER_TABS: { value: StatusFilter; label: string }[] = [
+  { value: "all",        label: "Todos"       },
+  { value: "pendiente",  label: "Por aceptar" },
+  { value: "preparando", label: "Preparando"  },
+  { value: "listo",      label: "Listos"      },
+  { value: "en_camino",  label: "En Camino"   },
+  { value: "entregado",  label: "Entregados"  },
+  { value: "cancelado",  label: "Cancelados"  },
+];
+
+const PAYMENT_LABEL: Record<string, string> = {
+  yape: "Yape",
+  cash: "Efectivo",
+  culqi: "Tarjeta",
+};
+
+export function AdminOrderHistoryPage() {
+  const [orders, setOrders] = useState<AdminOrder[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [range, setRange] = useState(() => ({ from: addDaysISO(todayISO(), -6), to: todayISO() }));
+  const { from, to } = range;
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+
+  const fetchHistory = useCallback(async () => {
+    setLoading(true);
+    try {
+      const statuses: AdminOrderStatus[] =
+        statusFilter === "all" ? ALL_STATUSES : [statusFilter];
+      const data = await getOrderHistory(from, to, statuses);
+      setOrders(data);
+    } catch {
+      toast.error("Error al cargar el historial.");
+    } finally {
+      setLoading(false);
+    }
+  }, [from, to, statusFilter]);
+
+  useEffect(() => {
+    fetchHistory();
+  }, [fetchHistory]);
+
+  const totalRevenue = orders
+    .filter((o) => o.status === "entregado")
+    .reduce((sum, o) => sum + o.total, 0);
+
+  return (
+    <div className={PAGE_CONTAINER}>
+      <PageHeader
+        eyebrow="Operación"
+        title="Historial"
+        help="Consulta los pedidos ya terminados. Elige las fechas para ver otro periodo."
+        actions={
+          <button
+            type="button"
+            onClick={fetchHistory}
+            aria-label="Actualizar historial"
+            className="h-11 px-4 gap-2 flex items-center justify-center rounded-2xl bg-surface-container-high text-on-surface-variant text-sm font-bold active:scale-90 transition-all"
+          >
+            <span
+              className="material-symbols-outlined text-xl"
+              style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}
+            >
+              refresh
+            </span>
+            Actualizar
+          </button>
+        }
+      />
+
+      {/* Stats */}
+      <div className="grid grid-cols-3 gap-2 md:gap-4">
+        <div className="bg-surface-container-lowest rounded-2xl p-3 shadow-sm">
+          <p className="text-xs font-bold uppercase tracking-widest text-secondary mb-1">Ingresos</p>
+          <p className="text-base font-black text-primary leading-none">S/ {totalRevenue.toFixed(2)}</p>
+        </div>
+        <div className="bg-surface-container-lowest rounded-2xl p-3 shadow-sm">
+          <p className="text-xs font-bold uppercase tracking-widest text-secondary mb-1">Total</p>
+          <p className="text-base font-black text-on-surface leading-none">{orders.length}</p>
+        </div>
+        <div className="bg-surface-container-lowest rounded-2xl p-3 shadow-sm">
+          <p className="text-xs font-bold uppercase tracking-widest text-secondary mb-1">Cancelados</p>
+          <p className="text-base font-black text-error leading-none">
+            {orders.filter((o) => o.status === "cancelado").length}
+          </p>
+        </div>
+      </div>
+
+      {/* Filters */}
+      <div className="bg-surface-container-lowest rounded-3xl p-4 shadow-sm space-y-3">
+        <DateRangePicker value={range} onChange={setRange} label="Período" />
+
+        {/* Status tabs — scrollable */}
+        <div className="flex gap-1.5 overflow-x-auto scrollbar-none pb-0.5">
+          {FILTER_TABS.map((tab) => (
+            <button
+              key={tab.value}
+              onClick={() => setStatusFilter(tab.value)}
+              className={`shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all ${
+                statusFilter === tab.value
+                  ? "bg-primary text-on-primary shadow-sm"
+                  : "bg-surface-container-high text-on-surface-variant"
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Order list */}
+      <section className="pb-32">
+        {loading ? (
+          <div className="flex justify-center py-16">
+            <span
+              className="material-symbols-outlined text-4xl text-outline animate-spin"
+              style={{ fontVariationSettings: "'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 48" }}
+            >
+              progress_activity
+            </span>
+          </div>
+        ) : orders.length === 0 ? (
+          <div className="flex flex-col items-center py-16 text-on-surface-variant gap-3">
+            <span
+              className="material-symbols-outlined text-5xl text-outline"
+              style={{ fontVariationSettings: "'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 48" }}
+            >
+              history
+            </span>
+            <p className="font-bold text-sm">Sin resultados para este período</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            {orders.map((order) => (
+              <HistoryOrderCard key={order.id} order={order} />
+            ))}
+          </div>
+        )}
+      </section>
+    </div>
+  );
+}
+
+function HistoryOrderCard({ order }: { order: AdminOrder }) {
+  const { label, bg, text } = STATUS_CONFIG[order.status];
+
+  const createdAt = new Date(order.created_at).toLocaleString("es-PE", {
+    day: "2-digit",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
+  return (
+    <div className="bg-surface-container-lowest rounded-2xl shadow-sm overflow-hidden">
+      <div className="p-4 flex justify-between items-start">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+            <span className="text-xs font-black tracking-tighter text-on-surface">
+              #{order.order_number}
+            </span>
+            <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider ${bg} ${text}`}>
+              {label}
+            </span>
+            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-surface-container-high text-secondary">
+              {order.delivery_type === "delivery"
+                ? "Delivery"
+                : order.delivery_type === "dine_in"
+                  ? `Mesa ${order.table_label ?? "?"}`
+                  : "Recojo"}
+            </span>
+          </div>
+
+          <p className="text-sm font-bold text-on-surface truncate">{order.customer_name}</p>
+          <p className="text-xs text-on-surface-variant mt-0.5">{createdAt}</p>
+
+          <div className="mt-2 text-xs text-on-surface-variant space-y-0.5">
+            {order.items.map((item) => (
+              <p key={item.id}>
+                <span className="font-black text-primary">{item.quantity}x</span>{" "}
+                {item.product_name}
+                {item.variant_label && (
+                  <span className="text-on-surface-variant/70"> ({item.variant_label})</span>
+                )}
+              </p>
+            ))}
+          </div>
+        </div>
+
+        <div className="text-right ml-3 shrink-0">
+          <p className="text-base font-black text-primary">S/ {order.total.toFixed(2)}</p>
+          <p className="text-xs text-on-surface-variant mt-0.5">
+            {PAYMENT_LABEL[order.payment_method] ?? order.payment_method}
+          </p>
+          {order.assigned_profile && (
+            <p className="text-xs text-on-surface-variant mt-1 flex items-center justify-end gap-0.5">
+              <span
+                className="material-symbols-outlined text-xs text-primary"
+                style={{ fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}
+              >
+                delivery_dining
+              </span>
+              {order.assigned_profile.full_name}
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
