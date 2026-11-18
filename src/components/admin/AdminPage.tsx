@@ -80,7 +80,7 @@ export function AdminPage() {
 
   return (
     <div className={PAGE_CONTAINER}>
-      <PageHeader eyebrow="Operación" title="Pedidos" description="Pedidos que están entrando. Avanza cada uno con su botón hasta entregarlo." stat={{ label: "Activos", value: activeOrders.length }} />
+      <PageHeader eyebrow="Operación" title="Pedidos" help="Pedidos que están entrando. Avanza cada uno con su botón hasta entregarlo." stat={{ label: "Activos", value: activeOrders.length }} />
 
       {/* Push notifications */}
       <PushNotificationBanner />

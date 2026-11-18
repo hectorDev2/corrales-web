@@ -80,7 +80,7 @@ export function AdminOrderHistoryPage() {
       <PageHeader
         eyebrow="Operación"
         title="Historial"
-        description="Consulta los pedidos ya terminados. Elige las fechas para ver otro periodo."
+        help="Consulta los pedidos ya terminados. Elige las fechas para ver otro periodo."
         actions={
           <button
             type="button"

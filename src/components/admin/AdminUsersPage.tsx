@@ -80,7 +80,7 @@ export function AdminUsersPage() {
   return (
     <div className={PAGE_CONTAINER}>
       {confirmDialog}
-      <PageHeader eyebrow="Sitio" title="Repartidores" description="Personas que entregan los pedidos a domicilio. Desactiva a quien ya no trabaje." stat={{ label: "Activos", value: active.length }} />
+      <PageHeader eyebrow="Sitio" title="Repartidores" help="Personas que entregan los pedidos a domicilio. Desactiva a quien ya no trabaje." stat={{ label: "Activos", value: active.length }} />
 
       {/* Botón nuevo usuario */}
       <button

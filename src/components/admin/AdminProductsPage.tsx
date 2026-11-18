@@ -84,7 +84,7 @@ export function AdminProductsPage() {
 
   return (
     <div className={PAGE_CONTAINER}>
-      <PageHeader eyebrow="Catálogo" title="Productos" description="Aquí agregas, editas y activas lo que vendes. Toca «Editar» para cambiar precio, foto o cantidad disponible." stat={{ label: "Total", value: `${products.length} items` }} />
+      <PageHeader eyebrow="Catálogo" title="Productos" help="Aquí agregas, editas y activas lo que vendes. Toca «Editar» para cambiar precio, foto o cantidad disponible." stat={{ label: "Total", value: `${products.length} items` }} />
 
       {/* Lista */}
       <section className="space-y-3">

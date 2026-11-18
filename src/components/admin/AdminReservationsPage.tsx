@@ -77,7 +77,7 @@ export function AdminReservationsPage() {
 
   return (
     <div className={PAGE_CONTAINER.replace("max-w-7xl", "max-w-[110rem]")}>
-      <PageHeader eyebrow="Operación" title="Reservas" description="Confirma o cancela las reservas de mesa que piden tus clientes." stat={{ label: "Pendientes", value: pending.length }} />
+      <PageHeader eyebrow="Operación" title="Reservas" help="Confirma o cancela las reservas de mesa que piden tus clientes." stat={{ label: "Pendientes", value: pending.length }} />
 
       {loading ? (
         <div className="flex justify-center py-16">

@@ -113,7 +113,7 @@ export function AdminCategoriesPage() {
   return (
     <div className={PAGE_CONTAINER}>
       {confirmDialog}
-      <PageHeader eyebrow="Catálogo" title="Categorías" description="Agrupa tus productos para que el cliente los encuentre fácil en el menú." stat={{ label: "Total", value: categories.length }} />
+      <PageHeader eyebrow="Catálogo" title="Categorías" help="Agrupa tus productos para que el cliente los encuentre fácil en el menú." stat={{ label: "Total", value: categories.length }} />
 
       {/* Nueva categoría */}
       <div className="bg-surface-container-low p-4 rounded-3xl space-y-3">

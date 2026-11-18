@@ -70,7 +70,7 @@ export function AdminTablesPage() {
       <PageHeader
         eyebrow="Operación"
         title="Mesas"
-        description="Toca una mesa para ver su pedido. En «Mesas y QR» imprimes los códigos que el cliente escanea."
+        help="Toca una mesa para ver su pedido. En «Mesas y QR» imprimes los códigos que el cliente escanea."
         actions={
         <div className="bg-surface-container-high flex rounded-xl p-1">
             {(["mapa", "qr"] as const).map((t) => (
