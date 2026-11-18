@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useId, useMemo, useRef, useState } from "react";
+import dynamic from "next/dynamic";
+import { Component, type ReactNode, useEffect, useId, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { updateOrderStatus } from "@/lib/api/admin";
@@ -11,38 +12,37 @@ import {
   updateTable,
 } from "@/lib/api/tables";
 
+import { STATE_CONFIG, type TableState, getTableState, minutesSince } from "./table-state";
+
+// Escena 3D real (Three.js). Se carga solo en el navegador y solo cuando se usa.
+const TableScene3D = dynamic(() => import("./TableScene3D"), {
+  ssr: false,
+  loading: () => (
+    <div className="text-on-surface-variant flex h-full items-center justify-center gap-2 text-sm font-bold">
+      <span className="material-symbols-outlined animate-spin">progress_activity</span>
+      Cargando salón 3D…
+    </div>
+  ),
+});
+
+/** Si el equipo no soporta WebGL, muestra el mapa anterior en lugar de romper la pantalla. */
+class WebGLBoundary extends Component<{ fallback: ReactNode; children: ReactNode }, { failed: boolean }> {
+  state = { failed: false };
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+  render() {
+    return this.state.failed ? this.props.fallback : this.props.children;
+  }
+}
+
 // ─── Estados ──────────────────────────────────────────────────────────────────
-
-type TableState = "libre" | "pendiente" | "preparando" | "listo";
-
-const STATE_CONFIG: Record<
-  TableState,
-  { label: string; chip: string; dot: string; top: string; edge: string; halo: string; icon: string }
-> = {
-  libre:      { label: "Libre",             chip: "bg-surface-container-high text-on-surface-variant", dot: "bg-outline",    top: "#e0c49a", edge: "#b8925c", halo: "",        icon: "check_circle" },
-  pendiente:  { label: "Pedido nuevo",      chip: "bg-yellow-100 text-yellow-800",                      dot: "bg-yellow-500", top: "#fcd34d", edge: "#d99a06", halo: "#f59e0b", icon: "notifications_active" },
-  preparando: { label: "En preparación",    chip: "bg-blue-100 text-blue-700",                          dot: "bg-blue-500",   top: "#93c5fd", edge: "#3b82f6", halo: "#2563eb", icon: "skillet" },
-  listo:      { label: "Listo para servir", chip: "bg-green-100 text-green-700",                        dot: "bg-green-500",  top: "#86efac", edge: "#22a05a", halo: "#16a34a", icon: "room_service" },
-};
 
 const ORDER_STEPS = ["Recibido", "Preparando", "Listo", "Servido"] as const;
 const STEP_INDEX: Record<TableState, number> = { libre: 0, pendiente: 0, preparando: 1, listo: 2 };
 
-const STATE_PRIORITY: TableState[] = ["pendiente", "preparando", "listo"];
-
-function getTableState(orders: TableActiveOrder[]): TableState {
-  for (const s of STATE_PRIORITY) {
-    if (orders.some((o) => o.status === s)) return s;
-  }
-  return "libre";
-}
-
 function clamp(n: number, min: number, max: number) {
   return Math.min(max, Math.max(min, n));
-}
-
-function minutesSince(iso: string, now: number) {
-  return Math.max(0, Math.floor((now - new Date(iso).getTime()) / 60000));
 }
 
 function useNow(intervalMs: number) {
@@ -462,6 +462,28 @@ export function TableMap({
             selectedId={selectedId}
             onSelect={setSelectedId}
           />
+        ) : !editMode ? (
+          <div className="border-outline-variant/30 relative aspect-[4/3] w-full overflow-hidden rounded-3xl border bg-[#f4ede4] md:aspect-[16/11]">
+            <WebGLBoundary
+              fallback={
+                <p className="text-on-surface-variant flex h-full items-center justify-center p-6 text-center text-sm font-bold">
+                  Este equipo no puede mostrar el salón en 3D. Usa la vista «Lista».
+                </p>
+              }
+            >
+              <TableScene3D
+                tables={visible}
+                ordersByTable={ordersByTable}
+                filter={filter}
+                now={now}
+                selectedId={selectedId}
+                onSelect={setSelectedId}
+              />
+            </WebGLBoundary>
+            <p className="pointer-events-none absolute bottom-3 left-3 rounded-full bg-white/85 px-3 py-1 text-[11px] font-bold text-[#5b4636] shadow">
+              Arrastra para girar · rueda o pellizco para acercar
+            </p>
+          </div>
         ) : (
         <div
           className="bg-surface-container-low border-outline-variant/30 relative aspect-[16/11] w-full overflow-hidden rounded-3xl border"
