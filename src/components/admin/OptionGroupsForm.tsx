@@ -17,6 +17,7 @@ interface OptionForm {
   _id?: string;
   name: string;
   price_delta: number;
+  stock: number | null;
   image_url: string;
 }
 
@@ -56,7 +57,7 @@ function emptyGroup(): GroupForm {
 }
 
 function emptyOption(): OptionForm {
-  return { _key: nextKey(), name: "", price_delta: 0, image_url: "" };
+  return { _key: nextKey(), name: "", price_delta: 0, stock: null, image_url: "" };
 }
 
 // ─── Component ─────────────────────────────────────────────────────────────────
@@ -87,6 +88,7 @@ export function OptionGroupsForm({ productId, onSaved }: Props) {
               _id: o.id,
               name: o.name,
               price_delta: o.price_delta,
+              stock: o.stock ?? null,
               image_url: o.image_url ?? "",
             })),
           })),
@@ -154,15 +156,15 @@ export function OptionGroupsForm({ productId, onSaved }: Props) {
         if (g._id && !groups.find((gg) => gg._id === g._id)) {
           deletedGroupIds.push(g._id);
         }
-        const newOptions: Array<{ name: string; price_delta: number; image_url: string; sort_order: number }> = [];
-        const updatedOptions: Array<{ id: string; name: string; price_delta: number; image_url: string; sort_order: number }> = [];
+        const newOptions: Array<{ name: string; price_delta: number; stock: number | null; image_url: string; sort_order: number }> = [];
+        const updatedOptions: Array<{ id: string; name: string; price_delta: number; stock: number | null; image_url: string; sort_order: number }> = [];
         const deletedOptionIds: string[] = [];
 
         g.options.forEach((o, oi) => {
           if (o._id) {
-            updatedOptions.push({ id: o._id, name: o.name, price_delta: o.price_delta, image_url: o.image_url, sort_order: oi });
+            updatedOptions.push({ id: o._id, name: o.name, price_delta: o.price_delta, stock: o.stock, image_url: o.image_url, sort_order: oi });
           } else {
-            newOptions.push({ name: o.name, price_delta: o.price_delta, image_url: o.image_url, sort_order: oi });
+            newOptions.push({ name: o.name, price_delta: o.price_delta, stock: o.stock, image_url: o.image_url, sort_order: oi });
           }
         });
 
@@ -499,6 +501,25 @@ function OptionImageRow({
           }
           placeholder="+S/ 0.00"
           className="w-full bg-surface-container-high rounded-lg px-2 py-1.5 text-xs text-on-surface text-right focus:outline-none focus:ring-2 focus:ring-primary/20"
+        />
+      </div>
+      <div className="w-16">
+        <input
+          type="number"
+          step="1"
+          min={0}
+          value={opt.stock ?? ""}
+          onChange={(e) =>
+            updateOption(groupKey, opt._key, {
+              stock: e.target.value === "" ? null : Math.max(0, Math.floor(Number(e.target.value))),
+            })
+          }
+          placeholder="Stock ∞"
+          aria-label={`Stock de ${opt.name || "la opción"} (vacío = sin límite)`}
+          title="Stock disponible. Vacío = sin límite."
+          className={`w-full rounded-lg px-2 py-1.5 text-xs text-right focus:outline-none focus:ring-2 focus:ring-primary/20 ${
+            opt.stock === 0 ? "bg-error-container text-error font-bold" : "bg-surface-container-high text-on-surface"
+          }`}
         />
       </div>
       <button

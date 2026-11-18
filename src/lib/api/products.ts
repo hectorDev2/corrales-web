@@ -56,6 +56,7 @@ export interface AdminOption {
   name: string;
   image_url: string | null;
   price_delta: number;
+  stock: number | null;
   sort_order: number;
 }
 
@@ -233,7 +234,7 @@ export async function getAdminOptionGroups(
     .from("product_option_groups")
     .select(`
       id, name, selection_type, min_select, max_select, is_required, sort_order,
-      product_options ( id, name, image_url, price_delta, sort_order )
+      product_options ( id, name, image_url, price_delta, stock, sort_order )
     `)
     .eq("product_id", productId)
     .order("sort_order");
@@ -254,6 +255,7 @@ export async function getAdminOptionGroups(
       name: string;
       image_url: string | null;
       price_delta: number;
+      stock: number | null;
       sort_order: number;
     }>).sort((a, b) => a.sort_order - b.sort_order),
   }));
@@ -269,8 +271,8 @@ export async function saveOptionGroups(
     max_select: number | null;
     is_required: boolean;
     sort_order: number;
-    newOptions: Array<{ name: string; price_delta: number; image_url: string; sort_order: number }>;
-    updatedOptions: Array<{ id: string; name: string; price_delta: number; image_url: string; sort_order: number }>;
+    newOptions: Array<{ name: string; price_delta: number; stock: number | null; image_url: string; sort_order: number }>;
+    updatedOptions: Array<{ id: string; name: string; price_delta: number; stock: number | null; image_url: string; sort_order: number }>;
     deletedOptionIds: string[];
   }>,
   deletedGroupIds: string[],
@@ -330,6 +332,7 @@ export async function saveOptionGroups(
         .update({
           name: opt.name,
           price_delta: opt.price_delta,
+          stock: opt.stock,
           image_url: opt.image_url || null,
           sort_order: opt.sort_order,
         })
@@ -343,6 +346,7 @@ export async function saveOptionGroups(
           group_id: group.id,
           name: o.name,
           price_delta: o.price_delta,
+          stock: o.stock,
           image_url: o.image_url || null,
           sort_order: o.sort_order,
         })),
@@ -620,7 +624,7 @@ async function fetchOptionGroups(
       max_select,
       is_required,
       sort_order,
-      product_options ( id, name, image_url, price_delta, sort_order )
+      product_options ( id, name, image_url, price_delta, stock, sort_order )
     `)
     .eq("product_id", productId)
     .order("sort_order");
@@ -640,6 +644,7 @@ async function fetchOptionGroups(
       name: string;
       image_url: string | null;
       price_delta: number;
+      stock: number | null;
       sort_order: number;
     }>)
       .sort((a, b) => a.sort_order - b.sort_order)
@@ -648,6 +653,7 @@ async function fetchOptionGroups(
         name: o.name,
         imageUrl: o.image_url,
         priceDelta: o.price_delta,
+        stock: o.stock ?? null,
         sortOrder: o.sort_order,
       })),
   }));

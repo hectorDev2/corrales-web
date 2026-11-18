@@ -11,6 +11,8 @@ export interface ProductOption {
   name: string;
   imageUrl: string | null;
   priceDelta: number;
+  /** null = sin control de stock; 0 = agotado. */
+  stock?: number | null;
   sortOrder: number;
 }
 
