@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { updateOrderStatus } from "@/lib/api/admin";
@@ -105,13 +105,30 @@ function TableGraphic({
           return { x: 60 + Math.cos(a) * dx, y: 52 + Math.sin(a) * dy, back: Math.sin(a) < 0 };
         });
 
+  const uid = useId().replace(/:/g, "");
+  const topLight = mix(top, "#ffffff", 0.45);
+  const edgeDark = mix(edge, "#000000", 0.18);
+
   const chair = (c: { x: number; y: number }, i: number) => (
     <g key={i}>
-      <ellipse cx={c.x} cy={c.y + 4} rx={8} ry={4} fill="#000" opacity={0.12} />
-      <rect x={c.x - 7} y={c.y - 7} width={14} height={11} rx={4} fill="#6b5b4b" />
-      <rect x={c.x - 7} y={c.y - 10} width={14} height={4} rx={2} fill="#4a3d31" />
+      <ellipse cx={c.x} cy={c.y + 5} rx={8.5} ry={3.6} fill="#000" opacity={0.16} />
+      {/* respaldo */}
+      <rect x={c.x - 7} y={c.y - 11} width={14} height={7} rx={3} fill="#5a4030" />
+      <rect x={c.x - 5.5} y={c.y - 10} width={11} height={2} rx={1} fill="#fff" opacity={0.14} />
+      {/* asiento acolchado */}
+      <rect x={c.x - 7.5} y={c.y - 6} width={15} height={11} rx={5} fill="#a8322b" />
+      <rect x={c.x - 7.5} y={c.y - 6} width={15} height={11} rx={5} fill={`url(#${uid}-cush)`} />
     </g>
   );
+
+  // Platos puestos delante de cada silla, para que se lea como una mesa servida.
+  const plates = chairs.map((c) => {
+    const vx = c.x - 60;
+    const vy = c.y - 53;
+    const len = Math.hypot(vx / (rx + 8), vy / (ry + 6)) || 1;
+    const k = 0.58 / len;
+    return { x: 60 + (vx / (rx + 8)) * (rx + 8) * k * 0.9, y: 53 + (vy / (ry + 6)) * (ry + 6) * k * 0.9 };
+  });
 
   return (
     <svg
@@ -120,42 +137,97 @@ function TableGraphic({
       aria-hidden="true"
       style={{ overflow: "visible" }}
     >
+      <defs>
+        <linearGradient id={`${uid}-top`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor={topLight} />
+          <stop offset="1" stopColor={top} />
+        </linearGradient>
+        <linearGradient id={`${uid}-edge`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor={edge} />
+          <stop offset="1" stopColor={edgeDark} />
+        </linearGradient>
+        <linearGradient id={`${uid}-cush`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#fff" stopOpacity="0.28" />
+          <stop offset="1" stopColor="#000" stopOpacity="0.12" />
+        </linearGradient>
+        <radialGradient id={`${uid}-shadow`}>
+          <stop offset="0" stopColor="#000" stopOpacity="0.32" />
+          <stop offset="1" stopColor="#000" stopOpacity="0" />
+        </radialGradient>
+        <clipPath id={`${uid}-clip`}>
+          <ellipse cx={60} cy={53} rx={rx} ry={ry} />
+        </clipPath>
+      </defs>
+
       {halo && (
         <ellipse
           cx={60}
           cy={72}
-          rx={56}
-          ry={30}
+          rx={rx + 22}
+          ry={ry + 14}
           fill={halo}
-          opacity={0.28}
+          opacity={0.22}
           stroke={halo}
           strokeWidth={2.5}
-          strokeOpacity={0.9}
+          strokeOpacity={0.85}
+          strokeDasharray="5 4"
         />
       )}
-      <ellipse cx={60} cy={84} rx={rx + 8} ry={9} fill="#000" opacity={0.15} />
+      <ellipse cx={60} cy={82} rx={rx + 14} ry={11} fill={`url(#${uid}-shadow)`} />
+
       {chairs.filter((c) => c.back).map(chair)}
+
       {/* patas */}
-      <rect x={60 - rx * 0.7} y={58} width={5} height={22} rx={2} fill="#5a4636" />
-      <rect x={60 + rx * 0.7 - 5} y={58} width={5} height={22} rx={2} fill="#5a4636" />
+      <rect x={60 - rx * 0.7} y={58} width={5} height={22} rx={2} fill="#4e3a2b" />
+      <rect x={60 + rx * 0.7 - 5} y={58} width={5} height={22} rx={2} fill="#4e3a2b" />
+
       {/* canto y tapa */}
-      <ellipse cx={60} cy={59} rx={rx} ry={ry} fill={edge} />
-      <ellipse cx={60} cy={53} rx={rx} ry={ry} fill={top} stroke={edge} strokeWidth={1.5} />
-      <ellipse cx={60 - rx * 0.3} cy={47} rx={rx * 0.45} ry={ry * 0.25} fill="#fff" opacity={0.22} />
+      <ellipse cx={60} cy={60} rx={rx} ry={ry} fill={`url(#${uid}-edge)`} />
+      <ellipse cx={60} cy={53} rx={rx} ry={ry} fill={`url(#${uid}-top)`} stroke={edge} strokeWidth={1.2} />
+      {/* veta de la madera */}
+      <g clipPath={`url(#${uid}-clip)`} opacity={0.16} stroke={edgeDark} strokeWidth={0.8} fill="none">
+        <path d={`M${60 - rx} ${53 - ry * 0.35} Q60 ${53 - ry * 0.7} ${60 + rx} ${53 - ry * 0.3}`} />
+        <path d={`M${60 - rx} ${53 + ry * 0.1} Q60 ${53 - ry * 0.2} ${60 + rx} ${53 + ry * 0.15}`} />
+        <path d={`M${60 - rx} ${53 + ry * 0.55} Q60 ${53 + ry * 0.3} ${60 + rx} ${53 + ry * 0.6}`} />
+      </g>
+      <ellipse cx={60} cy={53} rx={rx - 3} ry={ry - 2} fill="none" stroke="#fff" strokeOpacity={0.35} strokeWidth={0.8} />
+
+      {/* platos */}
+      {plates.map((pl, i) => (
+        <g key={i}>
+          <ellipse cx={pl.x} cy={pl.y + 0.8} rx={4.6} ry={2.2} fill="#000" opacity={0.15} />
+          <ellipse cx={pl.x} cy={pl.y} rx={4.6} ry={2.2} fill="#fff" />
+          <ellipse cx={pl.x} cy={pl.y} rx={2.6} ry={1.2} fill="#e9e4dc" />
+        </g>
+      ))}
+
+      {/* número de mesa en una placa legible */}
+      <ellipse cx={60} cy={54} rx={11.5} ry={7.5} fill="#fff" opacity={0.92} stroke={edge} strokeWidth={0.8} />
       <text
         x={60}
-        y={59}
+        y={59.2}
         textAnchor="middle"
-        fontSize={19}
+        fontSize={label.length > 2 ? 11 : 14}
         fontWeight={900}
         fill="#2b2118"
         style={{ fontFamily: "inherit" }}
       >
         {label}
       </text>
+
       {chairs.filter((c) => !c.back).map(chair)}
     </svg>
   );
+}
+
+/** Mezcla dos colores hex: amount=0 devuelve `a`, 1 devuelve `b`. */
+function mix(a: string, b: string, amount: number) {
+  const p = (h: string, i: number) => parseInt(h.slice(1 + i * 2, 3 + i * 2), 16);
+  const c = (i: number) =>
+    Math.round(p(a, i) + (p(b, i) - p(a, i)) * amount)
+      .toString(16)
+      .padStart(2, "0");
+  return `#${c(0)}${c(1)}${c(2)}`;
 }
 
 // ─── Mapa ─────────────────────────────────────────────────────────────────────
