@@ -221,6 +221,8 @@ export interface FooterSettings {
 export interface SiteSettings {
   id: number;
   footer: FooterSettings;
+  /** Tema de temporada; ver `resolveThemeSettings`. */
+  theme?: unknown;
   updated_at: string;
 }
 

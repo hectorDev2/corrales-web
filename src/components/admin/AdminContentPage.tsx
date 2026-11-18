@@ -5,10 +5,13 @@ import { useState } from "react";
 import type { CategoryOption } from "@/lib/api/products";
 import { resolveHomeSavingsSettings, type SiteSettings } from "@/lib/api/settings";
 import type { SliderSlide } from "@/lib/api/slider";
+import { resolveThemeSettings } from "@/lib/theme";
 
 import { AdminFooterPage } from "./AdminFooterPage";
 import { AdminHomeSavingsPage } from "./AdminHomeSavingsPage";
 import { AdminSliderPage } from "./AdminSliderPage";
+import { AdminThemePage } from "./AdminThemePage";
+import { PAGE_CONTAINER, PageHeader } from "./PageHeader";
 
 interface Props {
   initialSlides: SliderSlide[];
@@ -20,6 +23,7 @@ const TABS = [
   { id: "slider", label: "Slider", icon: "slideshow" },
   { id: "home", label: "Inicio", icon: "home" },
   { id: "footer", label: "Footer", icon: "bottom_panel_open" },
+  { id: "temporada", label: "Temporada", icon: "celebration" },
 ] as const;
 
 type TabId = (typeof TABS)[number]["id"];
@@ -29,8 +33,12 @@ export function AdminContentPage({ initialSlides, initialSettings, categories }:
 
   return (
     <div>
+      <div className={PAGE_CONTAINER + " pb-0 md:pb-0"}>
+        <PageHeader eyebrow="Sitio" title="Contenido" description="Slider, página de inicio y pie de página" />
+      </div>
+
       {/* Tabs */}
-      <div className="border-outline-variant/30 sticky top-0 z-10 border-b bg-white/90 backdrop-blur-sm">
+      <div className="border-outline-variant/30 sticky top-16 z-10 border-b bg-white/90 backdrop-blur-sm lg:top-0">
         <div className="flex [scrollbar-width:none] gap-1 overflow-x-auto px-4 pt-4 pb-0">
           {TABS.map((tab) => (
             <button
@@ -70,6 +78,9 @@ export function AdminContentPage({ initialSlides, initialSettings, categories }:
       </div>
       <div className={activeTab === "footer" ? "block" : "hidden"}>
         <AdminFooterPage initial={initialSettings} />
+      </div>
+      <div className={activeTab === "temporada" ? "block" : "hidden"}>
+        <AdminThemePage initial={resolveThemeSettings(initialSettings.theme)} />
       </div>
     </div>
   );

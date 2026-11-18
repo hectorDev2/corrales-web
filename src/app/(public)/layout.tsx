@@ -1,5 +1,4 @@
 import { CartDrawer } from "@/components/cart";
-import { TableBanner } from "@/components/mesa";
 import {
   AnnouncementBar,
   BottomNav,
@@ -9,6 +8,8 @@ import {
   PublicFooter,
   SubHeader,
 } from "@/components/layout";
+import { TableBanner } from "@/components/mesa";
+import { SeasonalTheme } from "@/components/theme";
 
 export default function PublicLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -23,6 +24,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
       <BottomNav />
       <LocationModal />
       <LocationBanner />
+      <SeasonalTheme />
     </>
   );
 }
