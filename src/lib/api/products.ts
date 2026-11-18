@@ -653,7 +653,7 @@ async function fetchOptionGroups(
         name: o.name,
         imageUrl: o.image_url,
         priceDelta: o.price_delta,
-        stock: o.stock ?? null,
+        soldOut: o.stock != null && o.stock <= 0,
         sortOrder: o.sort_order,
       })),
   }));

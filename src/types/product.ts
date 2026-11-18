@@ -11,8 +11,8 @@ export interface ProductOption {
   name: string;
   imageUrl: string | null;
   priceDelta: number;
-  /** null = sin control de stock; 0 = agotado. */
-  stock?: number | null;
+  /** true cuando no quedan existencias. La cantidad solo la ve el administrador. */
+  soldOut?: boolean;
   sortOrder: number;
 }
 

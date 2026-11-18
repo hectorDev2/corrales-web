@@ -67,7 +67,7 @@ function OptionRow({
   onIncrement,
   onDecrement,
   isAtMax,
-  stock,
+  soldOut,
 }: {
   optionId: string;
   name: string;
@@ -78,12 +78,9 @@ function OptionRow({
   onIncrement: () => void;
   onDecrement: () => void;
   isAtMax: boolean;
-  stock: number | null;
+  soldOut: boolean;
 }) {
   const isSelected = quantity > 0;
-  const soldOut = stock !== null && stock <= 0;
-  const atStockLimit = stock !== null && quantity >= stock;
-  const lowStock = stock !== null && stock > 0 && stock <= 5;
 
   if (selectionType === "single") {
     return (
@@ -109,8 +106,7 @@ function OptionRow({
         )}
         <div className="flex-1 text-left">
           <span className="text-sm font-bold text-on-surface">{name}</span>
-          {soldOut && <p className="text-[11px] font-bold text-error">No disponible</p>}
-          {lowStock && <p className="text-[11px] font-bold text-amber-600">¡Quedan {stock}!</p>}
+          {soldOut && <p className="text-[11px] font-bold text-error">Agotado</p>}
           {!soldOut && priceDelta > 0 && (
             <p className="text-[11px] text-primary font-bold">
               + S/ {priceDelta.toFixed(2)}
@@ -143,8 +139,7 @@ function OptionRow({
       )}
       <div className="flex-1 min-w-0">
         <p className="text-sm font-bold text-on-surface truncate">{name}</p>
-        {soldOut && <p className="text-[11px] font-bold text-error">No disponible</p>}
-        {lowStock && <p className="text-[11px] font-bold text-amber-600">¡Quedan {stock}!</p>}
+        {soldOut && <p className="text-[11px] font-bold text-error">Agotado</p>}
         {!soldOut && priceDelta > 0 && (
           <p className="text-[11px] text-primary font-bold">
             + S/ {priceDelta.toFixed(2)}
@@ -172,7 +167,7 @@ function OptionRow({
         <button
           type="button"
           onClick={onIncrement}
-          disabled={isAtMax || soldOut || atStockLimit}
+          disabled={isAtMax || soldOut}
           className="w-7 h-7 flex items-center justify-center rounded-full border border-outline-variant text-on-surface-variant hover:bg-surface-container-high transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
           aria-label={`Aumentar ${name}`}
         >
@@ -309,7 +304,7 @@ export function OptionGroupAccordion({
                 onIncrement={() => onChange(option.id, 1)}
                 onDecrement={() => onChange(option.id, -1)}
                 isAtMax={atMax}
-                stock={option.stock ?? null}
+                soldOut={option.soldOut ?? false}
               />
             );
           })}
