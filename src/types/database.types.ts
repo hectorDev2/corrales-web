@@ -494,6 +494,66 @@ export type Database = {
         }
         Relationships: []
       }
+      complaints: {
+        Row: {
+          address: string
+          amount: number | null
+          consumer_request: string
+          created_at: string
+          detail: string
+          document_number: string
+          document_type: string
+          email: string
+          full_name: string
+          id: string
+          item_description: string
+          item_type: string
+          kind: string
+          number: number
+          phone: string
+          privacy_policy_accepted: boolean
+          status: string
+        }
+        Insert: {
+          address: string
+          amount?: number | null
+          consumer_request: string
+          created_at?: string
+          detail: string
+          document_number: string
+          document_type: string
+          email: string
+          full_name: string
+          id?: string
+          item_description: string
+          item_type: string
+          kind: string
+          number?: number
+          phone: string
+          privacy_policy_accepted: boolean
+          status?: string
+        }
+        Update: {
+          address?: string
+          amount?: number | null
+          consumer_request?: string
+          created_at?: string
+          detail?: string
+          document_number?: string
+          document_type?: string
+          email?: string
+          full_name?: string
+          id?: string
+          item_description?: string
+          item_type?: string
+          kind?: string
+          number?: number
+          phone?: string
+          privacy_policy_accepted?: boolean
+          status?: string
+        }
+        Relationships: []
+      }
       survey_responses: {
         Row: {
           comments: string | null

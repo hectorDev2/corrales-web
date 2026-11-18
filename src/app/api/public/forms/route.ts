@@ -7,7 +7,7 @@ export const runtime = "nodejs";
 const MAX_RESUME_SIZE = 5 * 1024 * 1024;
 const VALID_RATINGS = ["Excelente", "Muy buena", "Buena", "Puede mejorar"] as const;
 
-type FormType = "newsletter" | "survey" | "corporate-sales" | "job-application";
+type FormType = "newsletter" | "survey" | "corporate-sales" | "job-application" | "complaint";
 
 function textValue(value: FormDataEntryValue | null): string {
   return typeof value === "string" ? value.trim() : "";
@@ -22,7 +22,7 @@ function jsonError(message: string, status = 400) {
 }
 
 function formType(value: unknown): FormType | null {
-  if (value === "newsletter" || value === "survey" || value === "corporate-sales") return value;
+  if (value === "newsletter" || value === "survey" || value === "corporate-sales" || value === "complaint") return value;
   if (value === "job-application" || value === "careers") return "job-application";
   return null;
 }
@@ -96,6 +96,68 @@ export async function POST(request: NextRequest) {
       const { error } = await admin.from("survey_responses").insert({
         rating,
         comments: comments || null,
+      });
+
+      if (error) throw error;
+      return NextResponse.json({ ok: true });
+    }
+
+    if (type === "complaint") {
+      const documentTypes = ["DNI", "CE", "Pasaporte", "RUC"];
+      const fullName = recordValue(fields, "fullName");
+      const documentType = recordValue(fields, "documentType");
+      const documentNumber = recordValue(fields, "documentNumber");
+      const phone = recordValue(fields, "phone");
+      const email = recordValue(fields, "email").toLowerCase();
+      const address = recordValue(fields, "address");
+      const itemType = recordValue(fields, "itemType");
+      const itemDescription = recordValue(fields, "itemDescription");
+      const amountText = recordValue(fields, "amount");
+      const kind = recordValue(fields, "kind");
+      const detail = recordValue(fields, "detail");
+      const consumerRequest = recordValue(fields, "consumerRequest");
+      const accepted = recordValue(fields, "privacyPolicy") === "true";
+      const amount = amountText ? Number(amountText) : null;
+
+      if (
+        fullName.length < 3 ||
+        fullName.length > 150 ||
+        !documentTypes.includes(documentType) ||
+        documentNumber.length < 6 ||
+        documentNumber.length > 20 ||
+        phone.length < 7 ||
+        phone.length > 20 ||
+        !isEmail(email) ||
+        address.length < 5 ||
+        address.length > 200 ||
+        !["producto", "servicio"].includes(itemType) ||
+        itemDescription.length < 3 ||
+        itemDescription.length > 300 ||
+        (amount !== null && (!Number.isFinite(amount) || amount < 0 || amount > 1_000_000)) ||
+        !["reclamo", "queja"].includes(kind) ||
+        detail.length < 10 ||
+        detail.length > 2000 ||
+        consumerRequest.length < 5 ||
+        consumerRequest.length > 1000 ||
+        !accepted
+      ) {
+        return jsonError("Revisa los datos ingresados e intenta nuevamente.");
+      }
+
+      const { error } = await admin.from("complaints").insert({
+        full_name: fullName,
+        document_type: documentType,
+        document_number: documentNumber,
+        phone,
+        email,
+        address,
+        item_type: itemType,
+        item_description: itemDescription,
+        amount,
+        kind,
+        detail,
+        consumer_request: consumerRequest,
+        privacy_policy_accepted: true,
       });
 
       if (error) throw error;
