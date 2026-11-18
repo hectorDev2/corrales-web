@@ -23,6 +23,7 @@ import {
 } from "@/lib/branded-qr";
 import { supabase } from "@/lib/supabase";
 
+import { PAGE_CONTAINER, PageHeader } from "./PageHeader";
 import { TableMap } from "./tables/TableFloor";
 
 type Tab = "mapa" | "qr";
@@ -63,27 +64,27 @@ export function AdminTablesPage() {
   }, [orders]);
 
   return (
-    <div className="mx-auto w-full max-w-2xl space-y-6 px-4 py-4 pb-24 md:max-w-5xl md:px-8 md:py-8 lg:max-w-7xl">
-      <div className="flex items-end justify-between py-2">
-        <div>
-          <p className="text-secondary text-xs font-bold tracking-widest uppercase">Administración</p>
-          <h2 className="text-on-surface text-2xl font-black tracking-tighter md:text-3xl">Mesas</h2>
-        </div>
+    <div className={PAGE_CONTAINER}>
+      <PageHeader
+        eyebrow="Operación"
+        title="Mesas"
+        actions={
         <div className="bg-surface-container-high flex rounded-xl p-1">
-          {(["mapa", "qr"] as const).map((t) => (
-            <button
-              key={t}
-              type="button"
-              onClick={() => setTab(t)}
-              className={`rounded-lg px-4 py-2 text-xs font-bold tracking-wider uppercase transition-all ${
-                tab === t ? "bg-primary text-on-primary shadow" : "text-on-surface-variant"
-              }`}
-            >
-              {t === "mapa" ? "Mapa" : "Mesas y QR"}
-            </button>
-          ))}
-        </div>
-      </div>
+            {(["mapa", "qr"] as const).map((t) => (
+              <button
+                key={t}
+                type="button"
+                onClick={() => setTab(t)}
+                className={`rounded-lg px-4 py-2 text-xs font-bold tracking-wider uppercase transition-all ${
+                  tab === t ? "bg-primary text-on-primary shadow" : "text-on-surface-variant"
+                }`}
+              >
+                {t === "mapa" ? "Mapa" : "Mesas y QR"}
+              </button>
+            ))}
+          </div>
+        }
+      />
 
       {loading ? (
         <div className="flex justify-center py-16">

@@ -11,6 +11,8 @@ import {
 } from "@/lib/api/reservations";
 import { supabase } from "@/lib/supabase";
 
+import { PAGE_CONTAINER, PageHeader } from "./PageHeader";
+
 const STATUS_CONFIG: Record<
   ReservationStatus,
   { label: string; bg: string; text: string; icon: string }
@@ -74,20 +76,8 @@ export function AdminReservationsPage() {
   const cancelled = reservations.filter((r) => r.status === "cancelada");
 
   return (
-    <div className="w-full max-w-2xl md:max-w-5xl lg:max-w-7xl mx-auto px-4 md:px-8 space-y-6 py-4 md:py-8 pb-24">
-      {/* Header */}
-      <div className="flex justify-between items-end py-2">
-        <div>
-          <p className="text-xs font-bold uppercase tracking-widest text-secondary">
-            Administración
-          </p>
-          <h2 className="text-2xl md:text-3xl font-black tracking-tighter text-on-surface">Reservas</h2>
-        </div>
-        <div className="bg-surface-container-high rounded-xl p-2 px-3 text-right">
-          <p className="text-[10px] font-bold text-secondary uppercase">Pendientes</p>
-          <p className="text-sm font-black text-primary">{pending.length}</p>
-        </div>
-      </div>
+    <div className={PAGE_CONTAINER}>
+      <PageHeader eyebrow="Operación" title="Reservas" stat={{ label: "Pendientes", value: pending.length }} />
 
       {loading ? (
         <div className="flex justify-center py-16">

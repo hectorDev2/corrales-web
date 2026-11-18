@@ -1,13 +1,6 @@
-import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 
-import { AdminFooterPage } from "@/components/admin";
-import { getAdminSettings } from "@/lib/api/settings";
-
-export const metadata: Metadata = {
-  title: "Footer — Admin Corrales",
-};
-
-export default async function Page() {
-  const settings = await getAdminSettings();
-  return <AdminFooterPage initial={settings} />;
+// Slider y footer ahora viven como pestañas dentro de Contenido.
+export default function Page() {
+  redirect("/admin/contenido");
 }

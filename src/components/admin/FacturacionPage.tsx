@@ -6,6 +6,8 @@ import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 import type { Invoice, InvoiceSeries, SunatStatus } from "@/types/invoice";
 
+import { PAGE_CONTAINER, PageHeader } from "./PageHeader";
+
 type InvoiceRow = Invoice & { orders: { order_number: number } | null };
 
 const SUNAT_BADGE: Record<SunatStatus, { label: string; cls: string }> = {
@@ -68,15 +70,12 @@ export function FacturacionPage() {
     : invoiceRows;
 
   return (
-    <div className="max-w-2xl md:max-w-5xl lg:max-w-7xl mx-auto px-4 md:px-8 py-8 space-y-8">
-      <header>
-        <h1 className="text-3xl font-black tracking-tighter text-on-surface">
-          Facturación Electrónica
-        </h1>
-        <p className="text-on-surface-variant mt-1">
-          RUC: <strong>20604262322</strong> &middot; Nubefact
-        </p>
-      </header>
+    <div className={PAGE_CONTAINER}>
+      <PageHeader
+        eyebrow="Operación"
+        title="Facturación electrónica"
+        description="RUC 20604262322 · Nubefact"
+      />
 
       {/* Stats */}
       <div className="grid grid-cols-2 gap-4">

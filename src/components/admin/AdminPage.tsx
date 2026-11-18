@@ -13,6 +13,7 @@ import { supabase } from "@/lib/supabase";
 import type { AdminOrder, AdminOrderStatus, DeliveryProfile } from "@/types/admin";
 
 import { AdminOrderCard } from "./AdminOrderCard";
+import { PAGE_CONTAINER, PageHeader } from "./PageHeader";
 import { PushNotificationBanner } from "./PushNotificationBanner";
 
 export function AdminPage() {
@@ -78,24 +79,8 @@ export function AdminPage() {
   );
 
   return (
-    <div className="w-full max-w-2xl md:max-w-5xl lg:max-w-7xl mx-auto px-4 md:px-8 space-y-6 py-4 md:py-8">
-      {/* Dashboard header */}
-      <div className="flex justify-between items-end py-2">
-        <div>
-          <p className="text-xs font-bold uppercase tracking-widest text-secondary">
-            Panel de Control
-          </p>
-          <h2 className="text-2xl md:text-3xl font-black tracking-tighter text-on-surface">
-            Admin de Pedidos
-          </h2>
-        </div>
-        <div className="bg-surface-container-high rounded-xl p-2 px-3 text-right">
-          <p className="text-[10px] font-bold text-secondary uppercase">Hoy</p>
-          <p className="text-sm font-black text-primary">
-            {activeOrders.length} Pedidos
-          </p>
-        </div>
-      </div>
+    <div className={PAGE_CONTAINER}>
+      <PageHeader eyebrow="Operación" title="Pedidos" stat={{ label: "Activos", value: activeOrders.length }} />
 
       {/* Push notifications */}
       <PushNotificationBanner />

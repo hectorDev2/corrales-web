@@ -1,5 +1,5 @@
-export { AdminHeader } from "./AdminHeader";
-export { AdminBottomNav } from "./AdminBottomNav";
+export { AdminShell } from "./AdminShell";
+export { PAGE_CONTAINER, PageHeader } from "./PageHeader";
 export { AdminPage } from "./AdminPage";
 export { AdminCategoriesPage } from "./AdminCategoriesPage";
 export { AdminUsersPage } from "./AdminUsersPage";
