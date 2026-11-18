@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { NotificationsMenu } from "./NotificationsMenu";
+
 function HomeIcon() {
   return (
     <svg
@@ -136,14 +138,15 @@ export function BottomNav() {
           <span className="text-[10px] font-semibold leading-tight">Login</span>
         </Link>
 
-        <button
-          type="button"
-          className="flex flex-col items-center gap-0.5 pt-1.5 flex-1 min-w-0 text-gray-400 transition-colors"
-          data-tour="mobile-notifications-button"
-        >
-          <BellIcon />
-          <span className="text-[10px] font-semibold leading-tight">Avisos</span>
-        </button>
+        <div className="flex-1 min-w-0">
+          <NotificationsMenu
+            data-tour="mobile-notifications-button"
+            buttonClassName="flex w-full flex-col items-center gap-0.5 pt-1.5 text-gray-400 transition-colors"
+          >
+            <BellIcon />
+            <span className="text-[10px] font-semibold leading-tight">Avisos</span>
+          </NotificationsMenu>
+        </div>
       </div>
     </nav>
   );
