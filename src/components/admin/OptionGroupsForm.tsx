@@ -432,7 +432,7 @@ function OptionImageRow({
   }
 
   return (
-    <div className="flex items-center gap-2 px-3 py-2">
+    <div className="flex flex-wrap items-center gap-2 px-3 py-2">
       <div className="relative shrink-0">
         <label
           aria-label={`Subir imagen para ${opt.name || "opción"}`}
@@ -478,7 +478,7 @@ function OptionImageRow({
           </button>
         )}
       </div>
-      <div className="flex-1 min-w-0">
+      <div className="min-w-0 basis-[calc(100%-3rem)] sm:flex-1 sm:basis-0">
         <input
           value={opt.name}
           onChange={(e) =>
@@ -488,7 +488,7 @@ function OptionImageRow({
           className="w-full bg-transparent text-sm text-on-surface focus:outline-none"
         />
       </div>
-      <div className="w-20">
+      <div className="min-w-[6rem] flex-1 sm:w-20 sm:flex-none">
         <input
           type="number"
           step="0.01"
@@ -503,7 +503,7 @@ function OptionImageRow({
           className="w-full bg-surface-container-high rounded-lg px-2 py-1.5 text-xs text-on-surface text-right focus:outline-none focus:ring-2 focus:ring-primary/20"
         />
       </div>
-      <div className="w-16">
+      <div className="min-w-[6rem] flex-1 sm:w-16 sm:min-w-0 sm:flex-none">
         <input
           type="number"
           step="1"

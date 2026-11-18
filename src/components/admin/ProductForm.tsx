@@ -352,8 +352,8 @@ export function ProductForm({ product, categories, onSuccess, onClose }: Props) 
 
               {fields.map((field, index) => (
                 <div key={field.id} className="bg-surface-container-low rounded-2xl p-3">
-                  <div className="grid grid-cols-[minmax(0,1fr)_5.5rem_5.5rem_auto] items-start gap-2">
-                    <div>
+                  <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] items-start gap-2 sm:grid-cols-[minmax(0,1fr)_5.5rem_5.5rem_auto]">
+                    <div className="col-span-3 sm:col-span-1">
                       <label className="text-on-surface-variant text-xs font-bold">Tamaño o porción</label>
                       <input
                         {...register(`variants.${index}.label`)}
