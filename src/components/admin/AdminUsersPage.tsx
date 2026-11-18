@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
+import { useConfirm } from "@/components/ui/confirm-dialog";
+
 import {
   createDeliveryUser,
   getDeliveryUsers,
@@ -15,6 +17,7 @@ import { PAGE_CONTAINER, PageHeader } from "./PageHeader";
 const EMPTY_FORM = { full_name: "", email: "", password: "", phone: "" };
 
 export function AdminUsersPage() {
+  const [confirm, confirmDialog] = useConfirm();
   const [users, setUsers] = useState<DeliveryUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -61,7 +64,7 @@ export function AdminUsersPage() {
 
   async function handleToggle(user: DeliveryUser) {
     const action = user.is_active ? "desactivar" : "activar";
-    if (!confirm(`¿Querés ${action} a ${user.full_name}?`)) return;
+    if (!(await confirm({ title: `¿${action[0].toUpperCase()}${action.slice(1)} a ${user.full_name}?`, message: user.is_active ? "Ya no podrá recibir pedidos." : "Podrá volver a recibir pedidos.", confirmLabel: `Sí, ${action}`, tone: user.is_active ? "danger" : "default" }))) return;
     try {
       await toggleDeliveryUser(user.id, !user.is_active);
       toast.success(user.is_active ? "Usuario desactivado." : "Usuario activado.");
@@ -76,7 +79,8 @@ export function AdminUsersPage() {
 
   return (
     <div className={PAGE_CONTAINER}>
-      <PageHeader eyebrow="Sitio" title="Repartidores" stat={{ label: "Activos", value: active.length }} />
+      {confirmDialog}
+      <PageHeader eyebrow="Sitio" title="Repartidores" description="Personas que entregan los pedidos a domicilio. Desactiva a quien ya no trabaje." stat={{ label: "Activos", value: active.length }} />
 
       {/* Botón nuevo usuario */}
       <button

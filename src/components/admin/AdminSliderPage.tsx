@@ -4,6 +4,8 @@ import Image from "next/image";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 
+import { useConfirm } from "@/components/ui/confirm-dialog";
+
 import {
   createSlide,
   deleteSlide,
@@ -434,6 +436,7 @@ interface AdminSliderPageProps {
 }
 
 export function AdminSliderPage({ initialSlides }: AdminSliderPageProps) {
+  const [confirm, confirmDialog] = useConfirm();
   const [slides, setSlides] = useState<SliderSlide[]>(initialSlides);
   const [editing, setEditing] = useState<SliderSlide | null>(null);
   const [creating, setCreating] = useState<SlideInput | null>(null);
@@ -466,7 +469,7 @@ export function AdminSliderPage({ initialSlides }: AdminSliderPageProps) {
   }
 
   async function handleDelete(slide: SliderSlide) {
-    if (!confirm("¿Eliminar este slide?")) return;
+    if (!(await confirm({ title: "¿Eliminar este slide?", message: "Dejará de verse en la página de inicio.", confirmLabel: "Sí, eliminar", tone: "danger" }))) return;
     if (slide.image_url) await deleteSlideImage(slide.image_url);
     await deleteSlide(slide.id);
     setSlides((prev) => prev.filter((s) => s.id !== slide.id));
@@ -530,6 +533,7 @@ export function AdminSliderPage({ initialSlides }: AdminSliderPageProps) {
 
   return (
     <div className="max-w-2xl md:max-w-5xl lg:max-w-7xl mx-auto px-4 md:px-8 pb-32">
+      {confirmDialog}
       <div className="py-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <a

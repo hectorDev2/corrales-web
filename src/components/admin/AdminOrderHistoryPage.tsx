@@ -80,12 +80,13 @@ export function AdminOrderHistoryPage() {
       <PageHeader
         eyebrow="Operación"
         title="Historial"
+        description="Consulta los pedidos ya terminados. Elige las fechas para ver otro periodo."
         actions={
           <button
             type="button"
             onClick={fetchHistory}
             aria-label="Actualizar historial"
-            className="w-10 h-10 flex items-center justify-center rounded-2xl bg-surface-container-high text-on-surface-variant active:scale-90 transition-all"
+            className="h-11 px-4 gap-2 flex items-center justify-center rounded-2xl bg-surface-container-high text-on-surface-variant text-sm font-bold active:scale-90 transition-all"
           >
             <span
               className="material-symbols-outlined text-xl"
@@ -93,6 +94,7 @@ export function AdminOrderHistoryPage() {
             >
               refresh
             </span>
+            Actualizar
           </button>
         }
       />

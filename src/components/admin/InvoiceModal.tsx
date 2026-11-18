@@ -78,8 +78,9 @@ export function InvoiceModal({ orderId, orderNumber, total, invoice, onClose }: 
         <div className="p-6 space-y-5">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-black text-[#111111]">Emitir Comprobante</h2>
-            <button onClick={onClose} className="text-on-surface-variant hover:text-[#111111] transition-colors">
+            <button onClick={onClose} className="text-on-surface-variant hover:text-[#111111] transition-colors flex items-center gap-1 text-sm font-bold">
               <span className="material-symbols-outlined">close</span>
+              Cerrar
             </button>
           </div>
 

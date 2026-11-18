@@ -84,7 +84,7 @@ export function AdminProductsPage() {
 
   return (
     <div className={PAGE_CONTAINER}>
-      <PageHeader eyebrow="Catálogo" title="Productos" stat={{ label: "Total", value: `${products.length} items` }} />
+      <PageHeader eyebrow="Catálogo" title="Productos" description="Aquí agregas, editas y activas lo que vendes. Toca «Editar» para cambiar precio, foto o cantidad disponible." stat={{ label: "Total", value: `${products.length} items` }} />
 
       {/* Lista */}
       <section className="space-y-3">
@@ -125,7 +125,7 @@ export function AdminProductsPage() {
       {/* FAB */}
       <button
         onClick={openCreate}
-        className="fixed bottom-24 right-4 w-14 h-14 rounded-full bg-primary text-on-primary shadow-xl shadow-primary/30 flex items-center justify-center transition active:scale-90 z-40"
+        className="fixed bottom-24 right-4 h-14 gap-2 pl-4 pr-5 rounded-full bg-primary text-on-primary text-sm font-bold shadow-xl shadow-primary/30 flex items-center justify-center transition active:scale-90 z-40"
       >
         <span
           className="material-symbols-outlined text-2xl"
@@ -133,6 +133,7 @@ export function AdminProductsPage() {
         >
           add
         </span>
+        Nuevo producto
       </button>
 
       {/* Bottom Sheet */}

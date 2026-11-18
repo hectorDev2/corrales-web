@@ -179,9 +179,10 @@ export function ProductForm({ product, categories, onSuccess, onClose }: Props) 
         <button
           type="button"
           onClick={onClose}
-          className="bg-surface-container-high text-on-surface-variant flex h-9 w-9 items-center justify-center rounded-full transition active:scale-90"
+          className="bg-surface-container-high text-on-surface-variant flex h-11 items-center justify-center gap-1.5 rounded-full px-4 text-sm font-bold transition active:scale-90"
         >
           <span className="material-symbols-outlined text-xl">close</span>
+          Cerrar
         </button>
       </div>
 

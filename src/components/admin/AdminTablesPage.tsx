@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
+import { useConfirm } from "@/components/ui/confirm-dialog";
+
 import {
   type RestaurantTable,
   type TableActiveOrder,
@@ -68,6 +70,7 @@ export function AdminTablesPage() {
       <PageHeader
         eyebrow="Operación"
         title="Mesas"
+        description="Toca una mesa para ver su pedido. En «Mesas y QR» imprimes los códigos que el cliente escanea."
         actions={
         <div className="bg-surface-container-high flex rounded-xl p-1">
             {(["mapa", "qr"] as const).map((t) => (
@@ -127,6 +130,8 @@ function TableManager({
   const [floor, setFloor] = useState(FLOORS[0]);
   const floorTables = useMemo(() => tables.filter((t) => t.zone === floor).sort(byLabel), [tables, floor]);
 
+  const [confirm, confirmDialog] = useConfirm();
+
   async function run(action: () => Promise<void>, ok: string) {
     try {
       await action();
@@ -170,6 +175,7 @@ function TableManager({
 
   return (
     <div className="space-y-6">
+      {confirmDialog}
       {/* Selector de piso */}
       <div className="grid grid-cols-3 gap-2 sm:flex">
         {floors.map((f) => {
@@ -242,12 +248,12 @@ function TableManager({
               onToggle={() =>
                 run(() => updateTable(t.id, { is_active: !t.is_active }), t.is_active ? "Mesa desactivada." : "Mesa activada.")
               }
-              onRegenerate={() => {
-                if (!window.confirm(`El QR impreso de la mesa ${t.label} dejará de funcionar. ¿Regenerar?`)) return;
+              onRegenerate={async () => {
+                if (!(await confirm({ title: `¿Crear un QR nuevo para la mesa ${t.label}?`, message: "El QR que ya está impreso dejará de funcionar y tendrás que imprimir el nuevo.", confirmLabel: "Sí, crear nuevo", tone: "danger" }))) return;
                 void run(() => regenerateTableToken(t.id), "QR regenerado. Imprime el nuevo código.");
               }}
-              onDelete={() => {
-                if (!window.confirm(`¿Eliminar la mesa ${t.label}? Sus pedidos pasados se conservan.`)) return;
+              onDelete={async () => {
+                if (!(await confirm({ title: `¿Eliminar la mesa ${t.label}?`, message: "Sus pedidos pasados se conservan.", confirmLabel: "Sí, eliminar", tone: "danger" }))) return;
                 void run(() => deleteTable(t.id), "Mesa eliminada.");
               }}
             />
@@ -270,8 +276,8 @@ function TableCard({
 }: {
   table: RestaurantTable;
   onToggle: () => void;
-  onRegenerate: () => void;
-  onDelete: () => void;
+  onRegenerate: () => void | Promise<void>;
+  onDelete: () => void | Promise<void>;
 }) {
   const url = typeof window === "undefined" ? "" : buildTableUrl(window.location.origin, table.qr_token);
   const card = useMemo(

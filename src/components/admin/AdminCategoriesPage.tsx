@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
+import { useConfirm } from "@/components/ui/confirm-dialog";
+
 import {
   createCategory,
   deleteCategory,
@@ -15,6 +17,7 @@ import {
 import { PAGE_CONTAINER, PageHeader } from "./PageHeader";
 
 export function AdminCategoriesPage() {
+  const [confirm, confirmDialog] = useConfirm();
   const [categories, setCategories] = useState<AdminCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -97,7 +100,7 @@ export function AdminCategoriesPage() {
 
   async function handleDelete(cat: AdminCategory) {
     if (cat.product_count > 0) return;
-    if (!confirm(`¿Eliminás la categoría "${cat.name}"?`)) return;
+    if (!(await confirm({ title: `¿Eliminar la categoría «${cat.name}»?`, message: "Esta acción no se puede deshacer.", confirmLabel: "Sí, eliminar", tone: "danger" }))) return;
     try {
       await deleteCategory(cat.id);
       toast.success("Categoría eliminada.");
@@ -109,7 +112,8 @@ export function AdminCategoriesPage() {
 
   return (
     <div className={PAGE_CONTAINER}>
-      <PageHeader eyebrow="Catálogo" title="Categorías" stat={{ label: "Total", value: categories.length }} />
+      {confirmDialog}
+      <PageHeader eyebrow="Catálogo" title="Categorías" description="Agrupa tus productos para que el cliente los encuentre fácil en el menú." stat={{ label: "Total", value: categories.length }} />
 
       {/* Nueva categoría */}
       <div className="bg-surface-container-low p-4 rounded-3xl space-y-3">
@@ -185,7 +189,7 @@ export function AdminCategoriesPage() {
                   <button
                     onClick={() => handleSaveEdit(cat.id)}
                     disabled={saving || !editName.trim()}
-                    className="p-2.5 rounded-xl bg-primary text-on-primary transition-all active:scale-95 disabled:opacity-40"
+                    className="flex items-center gap-1.5 px-3 py-2.5 rounded-xl bg-primary text-on-primary text-sm font-bold transition-all active:scale-95 disabled:opacity-40"
                   >
                     <span
                       className="material-symbols-outlined text-base"
@@ -193,10 +197,11 @@ export function AdminCategoriesPage() {
                     >
                       {saving ? "progress_activity" : "check"}
                     </span>
+                    Guardar
                   </button>
                   <button
                     onClick={cancelEdit}
-                    className="p-2.5 rounded-xl bg-surface-container-highest text-on-surface-variant transition-all active:scale-95"
+                    className="flex items-center gap-1.5 px-3 py-2.5 rounded-xl bg-surface-container-highest text-on-surface-variant text-sm font-bold transition-all active:scale-95"
                   >
                     <span
                       className="material-symbols-outlined text-base"
@@ -204,6 +209,7 @@ export function AdminCategoriesPage() {
                     >
                       close
                     </span>
+                    Cancelar
                   </button>
                 </div>
               ) : (
