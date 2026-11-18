@@ -73,10 +73,25 @@ function TableGraphic({
   halo?: string;
 }) {
   const n = clamp(seats, 1, 12);
-  const chairs = Array.from({ length: n }, (_, i) => {
-    const a = (-90 + (360 / n) * i) * (Math.PI / 180);
-    return { x: 60 + Math.cos(a) * 47, y: 52 + Math.sin(a) * 27, back: Math.sin(a) < 0 };
-  });
+  // Forma según capacidad: redonda (1-2), ovalada (3-6), larga (7+).
+  const shape: "round" | "oval" | "long" = n <= 2 ? "round" : n <= 6 ? "oval" : "long";
+  const rx = shape === "round" ? 24 : shape === "oval" ? 36 : 50;
+  const ry = shape === "round" ? 14 : shape === "oval" ? 18 : 15;
+  const chairs =
+    shape === "long"
+      ? Array.from({ length: n }, (_, i) => {
+          const top = i % 2 === 0;
+          const perSide = Math.ceil(n / 2);
+          const k = Math.floor(i / 2);
+          const x = perSide === 1 ? 60 : 60 - 38 + (76 / (perSide - 1)) * k;
+          return { x, y: top ? 53 - ry - 6 : 53 + ry + 12, back: top };
+        })
+      : Array.from({ length: n }, (_, i) => {
+          const a = (-90 + (360 / n) * i) * (Math.PI / 180);
+          const dx = rx + 11;
+          const dy = ry + 9;
+          return { x: 60 + Math.cos(a) * dx, y: 52 + Math.sin(a) * dy, back: Math.sin(a) < 0 };
+        });
 
   const chair = (c: { x: number; y: number }, i: number) => (
     <g key={i}>
@@ -106,14 +121,15 @@ function TableGraphic({
           strokeOpacity={0.9}
         />
       )}
-      <ellipse cx={60} cy={84} rx={44} ry={9} fill="#000" opacity={0.15} />
+      <ellipse cx={60} cy={84} rx={rx + 8} ry={9} fill="#000" opacity={0.15} />
       {chairs.filter((c) => c.back).map(chair)}
       {/* patas */}
-      <rect x={42} y={58} width={5} height={22} rx={2} fill="#5a4636" />
-      <rect x={73} y={58} width={5} height={22} rx={2} fill="#5a4636" />
+      <rect x={60 - rx * 0.7} y={58} width={5} height={22} rx={2} fill="#5a4636" />
+      <rect x={60 + rx * 0.7 - 5} y={58} width={5} height={22} rx={2} fill="#5a4636" />
       {/* canto y tapa */}
-      <ellipse cx={60} cy={59} rx={36} ry={18} fill={edge} />
-      <ellipse cx={60} cy={53} rx={36} ry={18} fill={top} stroke={edge} strokeWidth={1.5} />
+      <ellipse cx={60} cy={59} rx={rx} ry={ry} fill={edge} />
+      <ellipse cx={60} cy={53} rx={rx} ry={ry} fill={top} stroke={edge} strokeWidth={1.5} />
+      <ellipse cx={60 - rx * 0.3} cy={47} rx={rx * 0.45} ry={ry * 0.25} fill="#fff" opacity={0.22} />
       <text
         x={60}
         y={59}
@@ -151,6 +167,7 @@ export function TableMap({
   const activeZone = zone && zones.includes(zone) ? zone : (zones[0] ?? null);
   const [editMode, setEditMode] = useState(false);
   const [filter, setFilter] = useState<TableState | null>(null);
+  const [view, setView] = useState<"mapa" | "lista">("mapa");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [drag, setDrag] = useState<{ id: string; x: number; y: number } | null>(null);
   const floorRef = useRef<HTMLDivElement>(null);
@@ -262,6 +279,25 @@ export function TableMap({
           })}
         </div>
         <div className="flex gap-2">
+          <div className="bg-surface-container-high flex rounded-xl p-1" role="group" aria-label="Forma de ver las mesas">
+            {(["mapa", "lista"] as const).map((v) => (
+              <button
+                key={v}
+                type="button"
+                aria-pressed={view === v}
+                onClick={() => {
+                  setView(v);
+                  if (v === "lista") setEditMode(false);
+                }}
+                className={`flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-bold ${
+                  view === v ? "bg-surface-container-lowest text-on-surface shadow" : "text-on-surface-variant"
+                }`}
+              >
+                <span className="material-symbols-outlined text-base">{v === "mapa" ? "map" : "list"}</span>
+                {v === "mapa" ? "Mapa" : "Lista"}
+              </button>
+            ))}
+          </div>
           {editMode && (
             <button
               type="button"
@@ -274,6 +310,7 @@ export function TableMap({
           )}
           <button
             type="button"
+            hidden={view === "lista"}
             onClick={() => {
               setEditMode((v) => !v);
               setDrag(null);
@@ -316,7 +353,16 @@ export function TableMap({
       </div>
 
       <div className="grid gap-4 lg:grid-cols-[1fr_320px]">
-        {/* Escenario */}
+        {view === "lista" ? (
+          <TableList
+            tables={visible.filter((t) => t.is_active)}
+            ordersByTable={ordersByTable}
+            filter={filter}
+            now={now}
+            selectedId={selectedId}
+            onSelect={setSelectedId}
+          />
+        ) : (
         <div
           className="bg-surface-container-low border-outline-variant/30 relative aspect-[16/11] w-full overflow-hidden rounded-3xl border"
           style={{ perspective: "1400px", containerType: "inline-size" }}
@@ -346,6 +392,22 @@ export function TableMap({
             onPointerUp={() => void finishDrag()}
             onPointerCancel={() => setDrag(null)}
           >
+            {/* Pared del fondo y entrada: ayudan a ubicarse en el salón */}
+            {!editMode && (
+              <>
+                <div
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-x-0 top-0 h-[7%] rounded-t-[1.25rem]"
+                  style={{ background: "linear-gradient(#a98458, #c9a876)", boxShadow: "inset 0 -4px 6px rgba(0,0,0,0.18)" }}
+                />
+                <div
+                  aria-hidden="true"
+                  className="pointer-events-none absolute bottom-0 left-1/2 flex h-[6%] w-[22%] -translate-x-1/2 items-center justify-center rounded-t-lg bg-[#7a5a36] text-[10px] font-black tracking-widest text-white/90 uppercase"
+                >
+                  Entrada
+                </div>
+              </>
+            )}
             {visible.map((t) => {
               const tableOrders = ordersByTable.get(t.id) ?? [];
               const state = t.is_active ? getTableState(tableOrders) : "libre";
@@ -419,8 +481,23 @@ export function TableMap({
             </p>
           )}
         </div>
+        )}
 
-        <aside className="bg-surface-container-lowest shadow-card space-y-3 rounded-3xl p-5">
+        <aside
+          className={`bg-surface-container-lowest space-y-3 p-5 shadow-[0_-12px_40px_rgba(0,0,0,0.18)] max-lg:fixed max-lg:inset-x-0 max-lg:bottom-0 max-lg:z-[60] max-lg:max-h-[75dvh] max-lg:overflow-y-auto max-lg:rounded-t-3xl lg:shadow-card lg:rounded-3xl ${
+            selected ? "" : "max-lg:hidden"
+          }`}
+        >
+          {selected && (
+            <button
+              type="button"
+              onClick={() => setSelectedId(null)}
+              className="bg-surface-container-high text-on-surface-variant ml-auto flex h-10 items-center gap-1 rounded-full px-4 text-xs font-bold lg:hidden"
+            >
+              <span className="material-symbols-outlined text-base">close</span>
+              Cerrar
+            </button>
+          )}
           {selected ? (
             <TableDetail
               table={selected}
@@ -581,5 +658,75 @@ function OrderTimeline({ step }: { step: number }) {
         );
       })}
     </ol>
+  );
+}
+
+// ─── Vista de lista ───────────────────────────────────────────────────────────
+
+function TableList({
+  tables,
+  ordersByTable,
+  filter,
+  now,
+  selectedId,
+  onSelect,
+}: {
+  tables: RestaurantTable[];
+  ordersByTable: Map<string, TableActiveOrder[]>;
+  filter: TableState | null;
+  now: number;
+  selectedId: string | null;
+  onSelect: (id: string) => void;
+}) {
+  const rows = tables
+    .map((t) => {
+      const orders = ordersByTable.get(t.id) ?? [];
+      const state = getTableState(orders);
+      const oldest = orders[0] ? minutesSince(orders[0].created_at, now) : null;
+      return { t, orders, state, oldest, total: orders.reduce((sum, o) => sum + o.total, 0) };
+    })
+    .filter((r) => !filter || r.state === filter)
+    // Primero lo que necesita atención: más tiempo esperando arriba; libres al final.
+    .sort((a, b) => (b.oldest ?? -1) - (a.oldest ?? -1) || a.t.label.localeCompare(b.t.label, "es", { numeric: true }));
+
+  if (rows.length === 0) {
+    return <p className="text-on-surface-variant py-10 text-center text-sm">No hay mesas con ese estado.</p>;
+  }
+
+  return (
+    <ul className="space-y-2">
+      {rows.map(({ t, state, oldest, total }) => {
+        const cfg = STATE_CONFIG[state];
+        return (
+          <li key={t.id}>
+            <button
+              type="button"
+              onClick={() => onSelect(t.id)}
+              aria-pressed={selectedId === t.id}
+              className={`bg-surface-container-lowest flex min-h-16 w-full items-center gap-3 rounded-2xl p-3 text-left shadow-sm transition ${
+                selectedId === t.id ? "ring-primary ring-2" : ""
+              }`}
+            >
+              <span
+                className="flex size-12 shrink-0 items-center justify-center rounded-xl text-xl font-black text-[#2b2118]"
+                style={{ backgroundColor: cfg.top, boxShadow: `inset 0 -3px 0 ${cfg.edge}` }}
+              >
+                {t.label}
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold ${cfg.chip}`}>
+                  <span className="material-symbols-outlined text-sm">{cfg.icon}</span>
+                  {cfg.label}
+                </span>
+                <span className="text-on-surface-variant mt-1 block text-xs">
+                  {t.capacity} personas{oldest !== null && oldest > 0 ? ` · espera ${oldest} min` : ""}
+                </span>
+              </span>
+              {total > 0 && <span className="text-primary text-lg font-black">S/ {total.toFixed(2)}</span>}
+            </button>
+          </li>
+        );
+      })}
+    </ul>
   );
 }
