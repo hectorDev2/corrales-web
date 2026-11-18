@@ -3,8 +3,12 @@
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
+import { DateRangePicker } from "@/components/ui/date-range-picker";
 import { getOrderHistory } from "@/lib/api/admin";
+import { addDaysISO, todayISO } from "@/lib/dates";
 import type { AdminOrder, AdminOrderStatus } from "@/types/admin";
+
+import { PAGE_CONTAINER, PageHeader } from "./PageHeader";
 
 type StatusFilter = "all" | AdminOrderStatus;
 
@@ -42,21 +46,11 @@ const PAYMENT_LABEL: Record<string, string> = {
   culqi: "Tarjeta",
 };
 
-function today() {
-  return new Date().toISOString().slice(0, 10);
-}
-
-function sevenDaysAgo() {
-  const d = new Date();
-  d.setDate(d.getDate() - 6);
-  return d.toISOString().slice(0, 10);
-}
-
 export function AdminOrderHistoryPage() {
   const [orders, setOrders] = useState<AdminOrder[]>([]);
   const [loading, setLoading] = useState(true);
-  const [from, setFrom] = useState(sevenDaysAgo());
-  const [to, setTo] = useState(today());
+  const [range, setRange] = useState(() => ({ from: addDaysISO(todayISO(), -6), to: todayISO() }));
+  const { from, to } = range;
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
 
   const fetchHistory = useCallback(async () => {
@@ -82,25 +76,26 @@ export function AdminOrderHistoryPage() {
     .reduce((sum, o) => sum + o.total, 0);
 
   return (
-    <div className="w-full max-w-2xl md:max-w-5xl lg:max-w-7xl mx-auto px-4 md:px-8 space-y-5 py-4 md:py-8">
-      {/* Header */}
-      <div className="flex justify-between items-end py-2">
-        <div>
-          <p className="text-xs font-bold uppercase tracking-widest text-secondary">Admin</p>
-          <h2 className="text-2xl md:text-3xl font-black tracking-tighter text-on-surface">Historial</h2>
-        </div>
-        <button
-          onClick={fetchHistory}
-          className="w-10 h-10 flex items-center justify-center rounded-2xl bg-surface-container-high text-on-surface-variant active:scale-90 transition-all"
-        >
-          <span
-            className="material-symbols-outlined text-xl"
-            style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}
+    <div className={PAGE_CONTAINER}>
+      <PageHeader
+        eyebrow="Operación"
+        title="Historial"
+        actions={
+          <button
+            type="button"
+            onClick={fetchHistory}
+            aria-label="Actualizar historial"
+            className="w-10 h-10 flex items-center justify-center rounded-2xl bg-surface-container-high text-on-surface-variant active:scale-90 transition-all"
           >
-            refresh
-          </span>
-        </button>
-      </div>
+            <span
+              className="material-symbols-outlined text-xl"
+              style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}
+            >
+              refresh
+            </span>
+          </button>
+        }
+      />
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-2 md:gap-4">
@@ -122,33 +117,7 @@ export function AdminOrderHistoryPage() {
 
       {/* Filters */}
       <div className="bg-surface-container-lowest rounded-3xl p-4 shadow-sm space-y-3">
-        <div className="grid grid-cols-2 gap-2">
-          <div>
-            <label className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-1 block">
-              Desde
-            </label>
-            <input
-              type="date"
-              value={from}
-              max={to}
-              onChange={(e) => setFrom(e.target.value)}
-              className="w-full bg-surface-container-high rounded-xl px-3 py-2.5 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/20 border-none"
-            />
-          </div>
-          <div>
-            <label className="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-1 block">
-              Hasta
-            </label>
-            <input
-              type="date"
-              value={to}
-              min={from}
-              max={today()}
-              onChange={(e) => setTo(e.target.value)}
-              className="w-full bg-surface-container-high rounded-xl px-3 py-2.5 text-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/20 border-none"
-            />
-          </div>
-        </div>
+        <DateRangePicker value={range} onChange={setRange} label="Período" />
 
         {/* Status tabs — scrollable */}
         <div className="flex gap-1.5 overflow-x-auto scrollbar-none pb-0.5">
