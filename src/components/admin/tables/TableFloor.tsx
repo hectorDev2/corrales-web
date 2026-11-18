@@ -88,8 +88,8 @@ function TableGraphic({
         })
       : Array.from({ length: n }, (_, i) => {
           const a = (-90 + (360 / n) * i) * (Math.PI / 180);
-          const dx = rx + 11;
-          const dy = ry + 9;
+          const dx = rx + 7;
+          const dy = ry + 6;
           return { x: 60 + Math.cos(a) * dx, y: 52 + Math.sin(a) * dy, back: Math.sin(a) < 0 };
         });
 
@@ -147,6 +147,13 @@ function TableGraphic({
 }
 
 // ─── Mapa ─────────────────────────────────────────────────────────────────────
+
+/** Ancho en pantalla según la capacidad: mesas chicas ocupan menos y no se pisan entre sí. */
+function tableWidth(seats: number) {
+  if (seats <= 2) return "clamp(48px, 8cqw, 84px)";
+  if (seats <= 6) return "clamp(56px, 10.5cqw, 98px)";
+  return "clamp(80px, 14cqw, 132px)";
+}
 
 const TILT = 50; // grados de inclinación del piso en vista 3D
 
@@ -436,7 +443,7 @@ export function TableMap({
                   style={{
                     left: `${x}%`,
                     top: `${y}%`,
-                    width: "clamp(64px, 15cqw, 130px)",
+                    width: tableWidth(t.capacity),
                     transformOrigin: "50% 100%",
                     // De pie respecto al piso: contrarresta la inclinación para mirar al frente.
                     transform: `translate(-50%, -100%) rotateX(${editMode ? 0 : -TILT}deg)`,
