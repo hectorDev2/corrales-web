@@ -1,9 +1,10 @@
 "use client";
 
-import { ContactShadows, Html, OrbitControls, RoundedBox } from "@react-three/drei";
-import { Canvas, type ThreeEvent, useFrame } from "@react-three/fiber";
-import { useMemo, useRef, useState } from "react";
+import { Html, OrbitControls } from "@react-three/drei";
+import { Canvas, type ThreeEvent } from "@react-three/fiber";
+import { useMemo, useState } from "react";
 import * as THREE from "three";
+import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry.js";
 
 import type { RestaurantTable, TableActiveOrder } from "@/lib/api/tables";
 
@@ -16,6 +17,62 @@ const FLOOR_D = 11;
 const WOOD_DARK = "#7a5634";
 const CUSHION = "#a8322b";
 const DIMMED = "#d6d3d1";
+
+// ─── Recursos compartidos ─────────────────────────────────────────────────────
+// Todas las mesas reutilizan las mismas geometrías y materiales. Crear uno por
+// silla/pata/plato multiplicaba la memoria de la GPU por cada mesa del salón.
+
+const GEO = {
+  chairLeg: new THREE.CylinderGeometry(0.025, 0.025, 0.42, 6),
+  seat: new RoundedBoxGeometry(0.44, 0.09, 0.44, 2, 0.04),
+  back: new RoundedBoxGeometry(0.44, 0.5, 0.06, 2, 0.03),
+  plate: new THREE.CylinderGeometry(0.15, 0.12, 0.02, 20),
+  plateInner: new THREE.CylinderGeometry(0.08, 0.08, 0.002, 20),
+  longEdge: new RoundedBoxGeometry(3.1, 0.08, 1.05, 2, 0.04),
+  longTop: new RoundedBoxGeometry(3.04, 0.04, 0.99, 2, 0.02),
+  longLeg: new THREE.CylinderGeometry(0.04, 0.04, 0.72, 8),
+  roundEdge: new THREE.CylinderGeometry(0.5, 0.5, 0.07, 40),
+  roundTop: new THREE.CylinderGeometry(0.47, 0.47, 0.02, 40),
+  ovalEdge: new THREE.CylinderGeometry(0.62, 0.62, 0.07, 40),
+  ovalTop: new THREE.CylinderGeometry(0.59, 0.59, 0.02, 40),
+  pedestal: new THREE.CylinderGeometry(0.06, 0.08, 0.72, 12),
+  base: new THREE.CylinderGeometry(0.32, 0.36, 0.04, 24),
+  ring: new THREE.RingGeometry(0.92, 1, 48),
+};
+
+const MAT = {
+  woodDark: new THREE.MeshStandardMaterial({ color: WOOD_DARK, roughness: 0.6 }),
+  cushion: new THREE.MeshStandardMaterial({ color: CUSHION, roughness: 0.8 }),
+  plate: new THREE.MeshStandardMaterial({ color: "#ffffff", roughness: 0.3 }),
+  plateInner: new THREE.MeshStandardMaterial({ color: "#ece6dc" }),
+};
+
+const colorMats = new Map<string, THREE.MeshStandardMaterial>();
+/** Material por color, creado una sola vez (hay pocos colores: uno por estado). */
+function matFor(color: string, roughness = 0.45) {
+  const key = `${color}-${roughness}`;
+  let m = colorMats.get(key);
+  if (!m) {
+    m = new THREE.MeshStandardMaterial({ color, roughness });
+    colorMats.set(key, m);
+  }
+  return m;
+}
+
+const ringMats = new Map<string, THREE.MeshBasicMaterial>();
+function ringMat(color: string, opacity: number) {
+  const key = `${color}-${opacity}`;
+  let m = ringMats.get(key);
+  if (!m) {
+    m = new THREE.MeshBasicMaterial({ color, transparent: true, opacity, depthWrite: false });
+    ringMats.set(key, m);
+  }
+  return m;
+}
+
+function darker(color: string) {
+  return new THREE.Color(color).multiplyScalar(0.78).getStyle();
+}
 
 type Shape = "round" | "oval" | "long";
 
@@ -111,23 +168,21 @@ function Room() {
 
 // ─── Mobiliario ───────────────────────────────────────────────────────────────
 
+const CHAIR_LEGS: [number, number, number][] = [
+  [-0.16, 0.21, -0.16],
+  [0.16, 0.21, -0.16],
+  [-0.16, 0.21, 0.16],
+  [0.16, 0.21, 0.16],
+];
+
 function Chair({ position, angle }: { position: [number, number, number]; angle: number }) {
   return (
     <group position={position} rotation-y={angle}>
-      {[-0.16, 0.16].flatMap((x) =>
-        [-0.16, 0.16].map((z) => (
-          <mesh key={`${x}${z}`} position={[x, 0.21, z]} castShadow>
-            <cylinderGeometry args={[0.025, 0.025, 0.42, 8]} />
-            <meshStandardMaterial color={WOOD_DARK} />
-          </mesh>
-        )),
-      )}
-      <RoundedBox args={[0.44, 0.09, 0.44]} radius={0.04} position={[0, 0.46, 0]} castShadow receiveShadow>
-        <meshStandardMaterial color={CUSHION} roughness={0.8} />
-      </RoundedBox>
-      <RoundedBox args={[0.44, 0.5, 0.06]} radius={0.03} position={[0, 0.74, 0.2]} castShadow>
-        <meshStandardMaterial color={WOOD_DARK} roughness={0.6} />
-      </RoundedBox>
+      {CHAIR_LEGS.map((p, i) => (
+        <mesh key={i} position={p} geometry={GEO.chairLeg} material={MAT.woodDark} />
+      ))}
+      <mesh position={[0, 0.46, 0]} geometry={GEO.seat} material={MAT.cushion} castShadow />
+      <mesh position={[0, 0.74, 0.2]} geometry={GEO.back} material={MAT.woodDark} castShadow />
     </group>
   );
 }
@@ -135,14 +190,8 @@ function Chair({ position, angle }: { position: [number, number, number]; angle:
 function Plate({ position }: { position: [number, number, number] }) {
   return (
     <group position={position}>
-      <mesh castShadow>
-        <cylinderGeometry args={[0.15, 0.12, 0.02, 24]} />
-        <meshStandardMaterial color="#ffffff" roughness={0.3} />
-      </mesh>
-      <mesh position={[0, 0.011, 0]}>
-        <cylinderGeometry args={[0.08, 0.08, 0.002, 24]} />
-        <meshStandardMaterial color="#ece6dc" />
-      </mesh>
+      <mesh geometry={GEO.plate} material={MAT.plate} />
+      <mesh position={[0, 0.011, 0]} geometry={GEO.plateInner} material={MAT.plateInner} />
     </group>
   );
 }
@@ -178,78 +227,50 @@ function layout(shape: Shape, seats: number) {
   return { chairs, plates };
 }
 
+const LONG_LEGS: [number, number, number][] = [
+  [-1.35, 0.36, -0.38],
+  [-1.35, 0.36, 0.38],
+  [1.35, 0.36, -0.38],
+  [1.35, 0.36, 0.38],
+];
+
 function TableTop({ shape, color }: { shape: Shape; color: string }) {
-  const edge = useMemo(() => new THREE.Color(color).multiplyScalar(0.78).getStyle(), [color]);
+  const edge = matFor(darker(color), 0.55);
+  const top = matFor(color);
   if (shape === "long") {
     return (
       <>
-        <RoundedBox args={[3.1, 0.08, 1.05]} radius={0.04} position={[0, 0.74, 0]} castShadow receiveShadow>
-          <meshStandardMaterial color={edge} roughness={0.55} />
-        </RoundedBox>
-        <RoundedBox args={[3.04, 0.04, 0.99]} radius={0.02} position={[0, 0.78, 0]} receiveShadow>
-          <meshStandardMaterial color={color} roughness={0.45} />
-        </RoundedBox>
-        {[-1.35, 1.35].flatMap((x) =>
-          [-0.38, 0.38].map((z) => (
-            <mesh key={`${x}${z}`} position={[x, 0.36, z]} castShadow>
-              <cylinderGeometry args={[0.04, 0.04, 0.72, 10]} />
-              <meshStandardMaterial color={WOOD_DARK} />
-            </mesh>
-          )),
-        )}
+        <mesh position={[0, 0.74, 0]} geometry={GEO.longEdge} material={edge} castShadow />
+        <mesh position={[0, 0.78, 0]} geometry={GEO.longTop} material={top} />
+        {LONG_LEGS.map((p, i) => (
+          <mesh key={i} position={p} geometry={GEO.longLeg} material={MAT.woodDark} />
+        ))}
       </>
     );
   }
-  const r = shape === "round" ? 0.5 : 0.62;
-  const sx = shape === "round" ? 1 : 0.85 / 0.62;
+  const round = shape === "round";
+  const sx = round ? 1 : 0.85 / 0.62;
   return (
     <>
-      <mesh position={[0, 0.74, 0]} scale={[sx, 1, 1]} castShadow receiveShadow>
-        <cylinderGeometry args={[r, r, 0.07, 48]} />
-        <meshStandardMaterial color={edge} roughness={0.55} />
-      </mesh>
-      <mesh position={[0, 0.78, 0]} scale={[sx, 1, 1]} receiveShadow>
-        <cylinderGeometry args={[r - 0.03, r - 0.03, 0.02, 48]} />
-        <meshStandardMaterial color={color} roughness={0.45} />
-      </mesh>
-      {/* Pedestal central */}
-      <mesh position={[0, 0.37, 0]} castShadow>
-        <cylinderGeometry args={[0.06, 0.08, 0.72, 16]} />
-        <meshStandardMaterial color={WOOD_DARK} />
-      </mesh>
-      <mesh position={[0, 0.02, 0]} scale={[sx * 0.9, 1, 1]} castShadow receiveShadow>
-        <cylinderGeometry args={[0.32, 0.36, 0.04, 32]} />
-        <meshStandardMaterial color={WOOD_DARK} />
-      </mesh>
+      <mesh position={[0, 0.74, 0]} scale={[sx, 1, 1]} geometry={round ? GEO.roundEdge : GEO.ovalEdge} material={edge} castShadow />
+      <mesh position={[0, 0.78, 0]} scale={[sx, 1, 1]} geometry={round ? GEO.roundTop : GEO.ovalTop} material={top} />
+      <mesh position={[0, 0.37, 0]} geometry={GEO.pedestal} material={MAT.woodDark} />
+      <mesh position={[0, 0.02, 0]} scale={[sx * 0.9, 1, 1]} geometry={GEO.base} material={MAT.woodDark} />
     </>
   );
 }
 
-/** Aro de color en el piso; late suavemente cuando hay un pedido nuevo. */
-function Halo({ color, pulse, selected }: { color: string; pulse: boolean; selected: boolean }) {
-  const ref = useRef<THREE.Mesh>(null);
-  useFrame((state) => {
-    if (!pulse || !ref.current) return;
-    const t = state.clock.getElapsedTime();
-    const s = 1 + Math.sin(t * 4) * 0.06;
-    ref.current.scale.set(s, s, 1);
-    (ref.current.material as THREE.MeshBasicMaterial).opacity = 0.45 + Math.sin(t * 4) * 0.2;
-    state.invalidate();
-  });
-  return (
-    <mesh ref={ref} rotation-x={-Math.PI / 2} position={[0, 0.012, 0]}>
-      <ringGeometry args={[0.92, 1, 64]} />
-      <meshBasicMaterial color={selected ? "#e4002b" : color} transparent opacity={selected ? 0.9 : 0.55} />
-    </mesh>
-  );
-}
-
-function RingFor({ shape, color, pulse, selected }: { shape: Shape; color: string; pulse: boolean; selected: boolean }) {
+/** Aro de color en el piso alrededor de la mesa (estático: no obliga a redibujar). */
+function RingFor({ shape, color, strong }: { shape: Shape; color: string; strong: boolean }) {
   const [ix, iz] = shape === "long" ? [1.95, 1.4] : shape === "round" ? [1.05, 1.05] : [1.45, 1.25];
   return (
-    <group scale={[ix, 1, iz]}>
-      <Halo color={color} pulse={pulse} selected={selected} />
-    </group>
+    <mesh
+      rotation-x={-Math.PI / 2}
+      position={[0, 0.012, 0]}
+      scale={[ix, iz, 1]}
+      geometry={GEO.ring}
+      material={ringMat(color, strong ? 0.9 : 0.6)}
+    />
   );
 }
 
@@ -296,7 +317,7 @@ function TableModel({ table, state, minutes, dimmed, selected, onSelect }: Table
       }}
     >
       {(selected || (active && state !== "libre" && !dimmed)) && (
-        <RingFor shape={shape} color={cfg.halo || "#e4002b"} pulse={state === "pendiente" && !selected} selected={selected} />
+        <RingFor shape={shape} color={selected ? "#e4002b" : cfg.halo} strong={selected || state === "pendiente"} />
       )}
       <group rotation-y={table.rotation === 90 && shape !== "round" ? Math.PI / 2 : 0} position-y={lift}>
         <TableTop shape={shape} color={color} />
@@ -346,9 +367,10 @@ export default function TableScene3D({ tables, ordersByTable, filter, now, selec
     <Canvas
       shadows
       frameloop="demand"
-      dpr={[1, 2]}
+      dpr={[1, 1.5]}
+      performance={{ min: 0.5 }}
       camera={{ position: [0, 10.5, 10.5], fov: 38 }}
-      gl={{ antialias: true }}
+      gl={{ antialias: true, powerPreference: "low-power" }}
       style={{ touchAction: "none" }}
     >
       <color attach="background" args={["#f4ede4"]} />
@@ -357,7 +379,7 @@ export default function TableScene3D({ tables, ordersByTable, filter, now, selec
         position={[6, 12, 7]}
         intensity={1.6}
         castShadow
-        shadow-mapSize={[2048, 2048]}
+        shadow-mapSize={[1024, 1024]}
         shadow-camera-left={-10}
         shadow-camera-right={10}
         shadow-camera-top={8}
@@ -367,7 +389,6 @@ export default function TableScene3D({ tables, ordersByTable, filter, now, selec
       <pointLight position={[0, 4, 0]} intensity={8} distance={14} color="#ffd9a8" />
 
       <Room />
-      <ContactShadows position={[0, 0.003, 0]} scale={[FLOOR_W, FLOOR_D]} opacity={0.35} blur={2.4} far={2} />
 
       {tables.map((t) => {
         const orders = ordersByTable.get(t.id) ?? [];
